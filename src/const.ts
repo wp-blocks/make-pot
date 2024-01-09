@@ -3,7 +3,7 @@ export const SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\
 export const UNORDERED_SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.\d+)?[bcdeEfFgGosuxX])/
 
 // Regular expression to match translator comments and translation functions in code
-export const TRANSLATION = /(?:\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\s*\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
+export const TRANSLATIONS_REGEX = /(?!\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\s*\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
 
 export const DEFAULT_EXCLUDED_PATH = ['node_modules/**', 'vendor/**', 'build/**', 'dist/**', 'Gruntfile.js', 'webpack.config.js', '*.min.js', 'ts.config.js', '**.test.**', 'tests/**']
 

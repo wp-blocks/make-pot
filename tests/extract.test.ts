@@ -60,4 +60,49 @@ describe('extractTranslationsFromCode', () => {
 
         expect(result).toEqual(expected);
     });
+
+    it('should extract multiple translations with context', () => {
+        const filename = 'filename';
+        const content = `<?php echo __('Hello World1', 'greeting');__('Hello World2', 'greeting');
+ __('Hello World3', 'greeting');
+                            __('Hello World4', 'greeting');
+
+         __('Hello World5', 'greeting');
+         ?>`;
+        const expected = [{
+            msgid: 'Hello World1',
+            msgstr: "msgid",
+            msgctxt: 'greeting',
+            comments: "",
+            reference: '#: filename:1'
+        },{
+            msgid: 'Hello World2',
+            msgstr: "msgid",
+            msgctxt: 'greeting',
+            comments: "",
+            reference: '#: filename:1'
+        },{
+            msgid: 'Hello World3',
+            msgstr: "msgid",
+            msgctxt: 'greeting',
+            comments: "",
+            reference: '#: filename:2'
+        },{
+            msgid: 'Hello World4',
+            msgstr: "msgid",
+            msgctxt: 'greeting',
+            comments: "",
+            reference: '#: filename:4'
+        },{
+            msgid: 'Hello World5',
+            msgstr: "msgid",
+            msgctxt: 'greeting',
+            comments: "",
+            reference: '#: filename:5'
+        }];
+
+        const result = extractTranslationsFromCode(content, filename);
+
+        expect(result).toEqual(expected);
+    });
 });

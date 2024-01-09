@@ -1,4 +1,4 @@
-import {prefixes, TRANSLATION} from './const'
+import { prefixes, TRANSLATIONS_REGEX } from './const'
 import { type TranslationString } from './types'
 import { removeCommentMarkup } from './utils'
 
@@ -79,7 +79,7 @@ export function extractTranslationsFromCode (content: string, filename: string):
   let match
 
   // Match all relevant strings using the regex on the entire content
-  while ((match = TRANSLATION.exec(content)) !== null) {
+  while ((match = TRANSLATIONS_REGEX.exec(content)) !== null) {
     const [_fullMatch, translatorComment = undefined, fnPrefix, msgid, , msgctxt] = match
     const matchIndex = match.index
     const lineNumber = Object.keys(lineIndex).reverse().find(index => matchIndex >= parseInt(index))
@@ -91,6 +91,8 @@ export function extractTranslationsFromCode (content: string, filename: string):
       reference: `#: ${filename}:${lineNumber}`
     })
   }
+
+  console.log('Found', translations.length, 'translations in', filename)
 
   return translations
 }

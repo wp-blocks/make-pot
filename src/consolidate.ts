@@ -30,7 +30,7 @@ export function consolidateTranslations (translationStrings: TranslationString[]
     let contextComment = ''
     let referenceComments = ''
     let msgidLine = ''
-    let msgstrLine = ''
+    let msgstr = 'msgstr ""\n'
 
     if (t?.comments !== undefined) {
       translatorComment = `#. translators: ${t.comments}\n`
@@ -43,11 +43,10 @@ export function consolidateTranslations (translationStrings: TranslationString[]
     }
 
     translations.forEach((translation, index) => {
-      const reference = `#: reference-${index}` // Replace with actual reference if available
-      referenceComments += reference + '\n'
+      referenceComments += translation.reference + '\n'
     })
 
-    const consolidatedString = `${referenceComments}${translatorComment}${contextComment}${msgidLine}${msgstrLine}`
+    const consolidatedString = `${referenceComments}${translatorComment}${contextComment}${msgidLine}${msgstr}`
     consolidatedStrings += consolidatedString + '\n'
   }
 

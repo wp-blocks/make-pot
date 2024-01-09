@@ -30,7 +30,7 @@ export function consolidateTranslations (translationStrings: TranslationString[]
     let contextComment = ''
     let referenceComments = ''
     let msgidLine = ''
-    let msgstr = 'msgstr ""\n'
+    const msgstr = 'msgstr ""\n'
 
     if (t?.comments !== undefined) {
       translatorComment = `#. translators: ${t.comments}\n`

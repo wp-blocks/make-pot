@@ -1,6 +1,7 @@
 import { prefixes, TRANSLATIONS_REGEX } from './const'
-import { type TranslationString } from './types'
+import {Args, type TranslationString} from './types'
 import { removeCommentMarkup } from './utils'
+import {args} from "./cliArgs";
 
 /**
  * Parse a POT file content and extract translations with associated data.
@@ -57,14 +58,28 @@ export function extractTranslations (content: string) {
   return translations
 }
 
+// Helper function to find the line number from a character index
+function findLineNumber(charIndex: number, indexMap: Record<number, number>): number {
+    let previousIndex = 0;
+    for (const startIndexOfLine in indexMap) {
+        const currentIndex = parseInt(startIndexOfLine, 10);
+        if (charIndex < currentIndex) {
+            break;
+        }
+        previousIndex = currentIndex;
+    }
+    return indexMap[previousIndex];
+}
+
 /**
  * Parse a PHP or JS file content and extract translations with associated data.
  *
  * @param {string} content - Content of the PHP or JS file.
- * @param filename
+ * @param {string} filename - Filename of the PHP or JS file.
+ * @param {Object} args - Command line arguments.
  * @returns {Object} - Object containing extracted translations with data.
  */
-export function extractTranslationsFromCode (content: string, filename: string): TranslationString[] {
+export function extractTranslationsFromCode (content: string, filename: string, args: Args): TranslationString[] {
   const translations: TranslationString[] = []
   const lines = content.split('\n')
   const lineIndex: Record<number, number> = {}
@@ -82,7 +97,13 @@ export function extractTranslationsFromCode (content: string, filename: string):
   while ((match = TRANSLATIONS_REGEX.exec(content)) !== null) {
     const [_fullMatch, translatorComment = undefined, fnPrefix, msgid, , msgctxt] = match
     const matchIndex = match.index
-    const lineNumber = Object.keys(lineIndex).reverse().find(index => matchIndex >= parseInt(index))
+    const lineNumber = findLineNumber(matchIndex, lineIndex);
+
+    if ( msgctxt && msgctxt.length >= 2) {
+        if (msgctxt[1] !== args.slug) {
+            console.log(`⚠️ The translation in ${filename} on line ${lineNumber} doesn't match the slug. ${msgctxt[1]} !== ${args.slug}`)
+        }
+    }
 
     translations.push({
       msgid,

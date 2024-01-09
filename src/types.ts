@@ -58,11 +58,11 @@ export interface Args {
   ignoreDomain?: boolean
   fileComment?: string
   packageName?: string
-  mergePaths: string[]
-  subtractPaths: string[]
-  subtractAndMerge: string[]
+  mergePaths?: string[]
+  subtractPaths?: string[]
+  subtractAndMerge?: string[]
   includePaths: string[]
-  excludePaths: string[]
+  excludePaths?: string[]
   headers?: Array<ThemeHeadersType | PluginHeadersType>
   location?: boolean
   skipJs?: boolean
@@ -78,11 +78,16 @@ export interface Args {
   email?: string
   license?: string
   bugsTo?: string
+  textDomain?: string
+  url?: string
+  description?: string
+  authorUrl?: string
+  domainPath?: string
 }
 
 export interface TranslationString {
   msgid: string
-  msgctxt?: string
+  msgctxt?: string | string[]
   comments?: string
   reference: string
 }

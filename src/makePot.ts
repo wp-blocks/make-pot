@@ -69,7 +69,7 @@ export function makePot (argv: Record<string, string>): void {
     })
 }
 
-export async function getStrings (sourceDirectory: string, pattern: Patterns): Promise<TranslationString[]> {
+export async function getStrings (sourceDirectory: string, pattern: Patterns, args: Args): Promise<TranslationString[]> {
   const included = '{' + pattern.included.join(',') + '}'
   const excluded = '{' + pattern.excluded.join(',') + '}'
 
@@ -82,7 +82,7 @@ export async function getStrings (sourceDirectory: string, pattern: Patterns): P
       .map(async (file: string) => {
         if (existsSync(file)) {
           const content = await fs.readFile(file, { encoding: 'utf8' })
-          return extractTranslationsFromCode(content, file)
+          return extractTranslationsFromCode(content, file, args)
         }
         console.error('File not found:', file)
         return []
@@ -132,7 +132,7 @@ export async function extractStrings (args: Args): Promise<string> {
   if (args.skipAudit !== undefined) {
     console.log(pattern)
 
-    return await getStrings(args.sourceDirectory, pattern)
+    return await getStrings(args.sourceDirectory, pattern, args)
       .then((strings) => {
         console.log(`Extracted ${strings.length} strings.`, strings)
         // merge all strings collecting duplicates and returning the result as the default gettext format

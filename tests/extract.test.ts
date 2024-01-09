@@ -1,5 +1,15 @@
 import {describe, expect, test} from '@jest/globals';
 import { extractTranslationsFromCode } from '../src/parser';
+import {Args} from "../src/types";
+
+const defaultArgs = {
+    sourceDirectory: "sourcedir",
+    destination: "dest",
+    slug: "slug",
+    domain: 'plugin',
+    includePaths: ['*'],
+    excludePaths: []
+}
 
 describe('extractTranslationsFromCode', () => {
     it('should extract translations from code content with no context or translator comments', () => {
@@ -8,12 +18,12 @@ describe('extractTranslationsFromCode', () => {
         const expected = [{
             reference: '#: filename:1',
             msgid: 'Hello World',
-            msgstr: "msgid",
+            msgstr: "",
             msgctxt: undefined,
             comments: undefined
         }];
 
-        const result = extractTranslationsFromCode(content, filename);
+        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });
@@ -23,13 +33,13 @@ describe('extractTranslationsFromCode', () => {
         const content = `<?php echo _x('Hello World', 'greeting'); ?>`;
         const expected = [{
             msgid: 'Hello World',
-            msgstr: "msgid",
+            msgstr: "",
             msgctxt: 'greeting',
             comments: "",
             reference: '#: filename:1'
         }];
 
-        const result = extractTranslationsFromCode(content, filename);
+        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });
@@ -56,7 +66,7 @@ describe('extractTranslationsFromCode', () => {
             reference: "#: filename:23"
         }];
 
-        const result = extractTranslationsFromCode(content, filename);
+        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });
@@ -101,7 +111,7 @@ describe('extractTranslationsFromCode', () => {
             reference: '#: filename:5'
         }];
 
-        const result = extractTranslationsFromCode(content, filename);
+        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });

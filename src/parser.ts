@@ -62,26 +62,33 @@ export function extractTranslations (content: string) {
  * @param {string} content - Content of the PHP or JS file.
  * @returns {Object} - Object containing extracted translations with data.
  */
-export function extractTranslationsFromCode (content: string): TranslationString[] {
+export function extractTranslationsFromCode (content: string, filename: string): TranslationString[] {
   const translations: TranslationString[] = []
+  const lines = content.split('\n')
+  let lineNumber = 0
 
   // Regular expression to match translator comments and translation functions in code
   const regex = /(?:\/\*\s*translators:(.*?)\*\/\s*)?(?:__|_e|_n|_x|_nx)\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/g
 
-  let match
-  while ((match = regex.exec(content)) !== null) {
-    const [fullMatch, translatorComment = '', , msgid, , msgctxt] = match
+  // Iterate over lines to keep track of line numbers
+  for (const line of lines) {
+    lineNumber++
+    let match
+    while ((match = regex.exec(line)) !== null) {
+      const [fullMatch, translatorComment = undefined, , msgid, , msgctxt] = match
 
-    // Determine a translation key based on the function used
-    const translationFunction = fullMatch.split('(')[0].trim()
-    const translationKey = prefixes[translationFunction as keyof typeof prefixes][0]
+      // Determine a translation key based on the function used
+      const translationFunction = fullMatch.split('(')[0].trim()
+      const translationKey = translationFunction in prefixes ? prefixes[translationFunction as keyof typeof prefixes] : [translationFunction]
 
-    translations.push({
-      msgid,
-      msgstr: translationKey ?? undefined,
-      msgctxt,
-      comments: translatorComment.trim()
-    })
+      translations.push({
+        msgid,
+        msgstr: translationKey[0] ?? undefined,
+        msgctxt,
+        comments: translatorComment?.trim() ?? undefined,
+        reference: `#: ${filename}:${lineNumber}`
+      })
+    }
   }
 
   return translations

@@ -74,12 +74,11 @@ export function extractTranslationsFromCode (content: string): TranslationString
 
     // Determine a translation key based on the function used
     const translationFunction = fullMatch.split('(')[0].trim()
-    const translationKey = prefixes[translationFunction as keyof typeof prefixes] ? prefixes[translationFunction as keyof typeof prefixes][0] : '__'
+    const translationKey = prefixes[translationFunction as keyof typeof prefixes][0]
 
     translations.push({
-      fn: translationKey ?? '__',
       msgid,
-      msgstr: undefined,
+      msgstr: translationKey ?? undefined,
       msgctxt,
       comments: translatorComment.trim()
     })

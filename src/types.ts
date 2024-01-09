@@ -80,11 +80,10 @@ export interface Args {
 }
 
 export interface TranslationString {
-  fn?: string
   msgid: string
-  msgctxt: string
-  comments: string
   msgstr?: string
+  msgctxt?: string
+  comments?: string
 }
 
 export interface Patterns {

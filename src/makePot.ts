@@ -139,9 +139,10 @@ export function consolidateTranslations (translationStrings: TranslationString[]
     }
 
     // Generate the reference comments
-    const referenceComments = Object.entries(translations).map((translation) => {
-      return `#: ${translation[1]}\n`
-    }).join('')
+    let referenceComments: string = ''
+    Object.entries(translations).forEach((translation) => {
+      if (translation[1]) referenceComments += `${translation[0]} "${translation[1]}"\n`
+    })
 
     // Generate the msgid line
 

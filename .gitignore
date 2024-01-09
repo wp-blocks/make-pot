@@ -1,0 +1,5 @@
+# Project exclude paths
+/temp/
+/lib/
+/node_modules/
+/.idea/

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "module": "Node16",
+    "target": "ES2015",
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
+    "strict": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    // Import non-ES modules as default imports.
+    "outDir": "lib",
+    "rootDir": "src",
+    // Minify
+    "pretty": false,
+    "removeComments": true,
+    // types
+    "typeRoots": [
+      "src/types.d.ts",
+      "node_modules/@types",
+      "@types"
+    ]
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}

@@ -41,9 +41,6 @@ export function consolidateTranslations (translationStrings: TranslationString[]
     if (t?.msgid !== undefined) {
       msgidLine = `msgid "${t.msgid}"\n`
     }
-    if (t?.msgstr !== undefined) {
-      msgstrLine = `msgstr "${t.msgstr}"\n`
-    }
 
     translations.forEach((translation, index) => {
       const reference = `#: reference-${index}` // Replace with actual reference if available

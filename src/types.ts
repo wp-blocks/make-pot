@@ -82,7 +82,6 @@ export interface Args {
 
 export interface TranslationString {
   msgid: string
-  msgstr?: string
   msgctxt?: string
   comments?: string
   reference: string

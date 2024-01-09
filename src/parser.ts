@@ -1,4 +1,4 @@
-import { prefixes } from './const'
+import {prefixes, TRANSLATION} from './const'
 import { type TranslationString } from './types'
 import { removeCommentMarkup } from './utils'
 
@@ -76,23 +76,16 @@ export function extractTranslationsFromCode (content: string, filename: string):
     cumulativeLength += line.length + 1 // +1 for the newline character
   })
 
-  // Regular expression to match translator comments and translation functions in code
-  const regex = /(?:\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\s*\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
   let match
 
   // Match all relevant strings using the regex on the entire content
-  while ((match = regex.exec(content)) !== null) {
-    const [fullMatch, translatorComment = undefined, , msgid, , msgctxt] = match
+  while ((match = TRANSLATION.exec(content)) !== null) {
+    const [_fullMatch, translatorComment = undefined, fnPrefix, msgid, , msgctxt] = match
     const matchIndex = match.index
     const lineNumber = Object.keys(lineIndex).reverse().find(index => matchIndex >= parseInt(index))
 
-    // Determine a translation key based on the function used
-    const translationFunction = fullMatch.split('(')[0].trim()
-    const translationKey = translationFunction in prefixes ? prefixes[translationFunction as keyof typeof prefixes] : [translationFunction]
-
     translations.push({
       msgid,
-      msgstr: translationKey[0] ?? undefined,
       msgctxt,
       comments: translatorComment !== undefined ? removeCommentMarkup(translatorComment)?.trim() : undefined,
       reference: `#: ${filename}:${lineNumber}`

@@ -1,20 +1,21 @@
 import {describe, expect, test} from '@jest/globals';
-import { consolidateTranslations } from '../src/makePot';
+import { consolidateTranslations } from '../src/consolidate';
 import {TranslationString} from "../src/types";
 
 describe('consolidateTranslations', () => {
     it('should consolidate translation strings without context or comments', () => {
         const translationStrings = [{
             msgid: 'Hello World',
-            msgstr: 'Bonjour le monde',
             msgctxt: "undefined",
+            reference: "#: includes/class-controller.php:58",
             comments: undefined
         },{
             msgid: 'Hello World',
-            msgstr: 'Bonjour le monde'
+            msgctxt: "undefined",
+            reference: "#: includes/class-controller.php:58",
         }] as TranslationString[];
 
-        const expected = `msgid "Hello World"\nmsgstr "Bonjour le monde"\n`;
+        const expected = `#: reference-0\n#: reference-1\nmsgctxt "undefined"\nmsgid "Hello World"`;
 
         const result = consolidateTranslations(translationStrings);
 
@@ -24,16 +25,15 @@ describe('consolidateTranslations', () => {
     it('should consolidate translation strings with context', () => {
         const translationStrings = [{
             msgid: 'Hello World',
-            msgstr: 'Bonjour le monde',
-            msgctxt: 'greeting',
-            comments: undefined
+            msgctxt: "1",
+            reference: "#: includes/class-controller.php:58",
         }, {
             msgid: 'Hello World',
-            msgstr: 'Bonjour le monde',
-            msgctxt: 'greeting'
+            msgctxt: "1",
+            reference: "#: includes/class-controller.php:100",
         }];
 
-        const expected = `msgid "Hello World"\nmsgstr "Bonjour le monde"\nmsgctxt "greeting"\n`;
+        const expected =  `#: reference-0\n#: reference-1\nmsgctxt "1"\nmsgid "Hello World"`;
 
         const result = consolidateTranslations(translationStrings);
 
@@ -44,17 +44,15 @@ describe('consolidateTranslations', () => {
     it('should consolidate translation strings with translator comments', () => {
         const translationStrings = [{
             msgid: 'Hello World',
-            msgstr: 'Bonjour le monde',
-            msgctxt: undefined,
-            comments: 'This is a greeting'
+            msgctxt: "aasdasdsadsadsadasd",
+            reference: "#: includes/class-controller.php:1",
         },{
-            msgid: 'Hello World',
-            msgstr: 'Bonjour le monde',
-            msgctxt: undefined,
-            comments: 'This is a greeting'
+            msgid: 'asdasdasd',
+            msgctxt: "1",
+            reference: "#: includes/class-controller.php:1",
         }];
 
-        const expected = `msgid "Hello World"\nmsgstr "Bonjour le monde"\ncomments "This is a greeting"\n`;
+        const expected = `#: reference-0\nmsgctxt "aasdasdsadsadsadasd"\nmsgid "Hello World"\n\n#: reference-0\nmsgctxt "1"\nmsgid "asdasdasd"`;
 
         const result = consolidateTranslations(translationStrings);
 

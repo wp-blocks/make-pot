@@ -84,6 +84,7 @@ export interface TranslationString {
   msgstr?: string
   msgctxt?: string
   comments?: string
+  reference: string
 }
 
 export interface Patterns {

@@ -1,5 +1,6 @@
 import { prefixes } from './const'
 import { type TranslationString } from './types'
+import { removeCommentMarkup } from './utils'
 
 /**
  * Parse a POT file content and extract translations with associated data.
@@ -60,35 +61,42 @@ export function extractTranslations (content: string) {
  * Parse a PHP or JS file content and extract translations with associated data.
  *
  * @param {string} content - Content of the PHP or JS file.
+ * @param filename
  * @returns {Object} - Object containing extracted translations with data.
  */
 export function extractTranslationsFromCode (content: string, filename: string): TranslationString[] {
   const translations: TranslationString[] = []
   const lines = content.split('\n')
-  let lineNumber = 0
+  const lineIndex: Record<number, number> = {}
+
+  // Build an index to map character positions to line numbers
+  let cumulativeLength = 0
+  lines.forEach((line, idx) => {
+    lineIndex[cumulativeLength] = idx + 1
+    cumulativeLength += line.length + 1 // +1 for the newline character
+  })
 
   // Regular expression to match translator comments and translation functions in code
-  const regex = /(?:\/\*\s*translators:(.*?)\*\/\s*)?(?:__|_e|_n|_x|_nx)\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/g
+  const regex = /(?:\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
+  let match
 
-  // Iterate over lines to keep track of line numbers
-  for (const line of lines) {
-    lineNumber++
-    let match
-    while ((match = regex.exec(line)) !== null) {
-      const [fullMatch, translatorComment = undefined, , msgid, , msgctxt] = match
+  // Match all relevant strings using the regex on the entire content
+  while ((match = regex.exec(content)) !== null) {
+    const [fullMatch, translatorComment = undefined, , msgid, , msgctxt] = match
+    const matchIndex = match.index
+    const lineNumber = Object.keys(lineIndex).reverse().find(index => matchIndex >= parseInt(index))
 
-      // Determine a translation key based on the function used
-      const translationFunction = fullMatch.split('(')[0].trim()
-      const translationKey = translationFunction in prefixes ? prefixes[translationFunction as keyof typeof prefixes] : [translationFunction]
+    // Determine a translation key based on the function used
+    const translationFunction = fullMatch.split('(')[0].trim()
+    const translationKey = translationFunction in prefixes ? prefixes[translationFunction as keyof typeof prefixes] : [translationFunction]
 
-      translations.push({
-        msgid,
-        msgstr: translationKey[0] ?? undefined,
-        msgctxt,
-        comments: translatorComment?.trim() ?? undefined,
-        reference: `#: ${filename}:${lineNumber}`
-      })
-    }
+    translations.push({
+      msgid,
+      msgstr: translationKey[0] ?? undefined,
+      msgctxt,
+      comments: translatorComment !== undefined ? removeCommentMarkup(translatorComment)?.trim() : undefined,
+      reference: `#: ${filename}:${lineNumber}`
+    })
   }
 
   return translations

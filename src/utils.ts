@@ -1,4 +1,4 @@
-import {Args} from "./types";
+import { type Args } from './types'
 
 export function generatePotHeader (args: Args) {
   return `msgid "${args.fileComment}"
@@ -15,4 +15,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\\n"
 `
+}
+
+export function getCommentBlock (input: string): string {
+  const commentBlock = input.match(/\/\*\*?[\s\S]*?\*\//)
+  return commentBlock !== null ? commentBlock[0] : input
+}
+
+export function removeCommentMarkup (input: string): string {
+  return input.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '')
 }

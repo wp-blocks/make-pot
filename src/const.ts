@@ -1,3 +1,9 @@
+export const SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.[0-9]+)?[bcdeEfFgGosuxX])/
+
+export const UNORDERED_SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.\d+)?[bcdeEfFgGosuxX])/
+
+export const DEFAULT_EXCLUDED_PATH = ['node_modules/**', 'vendor/**', 'build/**', 'dist/**', '.*', 'Gruntfile.js', 'webpack.config.js', '*.min.js', 'ts.config.js', '**.test.**', 'tests/**']
+
 export const prefixes = {
   __: ['msgid'],
   _n: ['msgid', 'msgid_plural'],

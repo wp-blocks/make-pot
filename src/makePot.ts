@@ -7,10 +7,7 @@ import fs from 'fs/promises'
 import { glob } from 'glob'
 import path from 'path'
 import { existsSync } from 'node:fs'
-
-const SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.[0-9]+)?[bcdeEfFgGosuxX])/
-
-const UNORDERED_SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.\d+)?[bcdeEfFgGosuxX])/
+import { DEFAULT_EXCLUDED_PATH } from './const'
 
 function parseArgs (opts: Record<string, string>): Args {
   if (opts === null || opts === undefined) {
@@ -26,8 +23,8 @@ function parseArgs (opts: Record<string, string>): Args {
     mergePaths: (args.mergePaths as unknown as string)?.split(',') ?? [],
     subtractPaths: (args.subtractPaths as unknown as string)?.split(',') ?? [],
     subtractAndMerge: (args.subtractAndMerge as unknown as string)?.split(',') ?? [],
-    includePaths: (args.includePaths as unknown as string)?.split(',') ?? [],
-    excludePaths: (args.excludePaths as unknown as string)?.split(',') ?? ['node_modules', 'vendor', 'Gruntfile.js', 'webpack.config.js', '*.min.js', 'ts.config.js', 'test', 'tests'],
+    includePaths: (args.includePaths as unknown as string)?.split(',') ?? ['.'],
+    excludePaths: (args.excludePaths as unknown as string)?.split(',') ?? DEFAULT_EXCLUDED_PATH,
     headers: args.headers ?? [],
     location: args.location ?? false,
     skipJs: args.skipJs ?? false,
@@ -42,6 +39,7 @@ function parseArgs (opts: Record<string, string>): Args {
 }
 
 export function makePot (argv: Record<string, string>): void {
+  const startTime = new Date()
   // parse command line arguments
   const args = parseArgs(argv)
   // get metadata from the main file (theme and plugin)
@@ -52,21 +50,18 @@ export function makePot (argv: Record<string, string>): void {
   const newArgs: Args = { ...pkgData, ...metadata, ...args }
   console.log('📝 Making a pot file...')
   console.log('🔍 Extracting strings...', newArgs.slug)
-  console.log(newArgs)
 
   extractStrings(newArgs)
     .then(async (translations) => {
       if (translations.length > 0) {
         await writePotFile(args, translations)
       }
-    }).then(() => {
-      console.log('🎉 Done.')
     })
     .catch((error) => {
       console.log(error)
     })
     .finally(() => {
-      console.log('🎉 Done.')
+      console.log('🎉 Done in ', new Date().getTime() - startTime.getTime(), 'ms.')
     })
 }
 
@@ -86,14 +81,15 @@ export async function getStrings (sourceDirectory: string, pattern: Patterns): P
 
     console.log('Files:', files, included)
 
-    const translationPromises: Array<Promise<TranslationString[]>> = files.map(async (file: string) => {
-      if (existsSync(file)) {
-        const content = await fs.readFile(file, { encoding: 'utf8' })
-        return extractTranslationsFromCode(content)
-      }
-      console.error('File not found:', file)
-      return []
-    })
+    const translationPromises: Array<Promise<TranslationString[]>> = files
+      .map(async (file: string) => {
+        if (existsSync(file)) {
+          const content = await fs.readFile(file, { encoding: 'utf8' })
+          return extractTranslationsFromCode(content, file)
+        }
+        console.error('File not found:', file)
+        return []
+      })
 
     const translationsArray = await Promise.all(translationPromises)
     return translationsArray.flat() // Flatten the array of arrays to a single array
@@ -112,64 +108,61 @@ export async function getStrings (sourceDirectory: string, pattern: Patterns): P
  */
 export function consolidateTranslations (translationStrings: TranslationString[]): string {
   // Group translations by msgid and msgctxt
-  let groupedTranslations: Record<string, TranslationString[]> = {}
+  const groupedTranslations: Record<string, TranslationString[]> = {}
 
   for (const translation of translationStrings) {
     const key = `${translation.msgid}||${translation.msgctxt}`
-    groupedTranslations = { ...groupedTranslations, [key]: translation } as Record<string, TranslationString[]>
+    if (!groupedTranslations[key]) {
+      groupedTranslations[key] = []
+    }
+    groupedTranslations[key].push(translation)
   }
 
   // Generate the consolidated i18n file string
-  const consolidatedStrings: string[] = []
+  let consolidatedStrings: string = ''
 
   for (const key in groupedTranslations) {
     const translations = groupedTranslations[key]
-    const firstTranslation = translations[0]
+    const t = translations[0]
 
-    // Generate the translator comment
     let translatorComment = ''
-    if (firstTranslation?.comments !== undefined) {
-      translatorComment = `#. translators: ${firstTranslation.comments}\n`
-    }
-
-    // Generate the context comment
     let contextComment = ''
-    if (firstTranslation?.msgctxt !== undefined) {
-      contextComment = `#. translators: ${firstTranslation.msgctxt}\n`
+    let referenceComments = ''
+    let msgidLine = ''
+    let msgstrLine = ''
+
+    if (t?.comments !== undefined) {
+      translatorComment = `#. translators: ${t.comments}\n`
+    }
+    if (t?.msgctxt !== undefined) {
+      contextComment = `msgctxt "${t.msgctxt}"\n`
+    }
+    if (t?.msgid !== undefined) {
+      msgidLine = `msgid "${t.msgid}"\n`
+    }
+    if (t?.msgstr !== undefined) {
+      msgstrLine = `msgstr "${t.msgstr}"\n`
     }
 
-    // Generate the reference comments
-    let referenceComments: string = ''
-    Object.entries(translations).forEach((translation) => {
-      if (translation[1]) referenceComments += `${translation[0]} "${translation[1]}"\n`
+    translations.forEach((translation, index) => {
+      const reference = `#: reference-${index}` // Replace with actual reference if available
+      referenceComments += reference + '\n'
     })
 
-    // Generate the msgid line
-
-    const msgidLine = (firstTranslation?.msgid !== undefined) ? `msgid "${firstTranslation.msgid}"\n` : ''
-
-    // Generate the msgstr line if available
-    let msgstrLine = ''
-    if (firstTranslation?.msgstr !== undefined) {
-      msgstrLine = `msgstr "${firstTranslation.msgstr}"\n`
-    }
-
-    // Combine all parts for this translation
-    const consolidatedString = `${translatorComment}${contextComment}${referenceComments}${msgidLine}${msgstrLine}`
-    consolidatedStrings.push(consolidatedString)
+    const consolidatedString = `${referenceComments}${translatorComment}${contextComment}${msgidLine}${msgstrLine}`
+    consolidatedStrings += consolidatedString + '\n'
   }
 
-  // Join all consolidated strings
-  return consolidatedStrings.join('\n')
+  return consolidatedStrings.trim() // Trim the last newline character
 }
 
 export async function extractStrings (args: Args): Promise<string> {
   const pattern: Patterns = {
-    included: args.includePaths !== undefined ? args.includePaths.map((p) => path.join(args.sourceDirectory, p)) : [],
-    excluded: args.excludePaths !== undefined ? args.excludePaths.map((p) => path.join(args.sourceDirectory, p)) : [],
-    mergePaths: args.mergePaths !== undefined ? args.mergePaths.map((p) => path.join(args.sourceDirectory, p)) : [],
-    subtractPaths: args.subtractPaths !== undefined ? args.subtractPaths.map((p) => path.join(args.sourceDirectory, p)) : [],
-    subtractAndMerge: args.subtractAndMerge !== undefined ? args.subtractAndMerge.map((p) => path.join(args.sourceDirectory, p)) : []
+    included: args.includePaths ?? [],
+    excluded: args.excludePaths ?? [],
+    mergePaths: args.mergePaths ?? [],
+    subtractPaths: args.subtractPaths ?? [],
+    subtractAndMerge: args.subtractAndMerge ?? []
   }
 
   // Additional logic to handle different file types and formats

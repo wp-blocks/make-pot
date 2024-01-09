@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { makePot } from './makePot'
 
-import { args } from './handleArgs'
+import { args } from './cliArgs'
 
 import yargs from 'yargs'
 
-// @ts-ignore
+// @ts-expect-error TS2339: Property _ does not exist on type 'yargs.Arguments'.
 const options = (args ?? {})?._ as Record<string, string>
 
 // Main execution

@@ -77,7 +77,7 @@ export function extractTranslationsFromCode (content: string, filename: string):
   })
 
   // Regular expression to match translator comments and translation functions in code
-  const regex = /(?:\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
+  const regex = /(?:\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\s*\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
   let match
 
   // Match all relevant strings using the regex on the entire content

@@ -1,7 +1,7 @@
 import { type themeHeaders, type pluginHeaders } from './const'
 
-type ThemeHeadersType = typeof themeHeaders
-type PluginHeadersType = typeof pluginHeaders
+type ThemeHeadersType = keyof typeof themeHeaders
+type PluginHeadersType = keyof typeof pluginHeaders
 
 /**
  * Create a POT file for a WordPress project.
@@ -56,12 +56,14 @@ export interface Args {
   slug: string | undefined
   domain: 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic'
   ignoreDomain?: boolean
+  fileComment?: string
+  packageName?: string
   mergePaths: string[]
   subtractPaths: string[]
   subtractAndMerge: string[]
   includePaths: string[]
   excludePaths: string[]
-  headers?: ThemeHeadersType | PluginHeadersType
+  headers?: Array<ThemeHeadersType | PluginHeadersType>
   location?: boolean
   skipJs?: boolean
   skipPhp?: boolean
@@ -69,14 +71,13 @@ export interface Args {
   skipBlockJson?: boolean
   skipThemeJson?: boolean
   skipAudit?: boolean
-  fileComment?: string
-  packageName?: string
-  meta?: {
-    name?: string
-    version?: string
-    author?: string
-    email?: string
-  }
+
+  name?: string
+  version?: string
+  author?: string
+  email?: string
+  license?: string
+  bugsTo?: string
 }
 
 export interface TranslationString {

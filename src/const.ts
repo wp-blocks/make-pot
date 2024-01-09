@@ -2,7 +2,7 @@ export const SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\
 
 export const UNORDERED_SPRINTF_PLACEHOLDER_REGEX = /(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.\d+)?[bcdeEfFgGosuxX])/
 
-export const DEFAULT_EXCLUDED_PATH = ['node_modules/**', 'vendor/**', 'build/**', 'dist/**', '.*', 'Gruntfile.js', 'webpack.config.js', '*.min.js', 'ts.config.js', '**.test.**', 'tests/**']
+export const DEFAULT_EXCLUDED_PATH = ['node_modules/**', 'vendor/**', 'build/**', 'dist/**', 'Gruntfile.js', 'webpack.config.js', '*.min.js', 'ts.config.js', '**.test.**', 'tests/**']
 
 export const prefixes = {
   __: ['msgid'],
@@ -11,27 +11,36 @@ export const prefixes = {
   _nx: ['msgid', 'msgid_plural', null, 'msgctxt']
 }
 
-export const pkgJsonHeaders = ['name', 'author', 'description', 'version']
-export const pluginHeaders = [
-  'Plugin Name',
-  'Plugin URI',
-  'Description',
-  'Author',
-  'Author URI',
-  'Version',
-  'License',
-  'Domain Path',
-  'Text Domain'
-]
+export const pkgJsonHeaders = {
+    'name': 'name',
+    'homepage': 'url',
+    'description': 'description',
+    'author': 'author',
+    'version': 'version',
+    'bugs': 'bugs',
+    'license': 'license',
+}
+export const pluginHeaders = {
+    'Plugin Name': 'name',
+    'Plugin URI': 'url',
+    'Description': 'description',
+    'Author': 'author',
+    'Author URI': 'authorUrl',
+    'Version': 'version',
+    'License': 'license',
+    'Domain Path': 'domainPath',
+    'Text Domain': 'textDomain'
+}
 
-export const themeHeaders = [
-  'Theme Name',
-  'Theme URI',
-  'Description',
-  'Author',
-  'Author URI',
-  'Version',
-  'License',
-  'Domain Path',
-  'Text Domain'
-]
+export const themeHeaders = {
+    'Theme Name': 'name',
+    'Theme URI': 'url',
+    'Description': 'description',
+    'Author': 'author',
+    'Author URI': 'authorUrl',
+    'Version': 'version',
+    'License': 'license',
+    'Domain Path': 'domainPath',
+    'Text Domain': 'textDomain'
+
+}

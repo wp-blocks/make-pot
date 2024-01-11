@@ -1,6 +1,7 @@
 import { type Args, type Patterns, type TranslationString } from './types'
 import { extractMainFileData, extractPackageData } from './extractors'
-import { extractTranslationsFromCode } from './parser'
+
+
 
 import fs from 'fs/promises'
 import { glob } from 'glob'
@@ -9,6 +10,7 @@ import { existsSync } from 'node:fs'
 import { DEFAULT_EXCLUDED_PATH } from './const'
 import { writePotFile } from './fs'
 import { consolidateTranslations } from './consolidate'
+import {extractStrings, getParser, parseFile} from "./tree.js";
 
 function parseArgs (opts: Record<string, string>): Args {
   if (opts === null || opts === undefined) {
@@ -42,7 +44,7 @@ function parseArgs (opts: Record<string, string>): Args {
   } satisfies Args
 }
 
-export function makePot (argv: Record<string, string>): void {
+export async function makePot(argv: Record<string, string>): Promise<void> {
   const startTime = new Date()
   // parse command line arguments
   const args = parseArgs(argv)
@@ -55,18 +57,9 @@ export function makePot (argv: Record<string, string>): void {
   console.log('📝 Making a pot file...')
   console.log('🔍 Extracting strings...', newArgs.slug)
 
-  extractStrings(newArgs)
-    .then(async (translations) => {
-      if (translations.length > 0) {
-        await writePotFile(args, translations)
-      }
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-    .finally(() => {
-      console.log('🎉 Done in ', new Date().getTime() - startTime.getTime(), 'ms.')
-    })
+  const translations = await runExtract(newArgs)
+
+  return await writePotFile(args, translations)
 }
 
 export async function getStrings (sourceDirectory: string, pattern: Patterns, args: Args): Promise<TranslationString[]> {
@@ -81,8 +74,9 @@ export async function getStrings (sourceDirectory: string, pattern: Patterns, ar
     const translationPromises: Array<Promise<TranslationString[]>> = files
       .map(async (file: string) => {
         if (existsSync(file)) {
-          const content = await fs.readFile(file, { encoding: 'utf8' })
-          return extractTranslationsFromCode(content, file, args)
+          const parsed = await parseFile({ filepath: file, language: getParser(file) })
+          console.log(parsed)
+          return parsed
         }
         console.error('File not found:', file)
         return []
@@ -96,7 +90,7 @@ export async function getStrings (sourceDirectory: string, pattern: Patterns, ar
   }
 }
 
-export async function extractStrings (args: Args): Promise<string> {
+export async function runExtract (args: Args): Promise<string> {
   const pattern: Patterns = {
     included: args.includePaths ?? [],
     excluded: args.excludePaths ?? [],
@@ -132,15 +126,16 @@ export async function extractStrings (args: Args): Promise<string> {
   if (args.skipAudit !== undefined) {
     console.log(pattern)
 
-    return await getStrings(args.sourceDirectory, pattern, args)
+    const strings = await getStrings(args.sourceDirectory, pattern, args)
       .then((strings) => {
-        console.log(`Extracted ${strings.length} strings.`, strings)
+        // console.log(`Extracted ${strings.length} strings.`, strings)
         // merge all strings collecting duplicates and returning the result as the default gettext format
         return consolidateTranslations(strings)
       })
       .catch(err => {
         console.log(err)
-      }) ?? ''
+      }) || ''
+    return strings
   } else {
     return pattern.included.join('\n')
   }

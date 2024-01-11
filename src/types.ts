@@ -86,7 +86,7 @@ export interface Args {
 }
 
 export interface TranslationString {
-  msgid: string
+  msgid: string | string[]
   msgctxt?: string | string[]
   comments?: string
   reference: string

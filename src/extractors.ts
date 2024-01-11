@@ -1,8 +1,8 @@
 import path from 'path'
 import fs from 'fs'
-import {type Args, TranslationString} from './types'
+import { type Args } from './types'
 import { pkgJsonHeaders } from './const'
-import {removeCommentMarkup} from "./utils";
+import { removeCommentMarkup } from './utils'
 
 function getCommentBlock (fileContent: string): string {
   const commentBlock = fileContent.match(/\/\*\*?[\s\S]*?\*\//)

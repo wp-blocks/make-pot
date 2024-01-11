@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-import Parser from 'tree-sitter'
+import Parser, {SyntaxNode, Tree} from 'tree-sitter'
+// @ts-ignore
 import Ts from 'tree-sitter-typescript'
+// @ts-ignore
 import Js from 'tree-sitter-javascript'
+// @ts-ignore
 import Php from 'tree-sitter-php'
 import path from 'path'
-import { glob } from 'glob'
-import { readFile } from 'fs/promises'
+import {readFile} from 'fs/promises'
+import {TranslationString} from "./types";
 
 /**
  * Extract strings from a file 🌳
@@ -15,17 +18,17 @@ import { readFile } from 'fs/promises'
  * @param {string} filename
  * @return {{}}
  */
-function extractStrings (node, lang, filename) {
-  const matches = []
+export function extractStrings (node: SyntaxNode, lang: string, filename: string): TranslationString[] {
+  const matches: TranslationString[] = []
   const typeToMatch = lang !== Php ? 'call_expression' : 'function_call_expression'
 
   /**
    * Traverse the tree 🌳
    *
-   * @param {Tree} node The node to traverse through
-   * @param {Tree|null} previousNode The previous node in the tree
+   * @param {SyntaxNode} node The node to traverse through
+   * @param {SyntaxNode|null} previousNode The previous node in the tree
    */
-  function traverse (node, previousNode = null) {
+  function traverse (node: SyntaxNode, previousNode: SyntaxNode | null = null): void {
     if (node.type === typeToMatch) {
       const functionNameNode = node.firstChild
       let meta = {}
@@ -33,14 +36,14 @@ function extractStrings (node, lang, filename) {
 
       if (functionName?.match(/^(_n|_x|_nx|__|_e)$/) !== null) {
         const argsNode = node.lastChild
-        const [fnName, ...msgid] = node.children.map(argNode => argNode.text)
+        const [fnName, ...msgid] = node.children.map(argNode => argNode.text) as string[]
 
         // Extract the metadata
         if (argsNode !== null && argsNode.childCount > 0 && argsNode.type === 'arguments') {
           // Extract the msgid
-          const firstArgNode = argsNode.firstChild
+          const firstArgNode = argsNode.firstChild as SyntaxNode
           const msgidNode = firstArgNode.firstChild
-          const msgid = msgidNode?.text
+          const msgid = msgidNode?.text ?? ''
 
           // Extract the msgctxt if it exists and unquote it
           const msgctxtNode = firstArgNode.nextNamedSibling
@@ -59,7 +62,7 @@ function extractStrings (node, lang, filename) {
           // If the node is a comment, extract the comment text
           if (nodeToCheck !== null && nodeToCheck.type === 'comment') {
             const commentText = nodeToCheck.text.trim()
-            if (commentText.includes('translators:') !== false) {
+            if (commentText.includes('translators:')) {
               comments = commentText
             }
           }
@@ -73,7 +76,7 @@ function extractStrings (node, lang, filename) {
           }
         }
 
-        matches.push({ fnName, ...meta, msgid })
+        matches.push({ ...meta, msgid } as TranslationString)
       }
     }
 
@@ -99,20 +102,26 @@ function extractStrings (node, lang, filename) {
  * @param {string} args.language - Language of the file to parse
  * @return {{}}
  */
-async function parseFile (args) {
+export async function parseFile (args: { filepath: string; language: string }): Promise<TranslationString[]> {
   const sourceCode = await readFile(path.resolve(args.filepath), 'utf8')
 
   if (args.language === 'Text') {
-    return { text: sourceCode }
+    return [{
+        msgid: sourceCode,
+        reference: '#: ' + args.filepath + '  } ',
+    }]
   } else if (args.language === 'Json') {
-    return JSON.parse(sourceCode)
+    return [{
+        msgid: JSON.parse(sourceCode),
+        reference: '#: ' + args.filepath + '  } ',
+    }]
   }
 
   const parser = new Parser()
   parser.setLanguage(args.language)
   const tree = parser.parse(sourceCode)
 
-  return extractStrings(tree.rootNode, args.language, args.filepath) // Assuming extractStrings is synchronous
+  return extractStrings(tree.rootNode as SyntaxNode, args.language, args.filepath) // Assuming extractStrings is synchronous
 }
 
 /**
@@ -120,7 +129,7 @@ async function parseFile (args) {
  * @param file - Path to the file
  * @return {*|{}|string} - Parser
  */
-function getParser (file) {
+export function getParser (file: string): any | {} | string {
   const ext = file.split('.').pop()
   switch (ext) {
     case 'ts':
@@ -140,23 +149,3 @@ function getParser (file) {
       return 'Text'
   }
 }
-
-async function getFiles (src = 'sourcedir/**') {
-  return await glob(src, { nodir: true, cwd: process.cwd() })
-}
-
-async function run () {
-  const files = await glob('sourcedir/**', { nodir: true, cwd: process.cwd() })
-  const parsePromises = files.map(async (file) => {
-    console.log('Searching for strings in ' + file)
-    const parsed = await parseFile({ filepath: file, language: getParser(file) })
-    console.log(parsed)
-    return parsed
-  })
-
-  const results = await Promise.all(parsePromises)
-  console.log(results.flat())
-}
-const startTime = Date.now()
-await run()
-console.log('🎉 Done in', Date.now() - startTime, 'ms.')

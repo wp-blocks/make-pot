@@ -1,7 +1,6 @@
 import { prefixes, TRANSLATIONS_REGEX } from './const'
-import {Args, type TranslationString} from './types'
+import { type Args, type TranslationString } from './types'
 import { removeCommentMarkup } from './utils'
-import {args} from "./cliArgs";
 
 /**
  * Parse a POT file content and extract translations with associated data.
@@ -59,16 +58,16 @@ export function extractTranslations (content: string) {
 }
 
 // Helper function to find the line number from a character index
-function findLineNumber(charIndex: number, indexMap: Record<number, number>): number {
-    let previousIndex = 0;
-    for (const startIndexOfLine in indexMap) {
-        const currentIndex = parseInt(startIndexOfLine, 10);
-        if (charIndex < currentIndex) {
-            break;
-        }
-        previousIndex = currentIndex;
+function findLineNumber (charIndex: number, indexMap: Record<number, number>): number {
+  let previousIndex = 0
+  for (const startIndexOfLine in indexMap) {
+    const currentIndex = parseInt(startIndexOfLine, 10)
+    if (charIndex < currentIndex) {
+      break
     }
-    return indexMap[previousIndex];
+    previousIndex = currentIndex
+  }
+  return indexMap[previousIndex]
 }
 
 /**
@@ -97,12 +96,12 @@ export function extractTranslationsFromCode (content: string, filename: string, 
   while ((match = TRANSLATIONS_REGEX.exec(content)) !== null) {
     const [_fullMatch, translatorComment = undefined, fnPrefix, msgid, , msgctxt] = match
     const matchIndex = match.index
-    const lineNumber = findLineNumber(matchIndex, lineIndex);
+    const lineNumber = findLineNumber(matchIndex, lineIndex)
 
-    if ( msgctxt && msgctxt.length >= 2) {
-        if (msgctxt[1] !== args.slug) {
-            console.log(`⚠️ The translation in ${filename} on line ${lineNumber} doesn't match the slug. ${msgctxt[1]} !== ${args.slug}`)
-        }
+    if (msgctxt && msgctxt.length >= 2) {
+      if (msgctxt[1] !== args.slug) {
+        console.log(`⚠️ The translation in ${filename} on line ${lineNumber} doesn't match the slug. ${msgctxt[1]} !== ${args.slug}`)
+      }
     }
 
     translations.push({
@@ -113,7 +112,7 @@ export function extractTranslationsFromCode (content: string, filename: string, 
     })
   }
 
-  console.log('Found', translations.length, 'translations in', filename)
+  // console.log('Found', translations.length, 'translations in', filename)
 
   return translations
 }

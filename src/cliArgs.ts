@@ -1,5 +1,5 @@
-import yargs = require('yargs')
-import { hideBin } from 'yargs/helpers'
+import yargs from "yargs";
+import {hideBin} from 'yargs/helpers'
 
 export const args = yargs(hideBin(process.argv))
   .usage('Usage: $0 <source> [destination] [options]')

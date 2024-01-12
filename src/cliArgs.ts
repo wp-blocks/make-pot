@@ -1,8 +1,19 @@
-import yargs from "yargs";
-import {hideBin} from 'yargs/helpers'
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
 
 export const args = yargs(hideBin(process.argv))
+  .command('serve [port]', 'start the server', (yargs) => {
+    return yargs
+  })
   .usage('Usage: $0 <source> [destination] [options]')
+  .positional('sourceDirectory', {
+    describe: 'Source directory',
+    type: 'string'
+  })
+  .positional('destination', {
+    describe: 'Destination directory',
+    type: 'string'
+  })
   .option('slug', {
     describe: 'Plugin or theme slug',
     type: 'string'

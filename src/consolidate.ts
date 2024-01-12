@@ -12,11 +12,11 @@ export function consolidateTranslations (translationStrings: TranslationString[]
   const groupedTranslations: Record<string, TranslationString[]> = {}
 
   for (const translation of translationStrings) {
-    const key = `${translation.msgid}||${translation.msgctxt}`
-    if (!groupedTranslations[key]) {
-      groupedTranslations[key] = []
+    const tkey = translation.msgid[0]
+    if (!groupedTranslations[tkey]) {
+      groupedTranslations[tkey] = []
     }
-    groupedTranslations[key].push(translation)
+    groupedTranslations[tkey].push(translation)
   }
 
   // Generate the consolidated i18n file string

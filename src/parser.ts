@@ -1,118 +1,71 @@
-import { prefixes, TRANSLATIONS_REGEX } from './const'
-import { type Args, type TranslationString } from './types'
-import { removeCommentMarkup } from './utils'
+import type { Args, Patterns, TranslationString } from './types'
+import { glob } from 'glob'
+import { getParser, parseFile } from './tree'
+import { consolidateTranslations } from './consolidate'
 
-/**
- * Parse a POT file content and extract translations with associated data.
- *
- * @param {string} content - Content of the POT file.
- * @returns {Object} - Object containing extracted translations with data.
- */
-export function extractTranslations (content: string) {
-  const translations: Array<{ msgid: string, msgstr: string, msgctxt: string, comments: string, translationKey: string | null }> = []
-
-  // Split content into individual translation entries
-  const entries = content.split('\n\n')
-
-  entries.forEach(entry => {
-    let msgid = ''
-    let msgstr = ''
-    let msgctxt = ''
-    let comments = ''
-
-    // Extract msgid, msgstr, and other information
-    const lines = entry.split('\n')
-    lines.forEach(line => {
-      if (line.startsWith('msgid')) {
-        msgid = line.slice(6).trim()
-      } else if (line.startsWith('msgstr')) {
-        msgstr = line.slice(7).trim()
-      } else if (line.startsWith('msgctxt')) {
-        msgctxt = line.slice(8).trim()
-      } else if (line.startsWith('#')) {
-        comments += line.slice(2).trim() + '\n'
-      }
-    })
-
-    // Check if the msgid starts with one of the specified prefixes
-    for (const prefix in prefixes) {
-      if (msgid.startsWith(prefix)) {
-        // Extract a translation key
-        const translationKey = prefixes[prefix as keyof typeof prefixes][0]
-
-        // Create an object representing the translation with associated data
-        const translationData = {
-          msgid,
-          msgstr,
-          msgctxt,
-          comments
-        }
-
-        // Add the translation to the translation array
-        translations.push({ translationKey, ...translationData })
-      }
-    }
-  })
-
-  return translations
+export async function getFiles (args: Args, pattern: Patterns) {
+  const included = '{' + pattern.included.join(',') + '}'
+  const excluded = '{' + pattern.excluded.join(',') + '}'
+  return await glob(included, { ignore: excluded, nodir: true, cwd: args.sourceDirectory ?? process.cwd() })
 }
 
-// Helper function to find the line number from a character index
-function findLineNumber (charIndex: number, indexMap: Record<number, number>): number {
-  let previousIndex = 0
-  for (const startIndexOfLine in indexMap) {
-    const currentIndex = parseInt(startIndexOfLine, 10)
-    if (charIndex < currentIndex) {
-      break
-    }
-    previousIndex = currentIndex
-  }
-  return indexMap[previousIndex]
-}
+export async function getStrings (args: Args, pattern: Patterns) {
+  const files = await getFiles(args, pattern)
 
-/**
- * Parse a PHP or JS file content and extract translations with associated data.
- *
- * @param {string} content - Content of the PHP or JS file.
- * @param {string} filename - Filename of the PHP or JS file.
- * @param {Object} args - Command line arguments.
- * @returns {Object} - Object containing extracted translations with data.
- */
-export function extractTranslationsFromCode (content: string, filename: string, args: Args): TranslationString[] {
-  const translations: TranslationString[] = []
-  const lines = content.split('\n')
-  const lineIndex: Record<number, number> = {}
+  // Run the parser in parallel using p-queue with concurrency of 50
+  const PQueue = await import('p-queue')
+  const queue = new PQueue.default({ concurrency: 50 })
 
-  // Build an index to map character positions to line numbers
-  let cumulativeLength = 0
-  lines.forEach((line, idx) => {
-    lineIndex[cumulativeLength] = idx + 1
-    cumulativeLength += line.length + 1 // +1 for the newline character
+  const tasks = files.map(async file => {
+    return await queue.add(
+      async () => await parseFile({ filepath: file, language: getParser(file) })
+    )
   })
 
-  let match
+  await queue.onIdle()
+  const results = await Promise.all(tasks)
 
-  // Match all relevant strings using the regex on the entire content
-  while ((match = TRANSLATIONS_REGEX.exec(content)) !== null) {
-    const [_fullMatch, translatorComment = undefined, fnPrefix, msgid, , msgctxt] = match
-    const matchIndex = match.index
-    const lineNumber = findLineNumber(matchIndex, lineIndex)
+  return results.flat() as TranslationString[] ?? []
+}
 
-    if (msgctxt && msgctxt.length >= 2) {
-      if (msgctxt[1] !== args.slug) {
-        console.log(`⚠️ The translation in ${filename} on line ${lineNumber} doesn't match the slug. ${msgctxt[1]} !== ${args.slug}`)
-      }
-    }
-
-    translations.push({
-      msgid,
-      msgctxt,
-      comments: translatorComment !== undefined ? removeCommentMarkup(translatorComment)?.trim() : undefined,
-      reference: `#: ${filename}:${lineNumber}`
-    })
+export async function runExtract (args: Args) {
+  const pattern: Patterns = {
+    included: args.includePaths ?? [],
+    excluded: args.excludePaths ?? [],
+    mergePaths: args.mergePaths ?? [],
+    subtractPaths: args.subtractPaths ?? [],
+    subtractAndMerge: args.subtractAndMerge ?? []
   }
 
-  // console.log('Found', translations.length, 'translations in', filename)
+  // Additional logic to handle different file types and formats
+  // Exclude blade.php files if --skip-blade is set
+  if (args.skipPhp !== true || args.skipBlade !== true) {
+    if (args.skipBlade !== true) {
+      // php files but not blade.php
+      pattern.included.push('**/*.php')
+    } else {
+      pattern.included.push('**/*.php', '!**/blade.php')
+    }
+  }
 
-  return translations
+  // js typescript mjs cjs etc
+  if (args.skipJs !== undefined) {
+    pattern.included.push('**/*.{js,jsx,ts,tsx,mjs,cjs}')
+  }
+
+  if (args.skipBlockJson !== undefined) {
+    pattern.included.push('**/block.json')
+  }
+
+  if (args.skipThemeJson !== undefined) {
+    pattern.included.push('**/theme.json')
+  }
+
+  if (args.skipAudit !== undefined) {
+    const stringsJson = await getStrings(args, pattern)
+    // merge all strings collecting duplicates and returning the result as the default gettext format
+    return consolidateTranslations(stringsJson)
+  } else {
+    return pattern.included.join('\n')
+  }
 }

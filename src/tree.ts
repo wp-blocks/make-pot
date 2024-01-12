@@ -1,14 +1,16 @@
 #!/usr/bin/env node
-import Parser, {SyntaxNode, Tree} from 'tree-sitter'
-// @ts-ignore
+import Parser, { type SyntaxNode, Tree } from 'tree-sitter'
+// @ts-expect-error
 import Ts from 'tree-sitter-typescript'
-// @ts-ignore
+// @ts-expect-error
 import Js from 'tree-sitter-javascript'
-// @ts-ignore
+// @ts-expect-error
 import Php from 'tree-sitter-php'
 import path from 'path'
-import {readFile} from 'fs/promises'
-import {TranslationString} from "./types";
+import { readFile } from 'fs/promises'
+import { type TranslationString } from './types'
+import { i18nFunctions } from './const'
+import {readFileSync} from "fs";
 
 /**
  * Extract strings from a file 🌳
@@ -18,7 +20,7 @@ import {TranslationString} from "./types";
  * @param {string} filename
  * @return {{}}
  */
-export function extractStrings (node: SyntaxNode, lang: string, filename: string): TranslationString[] {
+export function extractStrings (node: SyntaxNode, lang: Parser | null, filename: string): TranslationString[] {
   const matches: TranslationString[] = []
   const typeToMatch = lang !== Php ? 'call_expression' : 'function_call_expression'
 
@@ -31,27 +33,16 @@ export function extractStrings (node: SyntaxNode, lang: string, filename: string
   function traverse (node: SyntaxNode, previousNode: SyntaxNode | null = null): void {
     if (node.type === typeToMatch) {
       const functionNameNode = node.firstChild
-      let meta = {}
       const functionName = functionNameNode !== null ? functionNameNode.text : null
 
-      if (functionName?.match(/^(_n|_x|_nx|__|_e)$/) !== null) {
+      if (functionName && Object.keys(i18nFunctions).includes(functionName)) {
         const argsNode = node.lastChild
-        const [fnName, ...msgid] = node.children.map(argNode => argNode.text) as string[]
 
         // Extract the metadata
         if (argsNode !== null && argsNode.childCount > 0 && argsNode.type === 'arguments') {
           // Extract the msgid
-          const firstArgNode = argsNode.firstChild as SyntaxNode
-          const msgidNode = firstArgNode.firstChild
-          const msgid = msgidNode?.text ?? ''
-
-          // Extract the msgctxt if it exists and unquote it
-          const msgctxtNode = firstArgNode.nextNamedSibling
-          let msgctxt
-          if (msgctxtNode !== null && msgctxtNode.type === 'string') {
-            // unquote the string
-            msgctxt = msgctxtNode.text.slice(1, -1)
-          }
+          const firstArgNode = argsNode.firstChild!
+          const raw = node.children.map(argNode => argNode.text)
 
           let comments
           // Find the preceding comment node at the same level as the translation function call.
@@ -67,16 +58,20 @@ export function extractStrings (node: SyntaxNode, lang: string, filename: string
             }
           }
 
+          const type = i18nFunctions[raw[0] as keyof typeof i18nFunctions] || 'text_domain'
           const position = node.startPosition
-          meta = {
-            msgid,
-            msgctxt,
+          const parsedString = raw[1].slice(1, -1).split(',')
+
+          matches.push({
+            type,
+            raw: raw.join(''),
+            msgid: parsedString.length !== 4 ? parsedString[0] : [parsedString[0], parsedString[1]],
+            count: parsedString.length === 4 ? parsedString[2] : undefined,
+            msgctxt: parsedString.length === 3 ? parsedString[1] : undefined,
             comments,
             reference: `#: ${filename}:${position.row + 1}:${position.column + 1}` // Adjusted to be 1-indexed
-          }
+          } as TranslationString)
         }
-
-        matches.push({ ...meta, msgid } as TranslationString)
       }
     }
 
@@ -99,29 +94,40 @@ export function extractStrings (node: SyntaxNode, lang: string, filename: string
  *
  * @param {object} args
  * @param {string} args.filepath - Path to the file to parse
- * @param {string} args.language - Language of the file to parse
+ * @param {Parser|null} args.language - Language of the file to parse
  * @return {{}}
  */
-export async function parseFile (args: { filepath: string; language: string }): Promise<TranslationString[]> {
+/**
+ * Parse a file and extract strings asynchronously
+ *
+ * @param {object} args
+ * @param {string} args.filepath - Path to the file to parse
+ * @param {Parser|null} args.language - Language of the file to parse
+ * @return {Promise<TranslationString[]>}
+ */
+export async function parseFile (args: { filepath: string, language: Parser | null }): Promise<TranslationString[]> {
+  // log the filepath
+  console.log('Parsing ', args.filepath)
+
+  // read the file
   const sourceCode = await readFile(path.resolve(args.filepath), 'utf8')
 
-  if (args.language === 'Text') {
+  if (args.language === null) {
     return [{
-        msgid: sourceCode,
-        reference: '#: ' + args.filepath + '  } ',
-    }]
-  } else if (args.language === 'Json') {
-    return [{
-        msgid: JSON.parse(sourceCode),
-        reference: '#: ' + args.filepath + '  } ',
+      msgid: sourceCode,
+      reference: '#: ' + args.filepath + '  } '
     }]
   }
 
+  // set up the parser
   const parser = new Parser()
   parser.setLanguage(args.language)
-  const tree = parser.parse(sourceCode)
 
-  return extractStrings(tree.rootNode as SyntaxNode, args.language, args.filepath) // Assuming extractStrings is synchronous
+  // parse the file
+  const tree = parser.parse(sourceCode) // Assuming parse is an async operation
+
+  // extract the strings from the file and return them
+  return extractStrings(tree.rootNode, args.language, args.filepath)
 }
 
 /**
@@ -129,7 +135,7 @@ export async function parseFile (args: { filepath: string; language: string }): 
  * @param file - Path to the file
  * @return {*|{}|string} - Parser
  */
-export function getParser (file: string): any | {} | string {
+export function getParser (file: string): null | Parser {
   const ext = file.split('.').pop()
   switch (ext) {
     case 'ts':
@@ -143,9 +149,7 @@ export function getParser (file: string): any | {} | string {
       return Js
     case 'php':
       return Php
-    case 'json':
-      return 'Json'
     default:
-      return 'Text'
+      return null
   }
 }

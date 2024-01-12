@@ -1,7 +1,11 @@
-import { type themeHeaders, type pluginHeaders } from './const'
+import { type themeHeaders, type pluginHeaders, type pkgJsonHeaders } from './const'
 
-type ThemeHeadersType = keyof typeof themeHeaders
-type PluginHeadersType = keyof typeof pluginHeaders
+export type ThemeHeadersType = keyof typeof themeHeaders
+export type PluginHeadersType = keyof typeof pluginHeaders
+export type PkgHeadersType = keyof typeof pkgJsonHeaders
+
+// type is the value of the themeHeader Object
+export type PotHeaders = (typeof pkgJsonHeaders)[PkgHeadersType] | (typeof pluginHeaders)[PluginHeadersType] | (typeof themeHeaders)[ThemeHeadersType]
 
 /**
  * Create a POT file for a WordPress project.
@@ -51,9 +55,9 @@ type PluginHeadersType = keyof typeof pluginHeaders
  *   Overrides the plugin or theme name, if applicable.
  */
 export interface Args {
-  sourceDirectory: string
-  destination: string
-  slug: string | undefined
+  sourceDirectory?: string
+  destination?: string
+  slug: string
   domain: 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic'
   ignoreDomain?: boolean
   fileComment?: string
@@ -63,7 +67,7 @@ export interface Args {
   subtractAndMerge?: string[]
   includePaths: string[]
   excludePaths?: string[]
-  headers?: Array<ThemeHeadersType | PluginHeadersType>
+  headers: Record<PotHeaders, string> | undefined
   location?: boolean
   skipJs?: boolean
   skipPhp?: boolean
@@ -71,23 +75,11 @@ export interface Args {
   skipBlockJson?: boolean
   skipThemeJson?: boolean
   skipAudit?: boolean
-
-  name?: string
-  version?: string
-  author?: string
-  email?: string
-  license?: string
-  bugsTo?: string
-  textDomain?: string
-  url?: string
-  description?: string
-  authorUrl?: string
-  domainPath?: string
 }
 
 export interface TranslationString {
   msgid: string | string[]
-  msgctxt?: string | string[]
+  msgctxt?: string
   comments?: string
   reference: string
 }

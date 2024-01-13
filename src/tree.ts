@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 import Parser, { type SyntaxNode, Tree } from 'tree-sitter'
 // @ts-expect-error
-import Ts from 'tree-sitter-typescript'
-// @ts-expect-error
 import Js from 'tree-sitter-javascript'
 // @ts-expect-error
 import Php from 'tree-sitter-php'
+// @ts-expect-error
+import Ts from 'tree-sitter-typescript'
 import path from 'path'
 import { readFile } from 'fs/promises'
 import { type TranslationString } from './types'
 import { i18nFunctions } from './const'
-import {readFileSync} from "fs";
 
 /**
  * Extract strings from a file 🌳
@@ -42,7 +41,7 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
         if (argsNode !== null && argsNode.childCount > 0 && argsNode.type === 'arguments') {
           // Extract the msgid
           const firstArgNode = argsNode.firstChild!
-          const raw = node.children.map(argNode => argNode.text)
+          const [fn, raw] = node.children.map(argNode => argNode.text.trim())
 
           let comments
           // Find the preceding comment node at the same level as the translation function call.
@@ -58,16 +57,20 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
             }
           }
 
-          const type = i18nFunctions[raw[0] as keyof typeof i18nFunctions] || 'text_domain'
+          // the function used for translation
+          const type = i18nFunctions[fn as keyof typeof i18nFunctions] || 'text_domain'
+          // The position of the translation in the file
           const position = node.startPosition
-          const parsedString = raw[1].slice(1, -1).split(',')
+          // extract the values from the raw translation - ATM the content of the parsed raw is a sting like ('translation', 'td') and maybe with formatting characters like \n or \t
+          const parsedRaw = raw
+            .slice(1, -1) // remove enclosing parentheses
+            .split(',') // split on comma
+            .map(str => str.trim().slice(1, -1)) // remove enclosing quotes
 
           matches.push({
             type,
-            raw: raw.join(''),
-            msgid: parsedString.length !== 4 ? parsedString[0] : [parsedString[0], parsedString[1]],
-            count: parsedString.length === 4 ? parsedString[2] : undefined,
-            msgctxt: parsedString.length === 3 ? parsedString[1] : undefined,
+            raw: parsedRaw,
+            msgid: parsedRaw[0],
             comments,
             reference: `#: ${filename}:${position.row + 1}:${position.column + 1}` // Adjusted to be 1-indexed
           } as TranslationString)
@@ -90,14 +93,6 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
 }
 
 /**
- * Parse a file and extract strings
- *
- * @param {object} args
- * @param {string} args.filepath - Path to the file to parse
- * @param {Parser|null} args.language - Language of the file to parse
- * @return {{}}
- */
-/**
  * Parse a file and extract strings asynchronously
  *
  * @param {object} args
@@ -114,7 +109,9 @@ export async function parseFile (args: { filepath: string, language: Parser | nu
 
   if (args.language === null) {
     return [{
-      msgid: sourceCode,
+      type: '',
+      raw: [],
+      msgid: [sourceCode],
       reference: '#: ' + args.filepath + '  } '
     }]
   }

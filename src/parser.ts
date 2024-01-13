@@ -12,17 +12,7 @@ export async function getFiles (args: Args, pattern: Patterns) {
 export async function getStrings (args: Args, pattern: Patterns) {
   const files = await getFiles(args, pattern)
 
-  // Run the parser in parallel using p-queue with concurrency of 50
-  const PQueue = await import('p-queue')
-  const queue = new PQueue.default({ concurrency: 50 })
-
-  const tasks = files.map(async file => {
-    return await queue.add(
-      async () => await parseFile({ filepath: file, language: getParser(file) })
-    )
-  })
-
-  await queue.onIdle()
+  const tasks = files.map(async (file) => await parseFile({ filepath: file, language: getParser(file) }) )
   const results = await Promise.all(tasks)
 
   return results.flat() as TranslationString[] ?? []

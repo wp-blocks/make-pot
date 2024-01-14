@@ -26,6 +26,8 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"
 "X-Generator: ${packageName}\\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\\n"
+
+
 `
 }
 

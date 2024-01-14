@@ -1,4 +1,4 @@
-import type { Args, Patterns, TranslationString } from './types'
+import type { Args, Patterns } from './types'
 import { glob } from 'glob'
 import { getParser, parseFile } from './tree'
 import { consolidateTranslations } from './consolidate'
@@ -12,10 +12,13 @@ export async function getFiles (args: Args, pattern: Patterns) {
 export async function getStrings (args: Args, pattern: Patterns) {
   const files = await getFiles(args, pattern)
 
-  const tasks = files.map(async (file) => await parseFile({ filepath: file, language: getParser(file) }) )
+  const tasks = files.map(
+    async (file) => await parseFile({ filepath: file, language: getParser(file) })
+  )
+
   const results = await Promise.all(tasks)
 
-  return results.flat() as TranslationString[] ?? []
+  return results.flat() ?? []
 }
 
 export async function runExtract (args: Args) {

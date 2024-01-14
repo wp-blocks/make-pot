@@ -1,9 +1,9 @@
-import {type Args} from './types'
+import { type Args } from './types'
 import path from 'path'
 import fs from 'fs'
-import {generatePotHeader} from './utils'
+import { generatePotHeader } from './utils'
 
-function ensureFolderExists(folderPath: string | undefined): string {
+function ensureFolderExists (folderPath: string | undefined): string {
   if (folderPath === undefined) {
     return '.'
   }
@@ -13,7 +13,7 @@ function ensureFolderExists(folderPath: string | undefined): string {
   } catch (error: ErrorEvent | any) {
     if (error.code === 'ENOENT') {
       // The Folder does not exist, so create it
-      fs.mkdirSync(folderPath, {recursive: true})
+      fs.mkdirSync(folderPath, { recursive: true })
       console.log(`Folder created: ${folderPath}`)
       return folderPath
     }
@@ -21,13 +21,12 @@ function ensureFolderExists(folderPath: string | undefined): string {
   return folderPath
 }
 
-
 /**
  * Writes the .pot file to disk
  * @param args
  * @param fileContent
  */
-export async function writePotFile(args: Args, fileContent: string) {
+export async function writePotFile (args: Args, fileContent: string) {
   // the path to the .pot file
   const potFilePath = args.destination ? path.join(process.cwd(), args.destination, `${args.slug}.pot`) : path.join(process.cwd(), `${args.slug}.pot`)
 
@@ -35,8 +34,5 @@ export async function writePotFile(args: Args, fileContent: string) {
     console.log('No headers provided. Skipping header generation.')
   }
 
-   if (ensureFolderExists(args.destination))
-
-   fs.writeFileSync( potFilePath, generatePotHeader(args) + fileContent)
-  return
+  if (ensureFolderExists(args.destination)) { fs.writeFileSync(potFilePath, generatePotHeader(args) + fileContent) }
 }

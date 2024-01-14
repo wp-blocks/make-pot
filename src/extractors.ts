@@ -67,11 +67,12 @@ export function extractFileData (fileContent: string): Record<string, string> {
 export function extractMainFileData (args: Args) {
   let fileData: Record<string, string> = {}
   const sourceDir = args.sourceDirectory ? path.join(process.cwd(), args.sourceDirectory) : process.cwd()
+
   if (['plugin', 'block', 'generic'].includes(args.domain)) {
-    const folderPhpFile = sourceDir + args.slug + '.php'
+    const folderPhpFile = path.join(sourceDir, `${args.slug}.php`)
+
     if (fs.existsSync(folderPhpFile)) {
       const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
-
       fileData = parsePHPFile(fileContent)
 
       if ('Plugin Name' in fileData) {
@@ -84,7 +85,7 @@ export function extractMainFileData (args: Args) {
       console.log(`Missing Plugin filename: ${folderPhpFile}`)
     }
   } else if (['theme', 'theme-block'].includes(args.domain)) {
-    const styleCssFile = sourceDir + 'style.css'
+    const styleCssFile = path.join(sourceDir, 'style.css')
 
     if (fs.existsSync(styleCssFile)) {
       const fileContent = fs.readFileSync(styleCssFile, 'utf8')
@@ -95,7 +96,7 @@ export function extractMainFileData (args: Args) {
       console.log(`Theme stylesheet: ${styleCssFile}`)
       args.domain = 'theme'
     } else {
-      console.log('Theme stylesheet not found in ' + path.resolve(sourceDir))
+      console.log(`Theme stylesheet not found in ${path.resolve(sourceDir)}`)
     }
   }
 

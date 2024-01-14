@@ -8,47 +8,29 @@ import type { TranslationString } from './types'
  * @return {string} Consolidated i18n file string.
  */
 export function consolidateTranslations (translationStrings: TranslationString[]): string {
-  // Group translations by msgid and msgctxt
   const groupedTranslations: Record<string, TranslationString[]> = {}
 
   for (const translation of translationStrings) {
     const tkey = translation.msgid[0]
-    if (!groupedTranslations[tkey]) {
-      groupedTranslations[tkey] = []
-    }
     groupedTranslations[tkey].push(translation)
   }
 
-  // Generate the consolidated i18n file string
   let consolidatedStrings: string = ''
 
   for (const key in groupedTranslations) {
     const translations = groupedTranslations[key]
     const t = translations[0]
 
-    let translatorComment = ''
-    let contextComment = ''
-    let referenceComments = ''
-    let msgidLine = ''
+    const translatorComment = t?.comments !== undefined ? `#. translators: ${t.comments}\n` : ''
+    const contextComment = t?.msgctxt !== undefined ? `msgctxt "${t.msgctxt}"\n` : ''
+    const msgidLine = t?.msgid !== undefined ? `msgid "${t.msgid}"\n` : ''
+
+    const referenceComments = translations.map(translation => translation.reference + '\n').join('')
     const msgstr = 'msgstr ""\n'
-
-    if (t?.comments !== undefined) {
-      translatorComment = `#. translators: ${t.comments}\n`
-    }
-    if (t?.msgctxt !== undefined) {
-      contextComment = `msgctxt "${t.msgctxt}"\n`
-    }
-    if (t?.msgid !== undefined) {
-      msgidLine = `msgid "${t.msgid}"\n`
-    }
-
-    translations.forEach((translation, index) => {
-      referenceComments += translation.reference + '\n'
-    })
 
     const consolidatedString = `${referenceComments}${translatorComment}${contextComment}${msgidLine}${msgstr}`
     consolidatedStrings += consolidatedString + '\n'
   }
 
-  return consolidatedStrings.trim() // Trim the last newline character
+  return consolidatedStrings.trim()
 }

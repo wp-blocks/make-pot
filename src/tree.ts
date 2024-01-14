@@ -48,7 +48,15 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
         return
       }
 
-      const [fn, raw] = node.children.map((argNode) => argNode.text.trim())
+      const [fn, raw] = node.children
+      let translation: string[] = [];
+      raw.children
+        .slice(1, -1)
+        .forEach(
+          (child) => {
+            if (child.text !== ',') translation.push(child.text.slice(1, -1))
+          }
+        )
 
       let comments
 
@@ -60,18 +68,14 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
         comments = previousNode.text.trim()
       }
 
-      const type = i18nFunctions[fn as keyof typeof i18nFunctions] ?? 'text_domain'
+      const type = i18nFunctions[fn.text as keyof typeof i18nFunctions] ?? 'text_domain'
       const position = node.startPosition
-      const parsedRaw = raw
-        .slice(1, -1)
-        .split(',')
-        .map((str) => str.trim().slice(1, -1))
 
       matches.push({
         reference: `#: ${filename}:${position.row + 1}`,
         type,
-        raw: parsedRaw,
-        msgid: parsedRaw[0],
+        raw: translation,
+        msgid: translation[0],
         comments
       })
     }
@@ -107,7 +111,7 @@ export async function parseFile (args: { filepath: string, language: Parser | nu
       type: '',
       raw: [],
       msgid: [sourceCode],
-      reference: '#: ' + args.filepath + '  } '
+      reference: '#: ' + args.filepath
     }]
   }
 

@@ -79,9 +79,9 @@ export interface Args {
 
 export interface TranslationString {
   type?: string
-  raw: string[]
+  raw: string | string[]
   count?: string | number
-  msgid: string | string[]
+  msgid: string
   msgctxt?: string
   comments?: string
   reference: string

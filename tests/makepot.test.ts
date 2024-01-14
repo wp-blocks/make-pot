@@ -9,7 +9,7 @@ import Php from 'tree-sitter-php'
 import Ts from 'tree-sitter-typescript'
 
 const argv = {
-  sourceDirectory: './sourcedir',
+  sourceDirectory: 'sourcedir',
   slug: 'woocommerce',
 }
 
@@ -22,7 +22,7 @@ describe('makePot', () => {
 describe('parse PHP file and extract strings', () => {
   it('Should build pot file', async () => {
     const fileParsed = await parseFile({
-      filepath: './sourcedir/woocommerce.php',
+      filepath: 'sourcedir/woocommerce.php',
       language: Php
     });
     console.log(fileParsed)

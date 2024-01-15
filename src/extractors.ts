@@ -104,7 +104,7 @@ export async function parseFile(args: {
 	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
 
 	// extract the strings from the file and return them
-	return extractStrings(tree.rootNode, args.language, { filepath: args.filepath })
+	return extractStrings(tree.rootNode, args.language, args.filepath)
 }
 
 /**

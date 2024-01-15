@@ -1,111 +1,222 @@
-import path from "path";
-import fs from "fs";
-import { type Args } from "./types";
-import { pkgJsonHeaders, pluginHeaders, themeHeaders } from "./const";
-import { getCommentBlock, removeCommentMarkup } from "./utils";
+import path from 'path'
+import fs, { readFileSync } from 'fs'
+import { type Args, type TranslationString } from './types'
+import { pkgJsonHeaders } from './const'
+import { getCommentBlock, removeCommentMarkup } from './utils'
+import Parser from 'tree-sitter'
+import type { SingleBar } from 'cli-progress'
+import { jsonString, parseBlockJson, parseThemeJson } from './extractors-json'
+import { parsePHPFile } from './extractors-php'
 
-// TODO: package.json "files" could be used to get the file list
-export function extractPackageData(
-  args: Args,
-  fields = pkgJsonHeaders,
-): Record<string, string> {
-  const pkgJsonMeta: Record<string, string> = {};
-  // read the package.json file
-  const packageJsonPath = args.sourceDirectory
-    ? path.join(args.sourceDirectory, "package.json")
-    : "package.json";
-  if (fs.existsSync(packageJsonPath)) {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
-    // extract the fields from the package.json file
-    for (const field of Object.keys(fields)) {
-      if (packageJson[field] !== undefined) {
-        pkgJsonMeta[field] = packageJson[field];
-      }
-    }
-  }
-  return pkgJsonMeta;
+/**
+ * Extracts the names from an array of items.
+ *
+ * @param {unknown[]} items - The array of items.
+ * @return {string[]} An array of names extracted from the items.
+ */
+export const extractNames = (items: { name: string }[]): string[] => items.map((item) => item.name)
+
+/**
+ * Extracts strings from parsed JSON data.
+ *
+ * @param {Record<string, any> | Parser.SyntaxNode} parsed - The parsed JSON data or syntax node.
+ * @param {string | Parser} filename - The filename or parser.
+ * @param opts - The metadata of this translation string.
+ * @return {TranslationString[]} An array of translation strings.
+ */
+function extractStrings(
+	parsed: Record<string, string | string[]> | Parser.SyntaxNode,
+	filename: string | Parser,
+	opts: { filepath: string; stats?: { bar: SingleBar } }
+) {
+	return (
+		Object.entries(parsed as Record<string, string | string[]>)
+
+			// return the translations for each key in the json data
+			.map(([key, jsonData]) => {
+				// if is a string return a single json string
+				if (typeof jsonData === 'string') {
+					return jsonString(
+						key,
+						jsonData,
+						opts.filepath,
+						filename as 'block.json' | 'theme.json'
+					)
+				} else {
+					opts.stats?.bar.increment(0, { filename: 'not a string' })
+				}
+
+				if (!jsonData) {
+					opts.stats?.bar.increment(0, {
+						filename: `Skipping ${key} in ${opts.filepath} as ${filename} ... cannot parse data`,
+					})
+
+					return null
+				}
+
+				// if is an object return an array of json strings
+				Object.entries(jsonData).map(([k, v]) => jsonString(k, v, opts.filepath))
+			})
+			.flat() as TranslationString[]
+	)
 }
 
-function parsePHPFile(phpContent: string): Record<string, string> {
-  const match = phpContent.match(/\/\*\*([\s\S]*?)\*\//);
+/**
+ * Parse a file and extract strings asynchronously
+ *
+ * @param {object} args
+ * @param {string} args.filepath - Path to the file to parse
+ * @param {Parser|null} args.language - Language of the file to parse
+ * @return {Promise<TranslationString[]>}
+ */
+export async function parseFile(args: {
+	filepath: string
+	language: Parser | string
+	stats?: { bar: SingleBar; index: number }
+}): Promise<TranslationString[] | null> {
+	// check if the language is supported
+	if (typeof args.language === 'string') {
+		if (args.language === 'json') {
+			const filename = path.basename(args.filepath)
+			let parsed: Record<string, string | string[]> | null = null
+			// parse the file based on the filename
+			switch (filename) {
+				case 'block.json':
+					args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
+					parsed = parseBlockJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+					break
+				case 'theme.json':
+					args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
+					parsed = parseThemeJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+					break
+			}
 
-  if (match && match[1]) {
-    const commentBlock = match[1];
-    const lines = commentBlock.split("\n");
+			if (parsed !== null) {
+				// extract the strings from the file and return them as an array of objects
+				return extractStrings(parsed, filename, args)
+			}
+		}
+		console.log(`Skipping ${args.filepath}... No parser found for ${args.language} file`)
+		return null
+	}
 
-    const pluginInfo: Record<string, string> = {};
+	// read the file
+	const sourceCode = readFileSync(path.resolve(args.filepath), 'utf8')
 
-    for (const line of lines) {
-      const keyValueMatch = line.match(/^\s*\*\s*([^:]+):\s*(.*)/);
+	// log the filepath
+	if (args.stats) {
+		args.stats.bar.increment(1, {
+			filename: args.filepath + ' (' + args.stats.index + ')',
+		})
+	}
 
-      if (keyValueMatch && keyValueMatch[1] && keyValueMatch[2]) {
-        let header = keyValueMatch[1].trim();
-        header = pluginHeaders[header as keyof typeof pluginHeaders] ?? header;
-        pluginInfo[header] = keyValueMatch[2].trim();
-      }
-    }
-    return pluginInfo;
-  }
-  return {};
+	// set up the parser
+	const parser = new Parser()
+	parser.setLanguage(args.language)
+
+	// parse the file
+	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
+
+	// extract the strings from the file and return them
+	return extractStrings(tree.rootNode, args.language, { filepath: args.filepath })
 }
 
+/**
+ * Extracts package data from the given arguments and returns a record
+ * containing the specified fields from the package.json file.
+ *
+ * @param {Args} args - The arguments for extracting package data.
+ * @param {Record<string, string>} fields - The fields to extract from the package.json file. Default is pkgJsonHeaders.
+ * @return {Record<string, string>} - A record containing the extracted package data.
+ */
+export function extractPackageData(args: Args, fields = pkgJsonHeaders): Record<string, string> {
+	// TODO: package.json "files" could be used to get the file list
+	const pkgJsonMeta: Record<string, string> = {}
+	// read the package.json file
+	const packageJsonPath = args.sourceDirectory
+		? path.join(args.sourceDirectory, 'package.json')
+		: 'package.json'
+	if (fs.existsSync(packageJsonPath)) {
+		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+		// extract the fields from the package.json file
+		for (const field of Object.keys(fields)) {
+			if (packageJson[field] !== undefined) {
+				pkgJsonMeta[field] = packageJson[field]
+			}
+		}
+	}
+	return pkgJsonMeta
+}
+
+/**
+ * Extracts file data from the given file content.
+ *
+ * @param {string} fileContent - The content of the file.
+ * @return {Record<string, string>} An object containing the extracted file data.
+ */
 export function extractFileData(fileContent: string): Record<string, string> {
-  const data: Record<string, string> = {};
+	const data: Record<string, string> = {}
 
-  // split by lines and trim every line
-  fileContent
-    .split("\n")
-    .map((line) => line.trim())
-    .map((line) => removeCommentMarkup(line))
-    // split each line by colon trim each part and add to data
-    .forEach((line) => {
-      const parts = line.split(":");
-      if (parts[1] === undefined) {
-        return;
-      }
-      data[parts[0]?.trim()] = parts[1]?.trim();
-    });
+	// split by lines and trim every line
+	fileContent
+		.split('\n')
+		.map((line) => line.trim())
+		.map((line) => removeCommentMarkup(line))
+		// split each line by colon trim each part and add to data
+		.forEach((line) => {
+			const parts = line.split(':')
+			if (parts[1] === undefined) {
+				return
+			}
+			data[parts[0]?.trim()] = parts[1]?.trim()
+		})
 
-  return data;
+	return data
 }
 
+/**
+ * Extracts main file data based on the given arguments.
+ *
+ * @param {Args} args - The arguments for extracting the main file data.
+ * @return {Record<string, string>} The extracted main file data.
+ */
 export function extractMainFileData(args: Args) {
-  let fileData: Record<string, string> = {};
-  const sourceDir = args.sourceDirectory
-    ? path.join(process.cwd(), args.sourceDirectory)
-    : process.cwd();
+	let fileData: Record<string, string> = {}
+	const sourceDir = args.sourceDirectory
+		? path.join(process.cwd(), args.sourceDirectory)
+		: process.cwd()
 
-  if (["plugin", "block", "generic"].includes(args.domain)) {
-    const folderPhpFile = path.join(sourceDir, `${args.slug}.php`);
+	if (['plugin', 'block', 'generic'].includes(args.domain)) {
+		const folderPhpFile = path.join(sourceDir, `${args.slug}.php`)
 
-    if (fs.existsSync(folderPhpFile)) {
-      const fileContent = fs.readFileSync(folderPhpFile, "utf8");
-      fileData = parsePHPFile(fileContent);
+		if (fs.existsSync(folderPhpFile)) {
+			const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
+			fileData = parsePHPFile(fileContent)
 
-      if ("Plugin Name" in fileData) {
-        console.log("Plugin file detected.");
-        console.log(`Plugin file: ${folderPhpFile}`);
-        args.domain = "plugin";
-      }
-    } else {
-      console.log("Plugin file not found.");
-      console.log(`Missing Plugin filename: ${folderPhpFile}`);
-    }
-  } else if (["theme", "theme-block"].includes(args.domain)) {
-    const styleCssFile = path.join(sourceDir, "style.css");
+			if ('Plugin Name' in fileData) {
+				console.log('Plugin file detected.')
+				console.log(`Plugin file: ${folderPhpFile}`)
+				args.domain = 'plugin'
+			}
+		} else {
+			console.log('Plugin file not found.')
+			console.log(`Missing Plugin filename: ${folderPhpFile}`)
+		}
+	} else if (['theme', 'theme-block'].includes(args.domain)) {
+		const styleCssFile = path.join(sourceDir, 'style.css')
 
-    if (fs.existsSync(styleCssFile)) {
-      const fileContent = fs.readFileSync(styleCssFile, "utf8");
-      const commentBlock = getCommentBlock(fileContent);
-      fileData = extractFileData(commentBlock);
+		if (fs.existsSync(styleCssFile)) {
+			const fileContent = fs.readFileSync(styleCssFile, 'utf8')
+			const commentBlock = getCommentBlock(fileContent)
+			fileData = extractFileData(commentBlock)
 
-      console.log("Theme stylesheet detected.");
-      console.log(`Theme stylesheet: ${styleCssFile}`);
-      args.domain = "theme";
-    } else {
-      console.log(`Theme stylesheet not found in ${path.resolve(sourceDir)}`);
-    }
-  }
+			console.log('Theme stylesheet detected.')
+			console.log(`Theme stylesheet: ${styleCssFile}`)
+			args.domain = 'theme'
+		} else {
+			console.log(`Theme stylesheet not found in ${path.resolve(sourceDir)}`)
+		}
+	}
 
-  return fileData;
+	return fileData
 }

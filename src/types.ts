@@ -6,9 +6,12 @@ export type PkgHeadersType = keyof typeof pkgJsonHeaders
 
 // type is the value of the themeHeader Object
 export type PotHeaders =
-    | (typeof pkgJsonHeaders)[PkgHeadersType]
-    | (typeof pluginHeaders)[PluginHeadersType]
-    | (typeof themeHeaders)[ThemeHeadersType]
+	| (typeof pkgJsonHeaders)[PkgHeadersType]
+	| (typeof pluginHeaders)[PluginHeadersType]
+	| (typeof themeHeaders)[ThemeHeadersType]
+
+// type is the value of the themeHeader Object
+export type DomainType = 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic'
 
 /**
  * Create a POT file for a WordPress project.
@@ -57,43 +60,44 @@ export type PotHeaders =
  * @param {string} packageName - Name to use for the package name in the resulting POT file's `Project-Id-Version` header.
  *   Overrides the plugin or theme name, if applicable.
  */
+
 export interface Args {
-    sourceDirectory?: string
-    destination?: string
-    slug: string
-    domain: 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic'
-    ignoreDomain?: boolean
-    fileComment?: string
-    packageName?: string
-    mergePaths?: string[]
-    subtractPaths?: string[]
-    subtractAndMerge?: string[]
-    include?: string[]
-    exclude?: string[]
-    headers: Record<PotHeaders, string> | undefined
-    location?: boolean
-    skipJs?: boolean
-    skipPhp?: boolean
-    skipBlade?: boolean
-    skipBlockJson?: boolean
-    skipThemeJson?: boolean
-    skipAudit?: boolean
+	sourceDirectory?: string
+	destination?: string
+	slug: string
+	domain: DomainType
+	ignoreDomain?: boolean
+	fileComment?: string
+	packageName?: string
+	mergePaths?: string[]
+	subtractPaths?: string[]
+	subtractAndMerge?: boolean
+	include?: string[]
+	exclude?: string[]
+	headers: Record<PotHeaders, string> | undefined
+	location?: boolean
+	skipJs?: boolean
+	skipPhp?: boolean
+	skipBlade?: boolean
+	skipBlockJson?: boolean
+	skipThemeJson?: boolean
+	skipAudit?: boolean
 }
 
 export interface TranslationString {
-    type?: string
-    raw: string | string[]
-    count?: string | number
-    msgid: string
-    msgctxt?: string
-    comments?: string
-    reference: string
+	type?: string
+	raw: string | string[]
+	count?: string | number
+	msgid: string
+	msgctxt?: string
+	comments?: string
+	reference: string
 }
 
 export interface Patterns {
-    included: string[]
-    excluded: string[]
-    mergePaths: string[]
-    subtractPaths: string[]
-    subtractAndMerge: string[]
+	included: string[]
+	excluded: string[]
+	mergePaths: string[]
+	subtractPaths: string[]
+	subtractAndMerge: boolean
 }

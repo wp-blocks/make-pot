@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 import { makePot } from './makePot'
 
-import { args } from './cliArgs'
+import { getArgs } from './cliArgs'
 
 import yargs from 'yargs'
 
-const options = args as yargs.Arguments as Record<string, string>
-
 /** Main execution */
-if (Object.keys(options).length > 0) {
+const args = getArgs()
+if (Object.keys(args).length > 0) {
 	const timeStart = new Date()
-	makePot(options)
+	makePot(args)
 		.then(() => {
 			const timeEnd = new Date()
 			console.log(

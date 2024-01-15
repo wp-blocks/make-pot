@@ -8,8 +8,8 @@ import { parseFile } from './extractors'
 /**
  * Retrieves a list of files based on the provided arguments and patterns.
  *
- * @param {Args} args - The arguments object containing the source directory and other options.
- * @param {Patterns} pattern - The patterns object containing the included and excluded file patterns.
+ * @param {Args} args - The argument object containing the source directory and other options.
+ * @param {Patterns} pattern - The pattern object containing the included and excluded file patterns.
  * @return {Promise<string[]>} A promise that resolves to an array of file paths.
  */
 export async function getFiles(args: Args, pattern: Patterns) {
@@ -59,7 +59,10 @@ export async function getStrings(args: Args, pattern: Patterns) {
 
 	progressBar.stop()
 
-	return results.flat().filter((t) => t != null) ?? []
+	// return a promise that resolves to an array of translation strings
+	return new Promise((resolve) =>
+		resolve(results.flat().filter((t) => t != null) as TranslationString[])
+	)
 }
 
 /**
@@ -74,7 +77,7 @@ export async function runExtract(args: Args) {
 		excluded: args.exclude ?? [],
 		mergePaths: args.mergePaths ?? [],
 		subtractPaths: args.subtractPaths ?? [],
-		subtractAndMerge: args.subtractAndMerge ?? [],
+		subtractAndMerge: args.subtractAndMerge ?? false,
 	}
 
 	// Additional logic to handle different file types and formats
@@ -102,7 +105,7 @@ export async function runExtract(args: Args) {
 	}
 
 	if (args.skipAudit !== undefined) {
-		const stringsJson = await getStrings(args, pattern)
+		const stringsJson = (await getStrings(args, pattern)) as TranslationString[]
 		// merge all strings collecting duplicates and returning the result as the default gettext format
 		return consolidateTranslations(stringsJson)
 	} else {

@@ -1,57 +1,31 @@
 import { type Args } from './types'
 import { extractMainFileData, extractPackageData } from './extractors'
-import path from 'path'
-import { DEFAULT_EXCLUDED_PATH } from './const'
 import { writePotFile } from './fs'
 import { runExtract } from './parser'
 
 /**
- * Parses the given options object and returns an instance of Args.
+ * Splits a string into an array of strings based on the presence of a comma.
  *
- * @param {Record<string, string>} opts - The options object to parse.
- * @return {Args} An instance of Args.
+ * @param {string} string - The string to be split.
+ * @return {string[]} An array of strings after splitting the input string.
  */
-function parseArgs(opts: Record<string, string>): Args {
-	if (opts === null || opts === undefined) {
-		opts = {}
+export function stringstring(string: string | undefined): string[] {
+	if (string) {
+		if (string.includes(',')) {
+			return string.split(',')
+		}
+		return [string]
 	}
-	const args = opts as Partial<Args>
-	return {
-		// Paths
-		sourceDirectory: args.sourceDirectory ?? undefined,
-		destination: args.destination ?? undefined,
-		slug: args.slug ?? path.basename(process.cwd()),
-		domain: args.domain ?? 'generic',
-		ignoreDomain: args.ignoreDomain ?? false,
-		headers: undefined,
-		location: args.location ?? false,
-		// Patterns
-		mergePaths: (args.mergePaths as unknown as string)?.split(',') ?? [],
-		subtractPaths: (args.subtractPaths as unknown as string)?.split(',') ?? [],
-		subtractAndMerge: (args.subtractAndMerge as unknown as string)?.split(',') ?? [],
-		include: (args.include as unknown as string)?.split(',') ?? [],
-		exclude: (args.exclude as unknown as string)?.split(',') ?? DEFAULT_EXCLUDED_PATH,
-		// Config: skip, comment and package name
-		skipJs: args.skipJs ?? false,
-		skipPhp: args.skipPhp ?? false,
-		skipBlade: args.skipBlade ?? false,
-		skipBlockJson: args.skipBlockJson ?? false,
-		skipThemeJson: args.skipThemeJson ?? false,
-		skipAudit: args.skipAudit ?? false,
-		fileComment: args.fileComment ?? '',
-		packageName: args.packageName ?? '',
-	} satisfies Args
+	return []
 }
 
 /**
  * Generates a pot file for localization.
  *
- * @param {Record<string, string>} argv - the command line arguments
+ * @param args - the command line arguments
  * @return {Promise<void>} - a promise that resolves when the pot file is generated
  */
-export async function makePot(argv: Record<string, string>) {
-	// parse command line arguments
-	let args = parseArgs(argv)
+export async function makePot(args: Args) {
 	// get metadata from the main file (theme and plugin)
 	const metadata = extractMainFileData(args)
 	// get package data

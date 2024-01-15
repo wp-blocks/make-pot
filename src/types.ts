@@ -65,8 +65,8 @@ export interface Args {
   mergePaths?: string[]
   subtractPaths?: string[]
   subtractAndMerge?: string[]
-  includePaths: string[]
-  excludePaths?: string[]
+  include?: string[]
+  exclude?: string[]
   headers: Record<PotHeaders, string> | undefined
   location?: boolean
   skipJs?: boolean

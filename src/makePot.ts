@@ -23,8 +23,8 @@ function parseArgs (opts: Record<string, string>): Args {
     mergePaths: (args.mergePaths as unknown as string)?.split(',') ?? [],
     subtractPaths: (args.subtractPaths as unknown as string)?.split(',') ?? [],
     subtractAndMerge: (args.subtractAndMerge as unknown as string)?.split(',') ?? [],
-    includePaths: (args.includePaths as unknown as string)?.split(',') ?? ['*'],
-    excludePaths: (args.excludePaths as unknown as string)?.split(',') ?? DEFAULT_EXCLUDED_PATH,
+    include: (args.include as unknown as string)?.split(',') ?? ['*'],
+    exclude: (args.exclude as unknown as string)?.split(',') ?? DEFAULT_EXCLUDED_PATH,
     // Config: skip, comment and package name
     skipJs: args.skipJs ?? false,
     skipPhp: args.skipPhp ?? false,

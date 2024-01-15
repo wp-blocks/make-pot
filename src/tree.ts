@@ -7,9 +7,10 @@ import Php from 'tree-sitter-php'
 // @ts-expect-error
 import Ts from 'tree-sitter-typescript'
 import path from 'path'
-import { readFile } from 'fs/promises'
 import { type TranslationString } from './types'
 import { i18nFunctions } from './const'
+import { SingleBar } from 'cli-progress'
+import { readFileSync } from 'fs'
 
 /**
  * Extract strings from a file 🌳
@@ -49,7 +50,7 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
       }
 
       const [fn, raw] = node.children
-      let translation: string[] = [];
+      const translation: string[] = []
       raw.children
         .slice(1, -1)
         .forEach(
@@ -91,6 +92,96 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
   return matches
 }
 
+const extractNames = (items: any[]): string[] =>
+  items.map((item: any) => item.name);
+
+function parseBlockJson(jsondata: string): Record<string, any> {
+  const json = JSON.parse(jsondata);
+  return {
+    title: json?.title ?? undefined,
+    description: json?.description ?? undefined,
+    keywords: json?.keywords ?? undefined,
+    styles: json?.styles ? extractNames(json.styles) : undefined,
+    variations: json?.variations?.map((variation: any) => ({
+      title: variation?.title ?? undefined,
+      description: variation?.description ?? undefined,
+      keywords: variation?.keywords ?? undefined,
+    })) ?? undefined,
+  };
+}
+
+function parseThemeJson(jsondata: string): Record<string, any> {
+  const json = JSON.parse(jsondata);
+
+  const settings = json.settings;
+  const typography = settings?.typography || {};
+  const color = settings?.color || {};
+  const spacing = settings?.spacing || {};
+  const blocks = settings?.blocks || {};
+
+  return {
+    title: json.title,
+    settings: {
+      typography: {
+        fontSizes: typography.fontSizes ? extractNames(typography.fontSizes) : [],
+        fontFamilies: typography.fontFamilies ? extractNames(typography.fontFamilies) : [],
+      },
+      color: {
+        palette: color.palette ? extractNames(color.palette) : [],
+        gradients: color.gradients ? extractNames(color.gradients) : [],
+        duotone: color.duotone ? extractNames(color.duotone) : [],
+      },
+      spacing: {
+        spacingSizes: spacing.spacingSizes ? extractNames(spacing.spacingSizes) : [],
+      },
+      blocks: Object.keys(blocks).reduce((acc: any, key: string) => {
+        const block = blocks[key];
+        acc[key] = {
+          typography: {
+            fontSizes: block.typography?.fontSizes ? extractNames(block.typography.fontSizes) : [],
+            fontFamilies: block.typography?.fontFamilies ? extractNames(block.typography.fontFamilies) : [],
+          },
+          color: {
+            palette: block.color?.palette ? extractNames(block.color.palette) : [],
+            gradients: block.color?.gradients ? extractNames(block.color.gradients) : [],
+          },
+          spacing: {
+            spacingSizes: block.spacing?.spacingSizes ? extractNames(block.spacing.spacingSizes) : [],
+          },
+        };
+        return acc;
+      }, {}),
+    },
+    customTemplates: json.customTemplates ? json.customTemplates.map((template: any) => template.title) : [],
+    templateParts: json.templateParts ? json.templateParts.map((templatePart: any) => templatePart.title) : [],
+  };
+}
+
+const blockJsonComments = {
+  title: "block title",
+  description: "block description",
+  keywords: "block keywords",
+}
+const themeJsonComments = {
+  title: "Theme Name of the theme",
+  description: "Description of the theme"
+}
+
+function getJsonComment(key: string, type?: 'block.json' | 'theme.json') : string {
+  const comments = type === 'block.json' ? blockJsonComments : themeJsonComments
+  return key in comments ? comments[key as keyof typeof comments] : key
+}
+
+function jsonString( key: string, data: string, path: string, type?: 'block.json' | 'theme.json'): TranslationString {
+  return {
+    reference: `#: ${path}`,
+    type: 'msgid',
+    raw: [key, data],
+    msgid: data,
+    msgctxt: getJsonComment(key, type),
+  }
+}
+
 /**
  * Parse a file and extract strings asynchronously
  *
@@ -99,20 +190,64 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
  * @param {Parser|null} args.language - Language of the file to parse
  * @return {Promise<TranslationString[]>}
  */
-export async function parseFile (args: { filepath: string, language: Parser | null }): Promise<TranslationString[]|null> {
-
+export async function parseFile (args: { filepath: string, language: Parser | string, stats ?: { bar: SingleBar, index: number } }): Promise<TranslationString[] | null> {
   // check if the language is supported
-  if (args.language === null) {
-    console.log( 'No parser found for ', args.language , ' files' )
-    console.log( 'Skipping ' + args.filepath )
+  if (typeof args.language === 'string') {
+    if (args.language === 'json') {
+      const filename = path.basename(args.filepath)
+      let parsed: Record<string, any> | null = null
+      // parse the file based on the filename
+      switch (filename) {
+        case 'block.json':
+          args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
+          parsed = parseBlockJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+          break
+        case 'theme.json':
+          args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
+          parsed = parseThemeJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+          break
+      }
+
+      if (parsed !== null) {
+
+        // extract the strings from the file and return them as an array of objects
+        return Object.entries(parsed as Record<string, string | string[]>)
+
+          // return the translations for each key in the json data
+          .map(([key, jsonData]) => {
+
+            // if is a string return a single json string
+            if (typeof jsonData === 'string') {
+              return jsonString(key, jsonData, args.filepath, filename as 'block.json' | 'theme.json')
+            } else {
+              args.stats?.bar.increment(0, { filename: 'not a string' })
+            }
+
+            if (!jsonData) {
+              args.stats?.bar.increment(0, { filename:  `Skipping ${key} in ${args.filepath} as ${filename} ... cannot parse data`})
+
+              return null
+            }
+
+            // if is an object return an array of json strings
+            Object.entries(jsonData).map(
+              ([k, v]) => jsonString(k, v as string, args.filepath)
+            )
+          })
+          .flat() as TranslationString[]
+      }
+    }
+    console.log(`Skipping ${args.filepath}... No parser found for ${args.language} file`)
     return null
   }
 
   // read the file
-  const sourceCode = await readFile(path.resolve(args.filepath), 'utf8')
+  const sourceCode = readFileSync(path.resolve(args.filepath), 'utf8')
 
   // log the filepath
-  console.log('Parsing ', args.filepath)
+  if (args.stats) {
+    args.stats.bar.increment(1, { filename: args.filepath + ' (' + args.stats.index + ')' })
+  }
 
   // set up the parser
   const parser = new Parser()
@@ -131,7 +266,7 @@ export async function parseFile (args: { filepath: string, language: Parser | nu
  * @param file - Path to the file
  * @return {Parser|{}|null} - the parser to be used with the file or null if no parser is found
  */
-export function getParser (file: string): null | Parser {
+export function getParser (file: string): string | Parser {
   const ext = file.split('.').pop()
   switch (ext) {
     case 'ts':
@@ -146,6 +281,6 @@ export function getParser (file: string): null | Parser {
     case 'php':
       return Php
     default:
-      return null
+      return ext as string
   }
 }

@@ -2,7 +2,7 @@ import type { Args, Patterns, TranslationString } from './types'
 import { glob } from 'glob'
 import { getParser, parseFile } from './tree'
 import { consolidateTranslations } from './consolidate'
-import { boolean } from 'yargs'
+import cliProgress from 'cli-progress'
 
 export async function getFiles (args: Args, pattern: Patterns) {
   const included = '{' + pattern.included.join(',') + '}'
@@ -13,21 +13,35 @@ export async function getFiles (args: Args, pattern: Patterns) {
 export async function getStrings (args: Args, pattern: Patterns) {
   const files = await getFiles(args, pattern)
 
+  // Set up the progress bar
+  const progressBar = new cliProgress.SingleBar({
+    clearOnComplete: true,
+    etaBuffer: 1000,
+    hideCursor: true,
+    format: ' {bar} {percentage}% | ETA: {eta}s | {filename} | {value}/{total}',
+  }, cliProgress.Presets.shades_classic);
+
+  progressBar.start(files.length + 1, 0);
+
   const tasks: Promise<TranslationString[]>[] = [];
-  files.forEach(file => {
-    const task = parseFile({ filepath: file, language: getParser(file) })
+  files.forEach((file, index) => {
+    const task = parseFile({ filepath: file, language: getParser(file), stats: { bar: progressBar, index } })
     if (task !== null) tasks.push(task as Promise<TranslationString[]>)
   })
 
   const results = await Promise.all(tasks)
 
-  return results.flat().filter(t => t != null) ?? []
+  progressBar.stop();
+
+  return results
+    .flat()
+    .filter(t => t != null) ?? []
 }
 
 export async function runExtract (args: Args) {
   const pattern: Patterns = {
-    included: args.includePaths ?? [],
-    excluded: args.excludePaths ?? [],
+    included: args.include ?? [],
+    excluded: args.exclude ?? [],
     mergePaths: args.mergePaths ?? [],
     subtractPaths: args.subtractPaths ?? [],
     subtractAndMerge: args.subtractAndMerge ?? []

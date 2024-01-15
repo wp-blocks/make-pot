@@ -82,7 +82,7 @@ export const args = yargs(hideBin(process.argv))
     describe: 'Include specific files',
     type: 'string'
   })
-  .option('exclude', {
+  .option('excludedPaths', {
     describe: 'Exclude specific files',
     type: 'string'
   })

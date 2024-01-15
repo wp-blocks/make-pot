@@ -4,9 +4,9 @@ import { makePot } from './makePot'
 import { args } from './cliArgs'
 
 import yargs from 'yargs'
+import { Args } from './types'
 
-// @ts-expect-error TS2339: Property _ does not exist on type 'yargs.Arguments'.
-const options = (args ?? {})?._ as Record<string, string>
+const options  = args as yargs.Arguments as Record<string, string>
 
 // Main execution
 if (Object.keys(options).length > 0) {

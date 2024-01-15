@@ -1,16 +1,24 @@
 #!/usr/bin/env node
 import { makePot } from './makePot'
 
-import { args } from './cliArgs'
+import { getArgs } from './cliArgs'
 
 import yargs from 'yargs'
 
-// @ts-expect-error TS2339: Property _ does not exist on type 'yargs.Arguments'.
-const options = (args ?? {})?._ as Record<string, string>
-
-// Main execution
-if (Object.keys(options).length > 0) {
-  makePot(options)
+/** Main execution */
+const args = getArgs()
+if (Object.keys(args).length > 0) {
+	const timeStart = new Date()
+	makePot(args)
+		.then(() => {
+			const timeEnd = new Date()
+			console.log(
+				`🚀 Translation Pot file created in ${timeEnd.getTime() - timeStart.getTime()}ms`
+			)
+		})
+		.catch((error) => {
+			console.error(error)
+		})
 } else {
-  yargs.showHelp()
+	yargs.showHelp()
 }

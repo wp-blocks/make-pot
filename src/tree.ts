@@ -1,14 +1,13 @@
 #!/usr/bin/env node
-import Parser, {SyntaxNode, Tree} from 'tree-sitter'
-// @ts-ignore
-import Ts from 'tree-sitter-typescript'
-// @ts-ignore
+import Parser, { type SyntaxNode } from 'tree-sitter'
+// @ts-expect-error
 import Js from 'tree-sitter-javascript'
-// @ts-ignore
+// @ts-expect-error
 import Php from 'tree-sitter-php'
-import path from 'path'
-import {readFile} from 'fs/promises'
-import {TranslationString} from "./types";
+// @ts-expect-error
+import Ts from 'tree-sitter-typescript'
+import { type TranslationString } from './types'
+import { i18nFunctions } from './const'
 
 /**
  * Extract strings from a file 🌳
@@ -18,134 +17,95 @@ import {TranslationString} from "./types";
  * @param {string} filename
  * @return {{}}
  */
-export function extractStrings (node: SyntaxNode, lang: string, filename: string): TranslationString[] {
-  const matches: TranslationString[] = []
-  const typeToMatch = lang !== Php ? 'call_expression' : 'function_call_expression'
+export function extractStrings(
+	node: SyntaxNode,
+	lang: Parser | null,
+	filename: string
+): TranslationString[] {
+	const matches: TranslationString[] = []
+	const typeToMatch = lang !== Php ? 'call_expression' : 'function_call_expression'
 
-  /**
-   * Traverse the tree 🌳
-   *
-   * @param {SyntaxNode} node The node to traverse through
-   * @param {SyntaxNode|null} previousNode The previous node in the tree
-   */
-  function traverse (node: SyntaxNode, previousNode: SyntaxNode | null = null): void {
-    if (node.type === typeToMatch) {
-      const functionNameNode = node.firstChild
-      let meta = {}
-      const functionName = functionNameNode !== null ? functionNameNode.text : null
+	/**
+	 * Traverse the tree 🌳
+	 *
+	 * @param {SyntaxNode} node The node to traverse through
+	 * @param {SyntaxNode|null} previousNode The previous node in the tree
+	 */
+	function traverse(node: SyntaxNode, previousNode: SyntaxNode | null = null): void {
+		if (node.type === typeToMatch) {
+			const functionNameNode = node.firstChild
+			const functionName = functionNameNode?.text ?? null
 
-      if (functionName?.match(/^(_n|_x|_nx|__|_e)$/) !== null) {
-        const argsNode = node.lastChild
-        const [fnName, ...msgid] = node.children.map(argNode => argNode.text) as string[]
+			if (functionName === null || !Object.keys(i18nFunctions).includes(functionName)) {
+				return
+			}
 
-        // Extract the metadata
-        if (argsNode !== null && argsNode.childCount > 0 && argsNode.type === 'arguments') {
-          // Extract the msgid
-          const firstArgNode = argsNode.firstChild as SyntaxNode
-          const msgidNode = firstArgNode.firstChild
-          const msgid = msgidNode?.text ?? ''
+			const argsNode = node.lastChild
 
-          // Extract the msgctxt if it exists and unquote it
-          const msgctxtNode = firstArgNode.nextNamedSibling
-          let msgctxt
-          if (msgctxtNode !== null && msgctxtNode.type === 'string') {
-            // unquote the string
-            msgctxt = msgctxtNode.text.slice(1, -1)
-          }
+			if (argsNode === null || argsNode.childCount === 0 || argsNode.type !== 'arguments') {
+				return
+			}
 
-          let comments
-          // Find the preceding comment node at the same level as the translation function call.
-          let nodeToCheck = previousNode
-          while (nodeToCheck !== null && nodeToCheck.type !== 'comment') {
-            nodeToCheck = nodeToCheck.previousSibling
-          }
-          // If the node is a comment, extract the comment text
-          if (nodeToCheck !== null && nodeToCheck.type === 'comment') {
-            const commentText = nodeToCheck.text.trim()
-            if (commentText.includes('translators:')) {
-              comments = commentText
-            }
-          }
+			const [fn, raw] = node.children
+			const translation: string[] = []
+			raw.children.slice(1, -1).forEach((child) => {
+				if (child.text !== ',') translation.push(child.text.slice(1, -1))
+			})
 
-          const position = node.startPosition
-          meta = {
-            msgid,
-            msgctxt,
-            comments,
-            reference: `#: ${filename}:${position.row + 1}:${position.column + 1}` // Adjusted to be 1-indexed
-          }
-        }
+			let comments
 
-        matches.push({ ...meta, msgid } as TranslationString)
-      }
-    }
+			while (previousNode !== null && previousNode.type !== 'comment') {
+				previousNode = previousNode.previousSibling
+			}
 
-    if (node.children.length > 0) {
-      for (const child of node.children) {
-        // Make sure to pass the current node as previousNode to the next level of recursion.
-        traverse(child, node)
-      }
-    }
-  }
+			if (previousNode?.type === 'comment' && previousNode.text.includes('translators:')) {
+				comments = previousNode.text.trim()
+			}
 
-  traverse(node)
+			const type = i18nFunctions[fn.text as keyof typeof i18nFunctions] ?? 'text_domain'
+			const position = node.startPosition
 
-  // Return both matches and entries
-  return matches
-}
+			matches.push({
+				reference: `#: ${filename}:${position.row + 1}`,
+				type,
+				raw: translation,
+				msgid: translation[0],
+				comments,
+			})
+		}
 
-/**
- * Parse a file and extract strings
- *
- * @param {object} args
- * @param {string} args.filepath - Path to the file to parse
- * @param {string} args.language - Language of the file to parse
- * @return {{}}
- */
-export async function parseFile (args: { filepath: string; language: string }): Promise<TranslationString[]> {
-  const sourceCode = await readFile(path.resolve(args.filepath), 'utf8')
+		for (const child of node.children) {
+			traverse(child, node)
+		}
+	}
 
-  if (args.language === 'Text') {
-    return [{
-        msgid: sourceCode,
-        reference: '#: ' + args.filepath + '  } ',
-    }]
-  } else if (args.language === 'Json') {
-    return [{
-        msgid: JSON.parse(sourceCode),
-        reference: '#: ' + args.filepath + '  } ',
-    }]
-  }
+	traverse(node)
 
-  const parser = new Parser()
-  parser.setLanguage(args.language)
-  const tree = parser.parse(sourceCode)
-
-  return extractStrings(tree.rootNode as SyntaxNode, args.language, args.filepath) // Assuming extractStrings is synchronous
+	// Return both matches and entries
+	return matches
 }
 
 /**
  * Return the parser based on the file extension
+ *
  * @param file - Path to the file
- * @return {*|{}|string} - Parser
+ * @return {Parser|{}|null} - the parser to be used with the file or null if no parser is found
  */
-export function getParser (file: string): any | {} | string {
-  const ext = file.split('.').pop()
-  switch (ext) {
-    case 'ts':
-      return Ts.typescript
-    case 'tsx':
-      return Ts.tsx
-    case 'js':
-    case 'jsx':
-    case 'mjs':
-    case 'cjs':
-      return Js
-    case 'php':
-      return Php
-    case 'json':
-      return 'Json'
-    default:
-      return 'Text'
-  }
+export function getParser(file: string): string | Parser {
+	const ext = file.split('.').pop()
+	switch (ext) {
+		case 'ts':
+			return Ts.typescript
+		case 'tsx':
+			return Ts.tsx
+		case 'js':
+		case 'jsx':
+		case 'mjs':
+		case 'cjs':
+			return Js
+		case 'php':
+			return Php
+		default:
+			return ext!
+	}
 }

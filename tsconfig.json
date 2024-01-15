@@ -16,13 +16,7 @@
     "pretty": false,
     "removeComments": true,
     // types
-    "typeRoots": [
-      "src/types.d.ts",
-      "node_modules/@types",
-      "@types"
-    ]
+    "typeRoots": ["src/types.d.ts", "node_modules/@types", "@types"]
   },
-  "include": [
-    "./src/**/*"
-  ]
+  "include": ["./src/**/*"]
 }

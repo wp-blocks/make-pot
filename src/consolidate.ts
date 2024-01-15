@@ -7,48 +7,29 @@ import type { TranslationString } from './types'
  * @param {TranslationString[]} translationStrings - Array of translation strings.
  * @return {string} Consolidated i18n file string.
  */
-export function consolidateTranslations (translationStrings: TranslationString[]): string {
-  // Group translations by msgid and msgctxt
-  const groupedTranslations: Record<string, TranslationString[]> = {}
+export function consolidateTranslations(translationStrings: TranslationString[]): string {
+	const groupedTranslations: Record<string, TranslationString[]> = {}
 
-  for (const translation of translationStrings) {
-    const key = `${translation.msgid}||${translation.msgctxt}`
-    if (!groupedTranslations[key]) {
-      groupedTranslations[key] = []
-    }
-    groupedTranslations[key].push(translation)
-  }
+	translationStrings.forEach((translation) => {
+		groupedTranslations[translation.msgid] = groupedTranslations[translation.msgid] || []
+		groupedTranslations[translation.msgid].push(translation)
+	})
 
-  // Generate the consolidated i18n file string
-  let consolidatedStrings: string = ''
+	let consolidatedStrings = ''
 
-  for (const key in groupedTranslations) {
-    const translations = groupedTranslations[key]
-    const t = translations[0]
+	for (const msgid in groupedTranslations) {
+		const translations = groupedTranslations[msgid]
+		const t = translations[0]
 
-    let translatorComment = ''
-    let contextComment = ''
-    let referenceComments = ''
-    let msgidLine = ''
-    const msgstr = 'msgstr ""\n'
+		const translatorComment = t.comments ? `#. translators: ${t.comments}\n` : ''
+		const contextComment = t.msgctxt ? `msgctxt "${t.msgctxt}"\n` : ''
+		const msgidLine = `msgid "${msgid}"\n`
+		const referenceComments = translations?.map((tr) => tr.reference).join('\n') + '\n'
+		const msgstr = 'msgstr ""\n'
 
-    if (t?.comments !== undefined) {
-      translatorComment = `#. translators: ${t.comments}\n`
-    }
-    if (t?.msgctxt !== undefined) {
-      contextComment = `msgctxt "${t.msgctxt}"\n`
-    }
-    if (t?.msgid !== undefined) {
-      msgidLine = `msgid "${t.msgid}"\n`
-    }
+		const consolidatedString = `${translatorComment}${referenceComments}${contextComment}${msgidLine}${msgstr}\n`
+		consolidatedStrings += consolidatedString
+	}
 
-    translations.forEach((translation, index) => {
-      referenceComments += translation.reference + '\n'
-    })
-
-    const consolidatedString = `${referenceComments}${translatorComment}${contextComment}${msgidLine}${msgstr}`
-    consolidatedStrings += consolidatedString + '\n'
-  }
-
-  return consolidatedStrings.trim() // Trim the last newline character
+	return consolidatedStrings.trim()
 }

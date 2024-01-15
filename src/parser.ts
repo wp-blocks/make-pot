@@ -60,9 +60,7 @@ export async function getStrings(args: Args, pattern: Patterns) {
 	progressBar.stop()
 
 	// return a promise that resolves to an array of translation strings
-	return new Promise((resolve) =>
-		resolve(results.flat().filter((t) => t != null) as TranslationString[])
-	)
+	return results.flat().filter((t) => t != null) as TranslationString[]
 }
 
 /**

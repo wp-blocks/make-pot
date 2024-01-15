@@ -1,6 +1,34 @@
 import { blockJsonComments, themeJsonComments } from './const'
-import type { TranslationString } from './types'
-import { extractNames } from './extractors'
+import type { Args, TranslationString } from './types'
+import { extractNames, yieldParsedData } from './extractors'
+import path from 'path'
+import { readFileSync } from 'fs'
+import { extractStrings } from './tree'
+import { SingleBar } from 'cli-progress'
+
+export function parseJsonFile(args: {
+	filepath: string
+	stats?: { bar: SingleBar; index: number }
+}) {
+	const filename = path.basename(args.filepath)
+	let parsed: Record<string, string | string[]> | null = null
+	// parse the file based on the filename
+	switch (filename) {
+		case 'block.json':
+			args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
+			parsed = parseBlockJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+			break
+		case 'theme.json':
+			args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
+			parsed = parseThemeJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+			break
+	}
+
+	if (parsed !== null) {
+		// extract the strings from the file and return them as an array of objects
+		return yieldParsedData(parsed, filename, args)
+	}
+}
 
 /**
  * Parses a JSON string and returns a record with the extracted data.

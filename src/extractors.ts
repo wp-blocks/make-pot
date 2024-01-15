@@ -5,8 +5,9 @@ import { pkgJsonHeaders } from './const'
 import { getCommentBlock, removeCommentMarkup } from './utils'
 import Parser from 'tree-sitter'
 import type { SingleBar } from 'cli-progress'
-import { jsonString, parseBlockJson, parseThemeJson } from './extractors-json'
+import { jsonString, parseBlockJson, parseJsonFile, parseThemeJson } from './extractors-json'
 import { parsePHPFile } from './extractors-php'
+import { extractStrings } from './tree'
 
 /**
  * Extracts the names from an array of items.
@@ -24,40 +25,42 @@ export const extractNames = (items: { name: string }[]): string[] => items.map((
  * @param opts - The metadata of this translation string.
  * @return {TranslationString[]} An array of translation strings.
  */
-function extractStrings(
+export function yieldParsedData(
 	parsed: Record<string, string | string[]> | Parser.SyntaxNode,
 	filename: string | Parser,
 	opts: { filepath: string; stats?: { bar: SingleBar } }
-) {
-	return (
-		Object.entries(parsed as Record<string, string | string[]>)
+): Promise<TranslationString[]> {
+	return new Promise<TranslationString[]>((resolve) =>
+		resolve(
+			Object.entries(parsed as Record<string, string | string[]>)
 
-			// return the translations for each key in the json data
-			.map(([key, jsonData]) => {
-				// if is a string return a single json string
-				if (typeof jsonData === 'string') {
-					return jsonString(
-						key,
-						jsonData,
-						opts.filepath,
-						filename as 'block.json' | 'theme.json'
-					)
-				} else {
-					opts.stats?.bar.increment(0, { filename: 'not a string' })
-				}
+				// return the translations for each key in the json data
+				.map(([key, jsonData]) => {
+					// if is a string return a single json string
+					if (typeof jsonData === 'string') {
+						return jsonString(
+							key,
+							jsonData,
+							opts.filepath,
+							filename as 'block.json' | 'theme.json'
+						)
+					} else {
+						opts.stats?.bar.increment(0, { filename: 'not a string' })
+					}
 
-				if (!jsonData) {
-					opts.stats?.bar.increment(0, {
-						filename: `Skipping ${key} in ${opts.filepath} as ${filename} ... cannot parse data`,
-					})
+					if (!jsonData) {
+						opts.stats?.bar.increment(0, {
+							filename: `Skipping ${key} in ${opts.filepath} as ${filename} ... cannot parse data`,
+						})
 
-					return null
-				}
+						return null
+					}
 
-				// if is an object return an array of json strings
-				Object.entries(jsonData).map(([k, v]) => jsonString(k, v, opts.filepath))
-			})
-			.flat() as TranslationString[]
+					// if is an object return an array of json strings
+					Object.entries(jsonData).map(([k, v]) => jsonString(k, v, opts.filepath))
+				})
+				.flat() as TranslationString[]
+		)
 	)
 }
 
@@ -77,24 +80,7 @@ export async function parseFile(args: {
 	// check if the language is supported
 	if (typeof args.language === 'string') {
 		if (args.language === 'json') {
-			const filename = path.basename(args.filepath)
-			let parsed: Record<string, string | string[]> | null = null
-			// parse the file based on the filename
-			switch (filename) {
-				case 'block.json':
-					args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
-					parsed = parseBlockJson(readFileSync(path.resolve(args.filepath), 'utf8'))
-					break
-				case 'theme.json':
-					args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
-					parsed = parseThemeJson(readFileSync(path.resolve(args.filepath), 'utf8'))
-					break
-			}
-
-			if (parsed !== null) {
-				// extract the strings from the file and return them as an array of objects
-				return extractStrings(parsed, filename, args)
-			}
+			return parseJsonFile(args) || []
 		}
 		console.log(`Skipping ${args.filepath}... No parser found for ${args.language} file`)
 		return null

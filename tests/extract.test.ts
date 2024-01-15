@@ -1,5 +1,5 @@
 import {describe, expect, test} from '@jest/globals';
-import { extractTranslationsFromCode } from '../src/parser';
+import { getStrings } from '../src/parser';
 import {Args} from "../src/types";
 
 const defaultArgs = {
@@ -11,7 +11,7 @@ const defaultArgs = {
     excludePaths: []
 }
 
-describe('extractTranslationsFromCode', () => {
+describe('getStrings', () => {
     it('should extract translations from code content with no context or translator comments', () => {
         const filename = 'filename';
         const content = `<?php echo __('Hello World'); ?>`;
@@ -23,7 +23,7 @@ describe('extractTranslationsFromCode', () => {
             comments: undefined
         }];
 
-        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
+        const result = getStrings(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });
@@ -39,7 +39,7 @@ describe('extractTranslationsFromCode', () => {
             reference: '#: filename:1'
         }];
 
-        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
+        const result = getStrings(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });
@@ -66,7 +66,7 @@ describe('extractTranslationsFromCode', () => {
             reference: "#: filename:23"
         }];
 
-        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
+        const result = getStrings(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });
@@ -111,7 +111,7 @@ describe('extractTranslationsFromCode', () => {
             reference: '#: filename:5'
         }];
 
-        const result = extractTranslationsFromCode(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
+        const result = getStrings(content, filename, { ...defaultArgs, textDomain: 'textdom' } as Args);
 
         expect(result).toEqual(expected);
     });

@@ -9,13 +9,24 @@ import Php from 'tree-sitter-php'
 import Ts from 'tree-sitter-typescript'
 
 const argv = {
-  sourceDirectory: 'sourcedir',
-  slug: 'woocommerce',
+  sourceDirectory: 'tests/fixtures/sourcedir',
 }
 
 describe('makePot', () => {
   it('Should build pot file', () => {
-    makePot({ ...argv });
+    makePot({ ...argv, sourceDirectory: 'tests/fixtures/sourcedir' });
+  })
+})
+
+describe('makePot Theme', () => {
+  it('Should build pot file from fixtures', () => {
+    makePot({ ...argv , sourceDirectory: 'tests/fixtures/theme', domain: 'theme' });
+  })
+})
+
+describe('makePot Plugin', () => {
+  it('Should build pot file from fixtures', () => {
+    makePot({ ...argv , sourceDirectory: 'tests/fixtures/plugin' });
   })
 })
 

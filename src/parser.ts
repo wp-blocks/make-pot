@@ -59,8 +59,11 @@ export async function getStrings(args: Args, pattern: Patterns) {
 
 	progressBar.stop()
 
-	// return a promise that resolves to an array of translation strings
-	return results.flat().filter((t) => t != null) as TranslationString[]
+	const result = results.flat().filter((t) => t != null) as TranslationString[]
+
+	console.log('📝 Found', result.length, 'strings in', files.length, 'files.')
+
+	return result
 }
 
 /**

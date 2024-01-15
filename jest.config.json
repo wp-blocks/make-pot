@@ -12,8 +12,5 @@
   },
   "coverageReporters": ["text", "lcov"],
   "coverageDirectory": "./tests/coverage",
-  "collectCoverageFrom": [
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "!**/tests/**"
-  ]
+  "collectCoverageFrom": ["./src/**/*.{js,jsx,ts,tsx}", "!**/tests/**"]
 }

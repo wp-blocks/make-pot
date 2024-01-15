@@ -1,15 +1,15 @@
-import { type Args, PotHeaders } from './types'
+import { type Args, PotHeaders } from "./types";
 
-export function generatePotHeader (args: Args): string {
+export function generatePotHeader(args: Args): string {
   const { author, email, bugs, license, packageName, version } = {
     ...args.headers,
-    author: args.headers?.author ?? 'AUTHOR',
-    email: args.headers?.email ?? 'EMAIL',
-    bugs: args.headers?.bugs ?? '',
-    license: args.headers?.license ?? 'gpl-2.0 or later',
-    packageName: args.headers?.packageName ?? 'NO PACKAGE NAME DEFINED',
-    version: args.headers?.version ?? '1.0'
-  }
+    author: args.headers?.author ?? "AUTHOR",
+    email: args.headers?.email ?? "EMAIL",
+    bugs: args.headers?.bugs ?? "",
+    license: args.headers?.license ?? "gpl-2.0 or later",
+    packageName: args.headers?.packageName ?? "NO PACKAGE NAME DEFINED",
+    version: args.headers?.version ?? "1.0",
+  };
 
   return `# Copyright (C) ${new Date().getFullYear()} ${author} (${email})
 # This file is distributed under the ${license}.
@@ -28,14 +28,14 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\\n"
 
 
-`
+`;
 }
 
-export function getCommentBlock (input: string): string {
-  const commentBlock = input.match(/\/\*\*?[\s\S]*?\*\//)
-  return commentBlock !== null ? commentBlock[0] : input
+export function getCommentBlock(input: string): string {
+  const commentBlock = input.match(/\/\*\*?[\s\S]*?\*\//);
+  return commentBlock !== null ? commentBlock[0] : input;
 }
 
-export function removeCommentMarkup (input: string): string {
-  return input.replace(/\/\*[\s\S]*?\*\/|\/\/.*/gm, '')
+export function removeCommentMarkup(input: string): string {
+  return input.replace(/\/\*[\s\S]*?\*\/|\/\/.*/gm, "");
 }

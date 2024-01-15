@@ -99,21 +99,20 @@ export function extractStrings (node: SyntaxNode, lang: Parser | null, filename:
  * @param {Parser|null} args.language - Language of the file to parse
  * @return {Promise<TranslationString[]>}
  */
-export async function parseFile (args: { filepath: string, language: Parser | null }): Promise<TranslationString[]> {
-  // log the filepath
-  console.log('Parsing ', args.filepath)
+export async function parseFile (args: { filepath: string, language: Parser | null }): Promise<TranslationString[]|null> {
+
+  // check if the language is supported
+  if (args.language === null) {
+    console.log( 'No parser found for ', args.language , ' files' )
+    console.log( 'Skipping ' + args.filepath )
+    return null
+  }
 
   // read the file
   const sourceCode = await readFile(path.resolve(args.filepath), 'utf8')
 
-  if (args.language === null) {
-    return [{
-      type: '',
-      raw: [],
-      msgid: [sourceCode],
-      reference: '#: ' + args.filepath
-    }]
-  }
+  // log the filepath
+  console.log('Parsing ', args.filepath)
 
   // set up the parser
   const parser = new Parser()

@@ -10,9 +10,26 @@ import Ts from 'tree-sitter-typescript'
 import Parser from 'tree-sitter'
 
 describe('getStrings', () => {
+	it('should extract translations with context', () => {
+		const filename = 'filename'
+		const content = `<?php echo _x('Hello World', 'greeting'); ?>`
+		const expected = [
+			{
+				comments: undefined,
+				reference: '#: filename:1',
+				type: 'text_context_domain',
+				raw: ['Hello World', 'greeting'],
+				msgid: 'Hello World',
+			},
+		]
+
+		const result = doTree(content, Php as Parser, filename)
+
+		expect(result).toEqual(expected)
+	})
 	it('should extract translations from code content with no context or translator comments', () => {
 		const filename = 'filename'
-		const content = `<?php echo __('Hello World'); ?>`
+		const content = `<?php _e('Hello World'); ?>`
 		const expected = [
 			{
 				reference: '#: filename:1',
@@ -27,12 +44,40 @@ describe('getStrings', () => {
 		expect(result).toEqual(expected)
 	})
 
-	it('should extract translations with context', () => {
+	it('should extract translations with comments', () => {
 		const filename = 'filename'
-		const content = `<?php echo _x('Hello World', 'greeting'); ?>`
+		const content = `/** translators: ciao! */
+		<?php echo _x('Hello World', 'greeting'); ?>`
 		const expected = [
 			{
-				reference: '#: filename:1',
+				comments: 'translators: ciao!',
+				reference: '#: filename:2',
+				type: 'text_context_domain',
+				raw: ['Hello World', 'greeting'],
+				msgid: 'Hello World',
+			},
+		]
+
+		const result = doTree(content, Php as Parser, filename)
+
+		expect(result).toEqual(expected)
+	})
+
+	it('should extract translations with comments reporting the right position', () => {
+		const filename = 'filename'
+		const content = `
+
+
+
+/** line 5*/
+
+
+
+
+		<?php echo _x('Hello World', 'greeting'); ?>`
+		const expected = [
+			{
+				reference: '#: filename:10',
 				type: 'text_context_domain',
 				raw: ['Hello World', 'greeting'],
 				msgid: 'Hello World',
@@ -63,7 +108,7 @@ echo $link;`
 		expect(result).toEqual(expected)
 	})
 
-	it('should extract translations with translator comments', () => {
+	it('should extract translations with translator comments inside the formatting hell', () => {
 		const filename = 'filename'
 		const content = ` <?php /** 1*/
 /** 2*/

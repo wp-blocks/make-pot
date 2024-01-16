@@ -1,9 +1,10 @@
-import Parser, { type SyntaxNode, TreeCursor } from 'tree-sitter'
+import Parser, { type SyntaxNode } from 'tree-sitter'
 import { type TranslationString } from './types'
 import { i18nFunctions } from './const'
 
 // @ts-expect-error
 import Php from 'tree-sitter-php'
+import { stripTranslationMarkup } from './utils'
 
 /**
  * Extract strings from a file
@@ -54,8 +55,7 @@ export function extractStrings(
 			node.closest('program')?.children.forEach((comment) => {
 				// todo: regex to match insensitive "translators" and ":"
 				if (comment.type === 'text' && comment.text.toLowerCase().includes('translators:'))
-					return (commentRaw = comment.text)
-				console.log('type', comment.type, 'text', comment.text)
+					return (commentRaw = 'translators: ' + stripTranslationMarkup(comment.text))
 			})
 
 			matches.push({

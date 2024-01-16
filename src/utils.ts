@@ -59,11 +59,16 @@ export function removeCommentMarkup(input: string): string {
 }
 
 /**
- * Removes formatting characters from a given text.
+ * Removes the markup from a comment string.
  *
- * @param {string} text - The text to remove formatting from.
- * @return {string} The text with formatting removed.
+ * @param {string} comment - The comment string to remove markup from.
+ * @return {string} The comment text without the markers.
  */
-export function stripFormatting(text: string): string {
-	return text.replace(/  |\r\n|\n|\r|\t/g, '')
+export function stripTranslationMarkup(comment: string): string {
+	// Match anything between the comment start `/**` and end `*/`, including `translators:`
+	const commentPattern = /\/\*\*[\s]*translators:[\s]*(.*)[\s]*\*\//
+	const matches = comment.match(commentPattern)
+
+	// Return the first capture group, which is the comment text without the markers
+	return matches ? matches[1].trim() : ''
 }

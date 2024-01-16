@@ -97,9 +97,13 @@ $link = sprintf( wp_kses( __( 'Check out this link to my <a href="%s">website</a
 echo $link;`
 		const expected = [
 			{
-				reference: '#: filename:9',
+				msgid: 'Check out this link to my <a href="%s">website</a> made with WordPress.',
+				raw: [
+					'Check out this link to my <a href="%s">website</a> made with WordPress.',
+					'my-text-domain',
+				],
+				reference: '#: filename:3',
 				type: 'text_domain',
-				raw: [],
 			},
 		]
 
@@ -131,51 +135,36 @@ echo $link;`
 /** 18 */\t\t\t\t);`
 		const expected = [
 			{
-				reference: '#: filename:3',
-				type: 'text_domain',
+				msgid: 'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.',
 				raw: [
-					'** 4*',
-					'* translators: 1: Site URL, 2: Username, 3: User email address, 4: Lost password URL. *',
-					'** 5*',
-					'_( \'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.\' ',
-					'** 6*',
-					'printf( \'<a href="http://%1$s%2$s">%1$s%2$s</a>\', $signup->domain, $blog_details->path ',
-					'** 7*',
-					'signup->user_logi',
-					'** 8*',
-					'signup->user_emai',
-					'** 9*',
-					'p_lostpassword_url(',
-					'** 10*',
+					'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.',
 				],
-				msgid: '** 4*',
+				reference: '#: filename:5',
+				type: 'text_domain',
 			},
 			{
-				reference: '#: filename:6',
+				msgid: 'aaaaaaa',
+				raw: ['aaaaaaa'],
+				reference: '#: filename:12',
 				type: 'text_domain',
-				raw: [
-					'<a href="http://%1$s%2$s">%1$s%2$s</a>',
-					'signup->domai',
-					'blog_details->pat',
-				],
-				msgid: '<a href="http://%1$s%2$s">%1$s%2$s</a>',
 			},
 			{
-				reference: '#: filename:9',
+				msgid: 'aaaaaaa',
+				raw: ['aaaaaaa'],
+				reference: '#: filename:13',
 				type: 'text_domain',
-				raw: [],
 			},
 			{
-				reference: '#: filename:15',
+				msgid: 'aaaaaaa',
+				raw: ['aaaaaaa'],
+				reference: '#: filename:14',
 				type: 'text_domain',
-				raw: [
-					'** 16 *',
-					'* translators: 1: Site URL, 2: Username, 3: User email address, 4: Lost password URL. *',
-					'** 17 *',
-					"_( 'aaaaaaa' ",
-					'** 18 *',
-				],
-				msgid: '** 16 *',
+			},
+			{
+				msgid: 'aaaaaaa',
+				raw: ['aaaaaaa'],
+				reference: '#: filename:19',
+				type: 'text_domain',
 			},
 		]
 

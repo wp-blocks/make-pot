@@ -2,12 +2,13 @@ import path from 'path'
 import fs, { readFileSync } from 'fs'
 import { type Args, type TranslationString } from './types'
 import { pkgJsonHeaders } from './const'
-import { getCommentBlock, removeCommentMarkup } from './utils'
+import { getCommentBlock } from './utils'
 import Parser from 'tree-sitter'
 import type { SingleBar } from 'cli-progress'
-import { jsonString, parseBlockJson, parseJsonFile, parseThemeJson } from './extractors-json'
+import { jsonString, parseJsonFile } from './extractors-json'
 import { parsePHPFile } from './extractors-php'
 import { extractStrings } from './tree'
+import { extractFileData } from './extractors-text'
 
 /**
  * Extracts the names from an array of items.
@@ -65,6 +66,26 @@ export function yieldParsedData(
 }
 
 /**
+ * Parses the source code using the specified language parser and extracts the strings from the file.
+ *
+ * @param {string} sourceCode - The source code to be parsed.
+ * @param {Args} language - The language to be used for parsing.
+ * @param {string} filepath - The path to the file being parsed.
+ * @return {TranslationString[]} An array of translation strings.
+ */
+export function doTree(sourceCode: string, language: Parser, filepath: string) {
+	// set up the parser
+	const parser = new Parser()
+	parser.setLanguage(language)
+
+	// parse the file
+	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
+
+	// extract the strings from the file and return them
+	return extractStrings(tree.rootNode, language, filepath)
+}
+
+/**
  * Parse a file and extract strings asynchronously
  *
  * @param {object} args
@@ -75,7 +96,6 @@ export function yieldParsedData(
 export async function parseFile(args: {
 	filepath: string
 	language: Parser | string
-	stats?: { bar: SingleBar; index: number }
 }): Promise<TranslationString[] | null> {
 	// check if the language is supported
 	if (typeof args.language === 'string') {
@@ -88,13 +108,6 @@ export async function parseFile(args: {
 
 	// read the file
 	const sourceCode = readFileSync(path.resolve(args.filepath), 'utf8')
-
-	// log the filepath
-	if (args.stats) {
-		args.stats.bar.increment(1, {
-			filename: args.filepath + ' (' + args.stats.index + ')',
-		})
-	}
 
 	// set up the parser
 	const parser = new Parser()
@@ -132,32 +145,6 @@ export function extractPackageData(args: Args, fields = pkgJsonHeaders): Record<
 		}
 	}
 	return pkgJsonMeta
-}
-
-/**
- * Extracts file data from the given file content.
- *
- * @param {string} fileContent - The content of the file.
- * @return {Record<string, string>} An object containing the extracted file data.
- */
-export function extractFileData(fileContent: string): Record<string, string> {
-	const data: Record<string, string> = {}
-
-	// split by lines and trim every line
-	fileContent
-		.split('\n')
-		.map((line) => line.trim())
-		.map((line) => removeCommentMarkup(line))
-		// split each line by colon trim each part and add to data
-		.forEach((line) => {
-			const parts = line.split(':')
-			if (parts[1] === undefined) {
-				return
-			}
-			data[parts[0]?.trim()] = parts[1]?.trim()
-		})
-
-	return data
 }
 
 /**

@@ -57,3 +57,13 @@ export function getCommentBlock(input: string): string {
 export function removeCommentMarkup(input: string): string {
 	return input.replace(/\/\*[\s\S]*?\*\/|\/\/.*/gm, '')
 }
+
+/**
+ * Removes formatting characters from a given text.
+ *
+ * @param {string} text - The text to remove formatting from.
+ * @return {string} The text with formatting removed.
+ */
+export function stripFormatting(text: string): string {
+	return text.replace(/  |\r\n|\n|\r|\t/g, '')
+}

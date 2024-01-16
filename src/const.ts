@@ -9,16 +9,17 @@ export const TRANSLATIONS_REGEX =
 	/(?!\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\s*\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
 
 export const DEFAULT_EXCLUDED_PATH = [
-	'node_modules/**',
-	'vendor/**',
-	'build/**',
-	'dist/**',
+	'.git',
+	'node_modules',
+	'vendor',
+	'build',
+	'dist',
 	'Gruntfile.js',
 	'webpack.config.js',
 	'*.min.js',
-	'ts.config.js',
+	'tsconfig.js',
 	'**.test.**',
-	'tests/**',
+	'tests/*',
 ]
 
 export const prefixes = {

@@ -1,9 +1,8 @@
 import { blockJsonComments, themeJsonComments } from './const'
-import type { Args, TranslationString } from './types'
+import type { TranslationString } from './types'
 import { extractNames, yieldParsedData } from './extractors'
 import path from 'path'
 import { readFileSync } from 'fs'
-import { extractStrings } from './tree'
 import { SingleBar } from 'cli-progress'
 
 export function parseJsonFile(args: {

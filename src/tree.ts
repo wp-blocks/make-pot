@@ -1,16 +1,13 @@
-#!/usr/bin/env node
 import Parser, { type SyntaxNode } from 'tree-sitter'
-// @ts-expect-error
-import Js from 'tree-sitter-javascript'
-// @ts-expect-error
-import Php from 'tree-sitter-php'
-// @ts-expect-error
-import Ts from 'tree-sitter-typescript'
 import { type TranslationString } from './types'
 import { i18nFunctions } from './const'
 
+// @ts-expect-error
+import Php from 'tree-sitter-php'
+import { removeCommentMarkup } from './utils'
+
 /**
- * Extract strings from a file 🌳
+ * Extract strings from a file
  *
  * @param {Tree} node
  * @param {string} lang
@@ -29,9 +26,11 @@ export function extractStrings(
 	 * Traverse the tree 🌳
 	 *
 	 * @param {SyntaxNode} node The node to traverse through
-	 * @param {SyntaxNode|null} previousNode The previous node in the tree
 	 */
-	function traverse(node: SyntaxNode, previousNode: SyntaxNode | null = null): void {
+	function traverse(node: SyntaxNode): void {
+		for (const child of node.children) {
+			traverse(child)
+		}
 		if (node.type === typeToMatch) {
 			const functionNameNode = node.firstChild
 			const functionName = functionNameNode?.text ?? null
@@ -42,24 +41,39 @@ export function extractStrings(
 
 			const argsNode = node.lastChild
 
-			if (argsNode === null || argsNode.childCount === 0 || argsNode.type !== 'arguments') {
+			if (argsNode === null || argsNode.childCount === 0) {
 				return
 			}
 
 			const [fn, raw] = node.children
 			const translation: string[] = []
 			raw.children.slice(1, -1).forEach((child) => {
-				if (child.text !== ',') translation.push(child.text.slice(1, -1))
+				console.log(child.type, child.text)
+				// if isn't starting with a quote or a double quote
+				if (child.text[0] === '"' || child.text[0] === "'")
+					translation.push(child.text.slice(1, -1))
 			})
 
-			let comments
+			let comments = ''
+			let current = node
 
-			while (previousNode !== null && previousNode.type !== 'comment') {
-				previousNode = previousNode.previousSibling
-			}
+			// Search for comments in current node's previous siblings and ancestors
+			searchLoop: while (current) {
+				let previousNode = current.previousSibling
 
-			if (previousNode?.type === 'comment' && previousNode.text.includes('translators:')) {
-				comments = previousNode.text.trim()
+				while (previousNode) {
+					if (previousNode.type === 'comment') {
+						const commentText = previousNode.text.trim()
+						if (commentText.includes('translators:')) {
+							comments = commentText
+							break searchLoop
+						}
+					}
+					previousNode = previousNode.previousSibling
+				}
+
+				// Move to the parent node to check its siblings
+				current = current.parent as SyntaxNode
 			}
 
 			const type = i18nFunctions[fn.text as keyof typeof i18nFunctions] ?? 'text_domain'
@@ -73,39 +87,9 @@ export function extractStrings(
 				comments,
 			})
 		}
-
-		for (const child of node.children) {
-			traverse(child, node)
-		}
 	}
 
 	traverse(node)
 
-	// Return both matches and entries
 	return matches
-}
-
-/**
- * Return the parser based on the file extension
- *
- * @param file - Path to the file
- * @return {Parser|{}|null} - the parser to be used with the file or null if no parser is found
- */
-export function getParser(file: string): string | Parser {
-	const ext = file.split('.').pop()
-	switch (ext) {
-		case 'ts':
-			return Ts.typescript
-		case 'tsx':
-			return Ts.tsx
-		case 'js':
-		case 'jsx':
-		case 'mjs':
-		case 'cjs':
-			return Js
-		case 'php':
-			return Php
-		default:
-			return ext!
-	}
 }

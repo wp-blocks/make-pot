@@ -96,6 +96,10 @@ export function getArgs() {
 				describe: 'Exclude specific files',
 				type: 'string',
 			},
+			silent: {
+				describe: 'No output to stdout',
+				type: 'boolean',
+			},
 		})
 		.parseSync()
 
@@ -112,7 +116,7 @@ export function getArgs() {
 		mergePaths: stringstring(args.mergePaths) ?? [],
 		subtractPaths: stringstring(args.subtractPaths) ?? [],
 		subtractAndMerge: args.subtractAndMerge ?? false,
-		include: stringstring(args.include) ?? [],
+		include: stringstring(args.include) ?? ['**'],
 		exclude: stringstring(args.exclude) ?? DEFAULT_EXCLUDED_PATH,
 		// Config: skip, comment and package name
 		skipJs: args.skipJs ?? false,
@@ -123,5 +127,6 @@ export function getArgs() {
 		skipAudit: args.skipAudit ?? false,
 		fileComment: args.fileComment ?? '',
 		packageName: args.packageName ?? '',
+		silent: args.silent ?? false,
 	} satisfies Args
 }

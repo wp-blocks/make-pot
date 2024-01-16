@@ -61,7 +61,7 @@ export type DomainType = 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic
  *   Overrides the plugin or theme name, if applicable.
  */
 
-export interface Args {
+export interface Args extends Patterns {
 	sourceDirectory?: string
 	destination?: string
 	slug: string
@@ -69,11 +69,6 @@ export interface Args {
 	ignoreDomain?: boolean
 	fileComment?: string
 	packageName?: string
-	mergePaths?: string[]
-	subtractPaths?: string[]
-	subtractAndMerge?: boolean
-	include?: string[]
-	exclude?: string[]
 	headers: Record<PotHeaders, string> | undefined
 	location?: boolean
 	skipJs?: boolean
@@ -82,6 +77,7 @@ export interface Args {
 	skipBlockJson?: boolean
 	skipThemeJson?: boolean
 	skipAudit?: boolean
+	silent?: boolean
 }
 
 export interface TranslationString {
@@ -95,9 +91,9 @@ export interface TranslationString {
 }
 
 export interface Patterns {
-	included: string[]
-	excluded: string[]
-	mergePaths: string[]
-	subtractPaths: string[]
-	subtractAndMerge: boolean
+	mergePaths?: string[]
+	subtractPaths?: string[]
+	subtractAndMerge?: boolean
+	include?: string[]
+	exclude?: string[]
 }

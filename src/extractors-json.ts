@@ -1,9 +1,9 @@
-import { blockJsonComments, themeJsonComments } from './const'
 import type { TranslationString } from './types'
 import { extractNames, yieldParsedData } from './extractors'
 import path from 'path'
 import { readFileSync } from 'fs'
 import { SingleBar } from 'cli-progress'
+import { blockJson, themeJson } from './extractors-maps'
 
 export function parseJsonFile(args: {
 	filepath: string
@@ -124,8 +124,8 @@ export function parseThemeJson(jsondata: string): Record<string, any> {
  * @return {string} - The comment associated with the given key. If the key is not found, the key itself is returned.
  */
 export function getJsonComment(key: string, type?: 'block.json' | 'theme.json'): string {
-	const comments = type === 'block.json' ? blockJsonComments : themeJsonComments
-	return key in comments ? comments[key as keyof typeof comments] : key
+	const comments = type === 'block.json' ? blockJson : themeJson
+	return key in Object.values(comments) ? comments[key as keyof typeof comments] : key
 }
 
 /**

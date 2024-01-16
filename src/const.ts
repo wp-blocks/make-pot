@@ -1,13 +1,3 @@
-export const SPRINTF_PLACEHOLDER_REGEX =
-	/(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.[0-9]+)?[bcdeEfFgGosuxX])/
-
-export const UNORDERED_SPRINTF_PLACEHOLDER_REGEX =
-	/(?:[^%]|^)(%[+-]?(?:0|'.)?-?[0-9]*(?:\.\d+)?[bcdeEfFgGosuxX])/
-
-// Regular expression to match translator comments and translation i18nFunctions in code
-export const TRANSLATIONS_REGEX =
-	/(?!\/\*|\/\/)\s*(?:translators:(.*?)\s.*)?(?:__|_e|_n|_x|_nx)\s*\(\s*(['"])(.*?)\2(?:\s*,\s*(['"])(.*?)\4)?\s*\)/gm
-
 export const DEFAULT_EXCLUDED_PATH = [
 	'.git',
 	'node_modules',
@@ -28,51 +18,6 @@ export const prefixes = {
 	_x: ['msgid', 'msgctxt'],
 	_nx: ['msgid', 'msgid_plural', null, 'msgctxt'],
 }
-
-export const pkgJsonHeaders = {
-	name: 'name',
-	homepage: 'url',
-	description: 'description',
-	author: 'author',
-	version: 'version',
-	bugs: 'bugs',
-	license: 'license',
-	repository: 'repository',
-}
-export const pluginHeaders = {
-	'Plugin Name': 'name',
-	'Plugin URI': 'url',
-	Description: 'description',
-	Author: 'author',
-	'Author URI': 'authorUrl',
-	Version: 'version',
-	License: 'license',
-	'Domain Path': 'domainPath',
-	'Text Domain': 'textDomain',
-} as const
-
-export const blockJsonComments = {
-	title: 'block title',
-	description: 'block description',
-	keywords: 'block keywords',
-}
-
-export const themeJsonComments = {
-	title: 'Theme Name of the theme',
-	description: 'Description of the theme',
-}
-
-export const themeHeaders = {
-	'Theme Name': 'name',
-	'Theme URI': 'url',
-	Description: 'description',
-	Author: 'author',
-	'Author URI': 'authorUrl',
-	Version: 'version',
-	License: 'license',
-	'Domain Path': 'domainPath',
-	'Text Domain': 'textDomain',
-} as const
 
 export const i18nFunctions = {
 	__: 'text_domain',

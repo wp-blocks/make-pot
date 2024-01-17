@@ -1,9 +1,10 @@
 import type { Args, Patterns, TranslationString } from './types'
-import { glob } from 'glob'
-import { consolidateTranslations } from './consolidate'
+import { consolidateTranslations, outputTranslationsPot } from './consolidate'
 import cliProgress, { type SingleBar } from 'cli-progress'
 import { parseFile } from './extractors'
-import { cpus } from 'node:os'
+import { allowedFiles } from './const'
+import { Glob, IgnoreLike, Path } from 'glob'
+import { minimatch } from 'minimatch'
 import Parser from 'tree-sitter'
 
 // @ts-expect-error
@@ -39,25 +40,86 @@ export function getParser(file: string): string | Parser {
 }
 
 /**
+ * Determines if a pattern represents a file, a directory, or a glob pattern.
+ * @param pattern - The pattern string to evaluate.
+ * @returns 'file', 'directory', or 'glob'.
+ */
+export function detectPatternType(
+	pattern: string
+): 'file' | 'directory' | 'glob' {
+	const containsFileExtension = pattern.includes('.')
+	const containsDirectorySeparator = pattern.includes('/')
+
+	if (pattern.includes('*')) {
+		return 'glob'
+	} else if (!containsFileExtension && !containsDirectorySeparator) {
+		return 'directory'
+	} else if (containsFileExtension && !containsDirectorySeparator) {
+		return 'file'
+	} else {
+		return 'glob'
+	}
+}
+
+export function includeFunction(includePath: string[]) {
+	return includePath.map((path) => {
+		const type = detectPatternType(path)
+		switch (type) {
+			case 'directory':
+				return '**/' + path + '/**'
+			case 'file':
+				return '**/' + path
+			default:
+				return path
+		}
+	})
+}
+
+/**
  * Retrieves a list of files based on the provided arguments and patterns.
  *
  * @param {Args} args - The argument object containing the source directory and other options.
  * @param {Patterns} pattern - The pattern object containing the included and excluded file patterns.
- * @return {Promise<string[]>} A promise that resolves to an array of file paths.
+ * @return A promise that resolves to an array of file paths.
  */
-export function getFiles(args: Args, pattern: Patterns) {
-	const includedPatterns = pattern.include
-		? pattern.include.map((p) => p.trim()).filter((p) => p)
-		: ['**']
+export async function getFiles(args: Args, pattern: Patterns) {
+	const includedPatterns = includeFunction(
+		pattern.include.map((p) => p.trim()).filter((p) => p)
+	) ?? ['**']
 
 	// Process excludePaths
-	const excludedPatterns = (pattern.exclude ?? []).concat(
-		args.exclude?.map((p) => p.trim()).filter((p) => p) ?? []
+	const excludedPatterns = pattern.exclude ?? []
+
+	// Build the ignore function for Glob
+	const ignoreFunc = (filePath: Path): boolean => {
+		return excludedPatterns.some((exclude) => {
+			const type = detectPatternType(exclude)
+			switch (type) {
+				case 'file':
+					return filePath.name === exclude
+				case 'directory':
+					return filePath.path.includes(exclude)
+				default:
+					// Handle glob patterns using minimatch or a similar library
+					return minimatch(filePath.path, exclude)
+			}
+		}) as boolean
+	}
+
+	console.log(
+		'Searching in :',
+		args.sourceDirectory ?? process.cwd(),
+		' for ' + includeFunction(includedPatterns).join(),
+		'\nExcluding : ' + excludedPatterns.join()
 	)
 
 	// Execute the glob search with the built patterns
-	return glob(includedPatterns, {
-		ignore: excludedPatterns ? excludedPatterns : undefined,
+	return new Glob(includedPatterns, {
+		ignore: {
+			ignored: (p) => {
+				return ignoreFunc(p)
+			},
+		},
 		nodir: true,
 		cwd: args.sourceDirectory ?? process.cwd(),
 	})
@@ -101,9 +163,25 @@ export async function getStrings(args: Args, pattern: Patterns) {
 
 	const tasks: Array<Promise<TranslationString[]>> = []
 
-	const progressBar = initProgress(args, files.length)
+	const progressBar = initProgress(
+		args,
+		Array.from(files.iterateSync()).length
+	)
 
 	for (const file of files) {
+		// get the file extension
+		const ext = file.split('.').pop() || 'undefined'
+		// check if the extension is allowed
+		if (!allowedFiles.includes(ext)) {
+			// log the filepath
+			if (progressBar) {
+				progressBar.increment(1, {
+					filename: `Skipping ${ext} (not a valid file extension)`,
+				})
+			}
+			continue
+		}
+
 		const task = parseFile({
 			filepath: file,
 			language: getParser(file),
@@ -125,25 +203,19 @@ export async function getStrings(args: Args, pattern: Patterns) {
 		progressBar.stop()
 	}
 
-	const result = results.flat().filter((t) => t != null) as TranslationString[]
+	const result = results
+		.flat()
+		.filter((t) => t != null) as TranslationString[]
 
-	console.log('📝 Found', result.length, 'strings in', files.length, 'files.')
-	console.log(
-		'Memory usage:',
-		process.memoryUsage().heapUsed / 1024 / 1024,
-		'MB - Heap usage:',
-		process.memoryUsage().heapUsed / 1024 / 1024,
-		'MB'
-	)
-	console.log(
-		'Cpu User:',
-		process.cpuUsage().user / 1000000,
-		'ms Cpu System:',
-		process.cpuUsage().system / 1000000,
-		'ms of',
-		cpus().length,
-		'cores'
-	)
+	if (!args.silent) {
+		console.log(
+			'📝 Found',
+			result.length,
+			'strings in',
+			results.length,
+			'files.'
+		)
+	}
 
 	return result
 }
@@ -156,12 +228,12 @@ export async function getStrings(args: Args, pattern: Patterns) {
  */
 export async function runExtract(args: Args) {
 	const pattern = {
-		include: args.include ?? [],
-		exclude: args.exclude ?? [],
-		mergePaths: args.mergePaths ?? [],
-		subtractPaths: args.subtractPaths ?? [],
-		subtractAndMerge: args.subtractAndMerge ?? false,
-	}
+		include: args.include || [],
+		exclude: args.exclude || [],
+		mergePaths: args.mergePaths,
+		subtractPaths: args.subtractPaths,
+		subtractAndMerge: args.subtractAndMerge,
+	} as Patterns
 
 	// Additional logic to handle different file types and formats
 	// Exclude blade.php files if --skip-blade is set
@@ -187,10 +259,24 @@ export async function runExtract(args: Args) {
 		pattern.include.push('theme.json')
 	}
 
-	if (args.skipAudit !== undefined) {
-		const stringsJson = (await getStrings(args, pattern)) as TranslationString[]
+	if (args.skipAudit !== true) {
+		const stringsJson = (await getStrings(
+			args,
+			pattern
+		)) as TranslationString[]
 		// merge all strings collecting duplicates and returning the result as the default gettext format
-		return consolidateTranslations(stringsJson)
+		const consolidated = consolidateTranslations(stringsJson)
+		if (!args.silent) {
+			const duplicates =
+				stringsJson.length - Object.keys(consolidated).length
+			console.log(
+				Object.keys(consolidated).length +
+					'unique strings (' +
+					duplicates +
+					' duplicates)'
+			)
+		}
+		return outputTranslationsPot(consolidated)
 	} else {
 		return pattern.include.join('\n')
 	}

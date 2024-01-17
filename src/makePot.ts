@@ -35,8 +35,10 @@ export async function makePot(args: Args) {
 	const headers = { ...pkgData, ...metadata, ...args.headers }
 
 	args = { ...args, headers } as Args
-	console.log('📝 Making a pot file...')
-	console.log('🔍 Extracting strings...', args.slug, args)
+	if (!args.silent) {
+		console.log('📝 Making a pot file...')
+		console.log('🔍 Extracting strings...', args.slug, args.headers)
+	}
 
 	const translations = await runExtract(args)
 
@@ -51,9 +53,7 @@ export async function makePot(args: Args) {
 				1024 /
 				1024
 			).toFixed(2),
-			'GB)'
-		)
-		console.log(
+			'GB)\n',
 			'Cpu User:',
 			(process.cpuUsage().user / 1000000).toFixed(2),
 			'ms Cpu System:',

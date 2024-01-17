@@ -10,9 +10,9 @@ export const DEFAULT_EXCLUDED_PATH = [
 	'dist',
 	'Gruntfile.js',
 	'webpack.config.js',
-	'*.min.js',
+	'**/*.min.js',
 	'tsconfig.js',
-	'**.test.**',
+	'**/*.test.**',
 	'tests',
 ]
 

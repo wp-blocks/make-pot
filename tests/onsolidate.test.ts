@@ -1,5 +1,8 @@
 import { describe, expect } from '@jest/globals'
-import { consolidateTranslations } from '../src/consolidate'
+import {
+	consolidateTranslations,
+	outputTranslationsPot,
+} from '../src/consolidate'
 
 describe('consolidateTranslations', () => {
 	it('should output translation strings with translator comments', () => {
@@ -20,7 +23,7 @@ describe('consolidateTranslations', () => {
 				reference: '#: includes/class-controller.php:12',
 			},
 		]
-
+		// eslint-disable-next-line
 		const expected = `#: includes/class-controller.php:1
 msgid "Hello World"
 msgstr ""
@@ -31,9 +34,13 @@ msgstr ""
 
 #: includes/class-controller.php:12
 msgid "qweqweqweqwe"
-msgstr ""`
+msgstr ""
 
-		const result = consolidateTranslations(translationStrings)
+`
+
+		const result = outputTranslationsPot(
+			consolidateTranslations(translationStrings)
+		)
 
 		expect(result).toBe(expected)
 	})
@@ -56,7 +63,7 @@ msgstr ""`
 				reference: '#: includes/class-controller.php:12',
 			},
 		]
-
+		// eslint-disable-next-line
 		const expected = `#: includes/class-controller.php:1
 #: includes/class-controller.php:99
 msgid "World"
@@ -64,9 +71,13 @@ msgstr ""
 
 #: includes/class-controller.php:12
 msgid "qweqweqweqwe"
-msgstr ""`
+msgstr ""
 
-		const result = consolidateTranslations(translationStrings)
+`
+
+		const result = outputTranslationsPot(
+			consolidateTranslations(translationStrings)
+		)
 
 		expect(result).toBe(expected)
 	})

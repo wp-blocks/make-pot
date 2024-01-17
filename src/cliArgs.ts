@@ -85,7 +85,8 @@ export function getArgs() {
 				type: 'string',
 			},
 			subtractAndMerge: {
-				describe: 'Subtract and merge strings from existing POT file(s)',
+				describe:
+					'Subtract and merge strings from existing POT file(s)',
 				type: 'boolean',
 			},
 			include: {
@@ -116,7 +117,7 @@ export function getArgs() {
 		mergePaths: stringstring(args.mergePaths) ?? [],
 		subtractPaths: stringstring(args.subtractPaths) ?? [],
 		subtractAndMerge: args.subtractAndMerge ?? false,
-		include: stringstring(args.include) ?? ['**'],
+		include: stringstring(args.include) ?? [],
 		exclude: stringstring(args.exclude) ?? DEFAULT_EXCLUDED_PATH,
 		// Config: skip, comment and package name
 		skipJs: args.skipJs ?? false,

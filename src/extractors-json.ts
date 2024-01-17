@@ -3,30 +3,36 @@ import { extractNames, yieldParsedData } from './extractors'
 import path from 'path'
 import { readFileSync } from 'fs'
 import { SingleBar } from 'cli-progress'
-import { blockJson, themeJson } from './extractors-maps'
+import { BlockJson, blockJson, ThemeBlock, themeJson } from './extractors-maps'
 
 export function parseJsonFile(args: {
 	filepath: string
 	stats?: { bar: SingleBar; index: number }
 }) {
 	const filename = path.basename(args.filepath)
-	let parsed: Record<string, string | string[]> | null = null
+	let parsed: ThemeBlock | BlockJson | null = null
 	// parse the file based on the filename
 	switch (filename) {
 		case 'block.json':
 			args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
-			parsed = parseBlockJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+			parsed = parseBlockJson(
+				readFileSync(path.resolve(args.filepath), 'utf8')
+			) as BlockJson
 			break
 		case 'theme.json':
 			args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
-			parsed = parseThemeJson(readFileSync(path.resolve(args.filepath), 'utf8'))
+			parsed = parseThemeJson(
+				readFileSync(path.resolve(args.filepath), 'utf8')
+			) as ThemeBlock
 			break
 	}
 
-	if (parsed !== null) {
+	if (parsed) {
 		// extract the strings from the file and return them as an array of objects
 		return yieldParsedData(parsed, filename, args)
 	}
+
+	return new Promise<TranslationString[]>((resolve) => resolve([]))
 }
 
 /**
@@ -70,8 +76,12 @@ export function parseThemeJson(jsondata: string): Record<string, any> {
 		title: json.title,
 		settings: {
 			typography: {
-				fontSizes: typography.fontSizes ? extractNames(typography.fontSizes) : [],
-				fontFamilies: typography.fontFamilies ? extractNames(typography.fontFamilies) : [],
+				fontSizes: typography.fontSizes
+					? extractNames(typography.fontSizes)
+					: [],
+				fontFamilies: typography.fontFamilies
+					? extractNames(typography.fontFamilies)
+					: [],
 			},
 			color: {
 				palette: color.palette ? extractNames(color.palette) : [],
@@ -79,7 +89,9 @@ export function parseThemeJson(jsondata: string): Record<string, any> {
 				duotone: color.duotone ? extractNames(color.duotone) : [],
 			},
 			spacing: {
-				spacingSizes: spacing.spacingSizes ? extractNames(spacing.spacingSizes) : [],
+				spacingSizes: spacing.spacingSizes
+					? extractNames(spacing.spacingSizes)
+					: [],
 			},
 			blocks: Object.keys(blocks).reduce((acc: any, key: string) => {
 				const block = blocks[key]
@@ -93,7 +105,9 @@ export function parseThemeJson(jsondata: string): Record<string, any> {
 							: [],
 					},
 					color: {
-						palette: block.color?.palette ? extractNames(block.color.palette) : [],
+						palette: block.color?.palette
+							? extractNames(block.color.palette)
+							: [],
 						gradients: block.color?.gradients
 							? extractNames(block.color.gradients)
 							: [],
@@ -123,9 +137,14 @@ export function parseThemeJson(jsondata: string): Record<string, any> {
  * @param {('block.json' | 'theme.json')=} type - The type of JSON file to search for the comment. Defaults to 'block.json'.
  * @return {string} - The comment associated with the given key. If the key is not found, the key itself is returned.
  */
-export function getJsonComment(key: string, type?: 'block.json' | 'theme.json'): string {
+export function getJsonComment(
+	key: string,
+	type?: 'block.json' | 'theme.json'
+): string {
 	const comments = type === 'block.json' ? blockJson : themeJson
-	return key in Object.values(comments) ? comments[key as keyof typeof comments] : key
+	return key in Object.values(comments)
+		? comments[key as keyof typeof comments]
+		: key
 }
 
 /**

@@ -1,7 +1,6 @@
 import path from 'path'
 import fs, { readFileSync } from 'fs'
-import { type Args, type TranslationString } from './types'
-import { pkgJsonHeaders } from './const'
+import { type Args, PotHeaders, type TranslationString } from './types'
 import { getCommentBlock } from './utils'
 import Parser from 'tree-sitter'
 import type { SingleBar } from 'cli-progress'
@@ -9,6 +8,13 @@ import { jsonString, parseJsonFile } from './extractors-json'
 import { parsePHPFile } from './extractors-php'
 import { extractStrings } from './tree'
 import { extractFileData } from './extractors-text'
+import {
+	BlockJson,
+	blockJson,
+	BlockJsonKeys,
+	pkgJsonHeaders,
+	ThemeBlockKeys,
+} from './extractors-maps'
 
 /**
  * Extracts the names from an array of items.
@@ -16,7 +22,8 @@ import { extractFileData } from './extractors-text'
  * @param {unknown[]} items - The array of items.
  * @return {string[]} An array of names extracted from the items.
  */
-export const extractNames = (items: { name: string }[]): string[] => items.map((item) => item.name)
+export const extractNames = (items: { name: string }[]): string[] =>
+	items.map((item) => item.name)
 
 /**
  * Extracts strings from parsed JSON data.
@@ -27,13 +34,13 @@ export const extractNames = (items: { name: string }[]): string[] => items.map((
  * @return {TranslationString[]} An array of translation strings.
  */
 export function yieldParsedData(
-	parsed: Record<string, string | string[]> | Parser.SyntaxNode,
+	parsed: Record<string, unknown>,
 	filename: string | Parser,
 	opts: { filepath: string; stats?: { bar: SingleBar } }
 ): Promise<TranslationString[]> {
 	return new Promise<TranslationString[]>((resolve) =>
 		resolve(
-			Object.entries(parsed as Record<string, string | string[]>)
+			Object.entries(parsed)
 
 				// return the translations for each key in the json data
 				.map(([key, jsonData]) => {
@@ -46,7 +53,9 @@ export function yieldParsedData(
 							filename as 'block.json' | 'theme.json'
 						)
 					} else {
-						opts.stats?.bar.increment(0, { filename: 'not a string' })
+						opts.stats?.bar.increment(0, {
+							filename: 'not a string',
+						})
 					}
 
 					if (!jsonData) {
@@ -58,9 +67,12 @@ export function yieldParsedData(
 					}
 
 					// if is an object return an array of json strings
-					Object.entries(jsonData).map(([k, v]) => jsonString(k, v, opts.filepath))
+					Object.entries(jsonData).map(([k, v]) =>
+						jsonString(k[v], v, opts.filepath)
+					)
 				})
-				.flat() as TranslationString[]
+				.flat()
+				.filter(Boolean) as TranslationString[]
 		)
 	)
 }
@@ -100,9 +112,11 @@ export async function parseFile(args: {
 	// check if the language is supported
 	if (typeof args.language === 'string') {
 		if (args.language === 'json') {
-			return parseJsonFile(args) || []
+			return parseJsonFile(args)
 		}
-		console.log(`Skipping ${args.filepath}... No parser found for ${args.language} file`)
+		console.log(
+			`Skipping ${args.filepath}... No parser found for ${args.language} file`
+		)
 		return null
 	}
 
@@ -128,7 +142,10 @@ export async function parseFile(args: {
  * @param {Record<string, string>} fields - The fields to extract from the package.json file. Default is pkgJsonHeaders.
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
-export function extractPackageData(args: Args, fields = pkgJsonHeaders): Record<string, string> {
+export function extractPackageData(
+	args: Args,
+	fields = pkgJsonHeaders
+): Record<string, string> {
 	// TODO: package.json "files" could be used to get the file list
 	const pkgJsonMeta: Record<string, string> = {}
 	// read the package.json file
@@ -187,7 +204,9 @@ export function extractMainFileData(args: Args) {
 			console.log(`Theme stylesheet: ${styleCssFile}`)
 			args.domain = 'theme'
 		} else {
-			console.log(`Theme stylesheet not found in ${path.resolve(sourceDir)}`)
+			console.log(
+				`Theme stylesheet not found in ${path.resolve(sourceDir)}`
+			)
 		}
 	}
 

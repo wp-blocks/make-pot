@@ -2,6 +2,7 @@ import { getFiles } from '../src/parser'
 import { Args, DomainType, Patterns } from '../src/types'
 
 const DEFAULTS = {
+	silent: true,
 	sourceDirectory: './tests/fixtures/',
 	slug: 'plugin-slug',
 	domain: 'plugin' as DomainType,
@@ -22,10 +23,6 @@ describe('getFiles', () => {
 	it('should retrieve a list of txt files based on the provided patterns', async () => {
 		const args = {
 			...DEFAULTS,
-			sourceDirectory: './tests/fixtures/',
-			slug: 'plugin-slug',
-			domain: 'plugin' as DomainType,
-			headers: {},
 		}
 		const pattern = {
 			include: ['**/*.txt'],
@@ -46,10 +43,6 @@ describe('getFiles', () => {
 	it('should retrieve a list of theme.json files based on the provided patterns', async () => {
 		const args = {
 			...DEFAULTS,
-			sourceDirectory: './tests/fixtures/',
-			slug: 'plugin-slug',
-			domain: 'plugin' as DomainType,
-			headers: {},
 		}
 		const pattern = {
 			include: ['theme.json'],
@@ -65,10 +58,6 @@ describe('getFiles', () => {
 	it('should retrieve a list of files without any node_modules folder', async () => {
 		const args = {
 			...DEFAULTS,
-			sourceDirectory: './tests/fixtures/',
-			slug: 'plugin-slug',
-			domain: 'plugin' as DomainType,
-			headers: {},
 		}
 		const pattern = {
 			include: ['**'],

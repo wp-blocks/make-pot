@@ -3,6 +3,7 @@ import { makePot } from '../src/makePot'
 import { Args } from '../src/types'
 
 const argv = {
+	silent: true,
 	sourceDirectory: '../tests/fixtures/sourcedir',
 }
 

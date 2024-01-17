@@ -13,7 +13,12 @@ export type PotHeaders =
 	| (typeof themeHeaders)[ThemeHeadersType]
 
 // type is the value of the themeHeader Object
-export type DomainType = 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic'
+export type DomainType =
+	| 'plugin'
+	| 'theme'
+	| 'block'
+	| 'theme-block'
+	| 'generic'
 
 /**
  * The patterns to use when extracting strings from files.
@@ -41,8 +46,8 @@ export interface Patterns {
 	mergePaths?: string[]
 	subtractPaths?: string[]
 	subtractAndMerge?: boolean
-	include?: string[]
-	exclude?: string[]
+	include: string[]
+	exclude: string[]
 }
 
 /**

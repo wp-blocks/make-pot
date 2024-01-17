@@ -1,3 +1,7 @@
+/**
+ * The default list of paths to exclude from the pot file.
+ * @link https://www.npmjs.com/package/glob#glob-primer
+ */
 export const DEFAULT_EXCLUDED_PATH = [
 	'.git',
 	'node_modules',
@@ -9,16 +13,26 @@ export const DEFAULT_EXCLUDED_PATH = [
 	'*.min.js',
 	'tsconfig.js',
 	'**.test.**',
-	'tests/*',
+	'tests',
 ]
 
-export const prefixes = {
-	__: ['msgid'],
-	_n: ['msgid', 'msgid_plural'],
-	_x: ['msgid', 'msgctxt'],
-	_nx: ['msgid', 'msgid_plural', null, 'msgctxt'],
-}
-
+export const allowedFiles = [
+	'php',
+	'js',
+	'jsx',
+	'ts',
+	'tsx',
+	'mjs',
+	'cjs',
+	'txt',
+	'css',
+	'html',
+	'json',
+	'md',
+]
+/**
+ * The default functions to use for i18n.
+ */
 export const i18nFunctions = {
 	__: 'text_domain',
 	esc_attr__: 'text_domain',

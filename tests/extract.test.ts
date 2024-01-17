@@ -1,5 +1,4 @@
 import { describe, expect } from '@jest/globals'
-import { getStrings } from '../src/parser'
 import { doTree } from '../src/extractors'
 // @ts-expect-error
 import Js from 'tree-sitter-javascript'

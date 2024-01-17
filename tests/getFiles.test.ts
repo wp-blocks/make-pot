@@ -14,15 +14,9 @@ describe('getFiles', () => {
 		const pattern = { include: ['**'], exclude: [] }
 
 		const files = await getFiles(args, pattern)
-		let collected = []
-		for await (const file of files) {
-			collected.push(file)
-		}
 
-		console.log(collected)
-
-		expect(collected.length).toBeGreaterThan(2)
-		expect(collected.includes('fse\\theme.json')).toBeTruthy()
+		expect(files.length).toBeGreaterThan(2)
+		expect(files.includes('fse\\theme.json')).toBeTruthy()
 	})
 	it('should retrieve a list of txt files based on the provided patterns', async () => {
 		const args = {
@@ -31,8 +25,15 @@ describe('getFiles', () => {
 			domain: 'plugin' as DomainType,
 			headers: {},
 		}
-		const pattern = { include: ['**/*.txt'], exclude: ['node_modules', 'dist'] }
-		const expectedFiles = ['file1.txt', 'sourcedir\\file2.txt', 'block\\readme.txt']
+		const pattern = {
+			include: ['**/*.txt'],
+			exclude: ['node_modules', 'dist'],
+		}
+		const expectedFiles = [
+			'file1.txt',
+			'sourcedir\\file2.txt',
+			'block\\readme.txt',
+		]
 
 		const files = await getFiles(args, pattern)
 
@@ -46,8 +47,8 @@ describe('getFiles', () => {
 			headers: {},
 		}
 		const pattern = {
-			include: ['**/theme.json'],
-			exclude: ['**/node_modules/**', 'node_modules/**'],
+			include: ['theme.json'],
+			exclude: ['node_modules'],
 		}
 		const expectedFiles = ['sourcedir\\theme.json', 'fse\\theme.json']
 
@@ -61,7 +62,7 @@ describe('getFiles', () => {
 			domain: 'plugin' as DomainType,
 			headers: {},
 		}
-		const pattern = { include: undefined, exclude: ['**/node_modules/**'] }
+		const pattern = { include: undefined, exclude: ['node_modules'] }
 
 		const files = await getFiles(args, pattern)
 

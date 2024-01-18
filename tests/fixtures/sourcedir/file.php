@@ -1,3 +1,11 @@
+<?php
+/** translators: ciao! */
+_e('sdasdasdasd');
+
+
+/** translators: ciao2! */
+echo __('sdasdasdasd');
+
 # Theme Support
 
 The new Blocks include baseline support in all themes, enhancements to opt-in to and the ability to extend and customize.
@@ -21,10 +29,12 @@ To opt-in for one of these features, call `add_theme_support` in the `functions.
 function mytheme_setup_theme_supported_features() {
 	add_theme_support( 'editor-color-palette', array(
 		array(
+			/** translators: ciao3 */
 			'name'  => esc_attr__( 'strong magenta', 'themeLangDomain' ),
 			'slug'  => 'strong-magenta',
 			'color' => '#a156b4',
 		),
+		/** translators: ciao4 */
 		array(
 			'name'  => esc_attr__( 'light grayish magenta', 'themeLangDomain' ),
 			'slug'  => 'light-grayish-magenta',
@@ -148,7 +158,6 @@ Themes are responsible for creating the classes that apply the colors in differe
 	border-color: #a156b4;
 }
 ```
-
 Starting in WordPress 5.9, to override color values defined by core, themes without a `theme.json` have to set their values via CSS Custom Properties instead of providing the classes. The CSS Custom Properties use the following naming `--wp--preset--color--<slug>`. See more info in [this devnote](https://make.wordpress.org/core/2022/01/08/updates-for-settings-styles-and-theme-json/). For example:
 
 ```css

@@ -1,6 +1,6 @@
 import path from 'path'
 import fs, { readFileSync } from 'fs'
-import { type Args, type TranslationString } from './types'
+import { type Args, type TranslationStrings } from './types'
 import { getCommentBlock } from './utils'
 import Parser from 'tree-sitter'
 import type { SingleBar } from 'cli-progress'
@@ -9,6 +9,7 @@ import { parsePHPFile } from './extractors-php'
 import { extractStrings } from './tree'
 import { extractFileData } from './extractors-text'
 import { pkgJsonHeaders } from './extractors-maps'
+import { GetTextTranslation } from 'gettext-parser'
 
 /**
  * Extracts the names from an array of items.
@@ -25,50 +26,60 @@ export const extractNames = (items: { name: string }[]): string[] =>
  * @param {Record<string, any> | Parser.SyntaxNode} parsed - The parsed JSON data or syntax node.
  * @param {string | Parser} filename - The filename or parser.
  * @param opts - The metadata of this translation string.
- * @return {TranslationString[]} An array of translation strings.
+ * @return {TranslationStrings[]} An array of translation strings.
  */
 export function yieldParsedData(
 	parsed: Record<string, unknown>,
 	filename: string | Parser,
 	opts: { filepath: string; stats?: { bar: SingleBar } }
-): Promise<TranslationString[]> {
-	return new Promise<TranslationString[]>((resolve) =>
-		resolve(
-			Object.entries(parsed)
+): Promise<TranslationStrings> {
+	return new Promise<TranslationStrings>((resolve) => {
+		const gettextTranslations: TranslationStrings = {}
 
-				// return the translations for each key in the json data
-				.map(([key, jsonData]) => {
-					// if is a string return a single json string
-					if (typeof jsonData === 'string') {
-						return jsonString(
-							key,
-							jsonData,
-							opts.filepath,
-							filename as 'block.json' | 'theme.json'
-						)
-					} else {
-						opts.stats?.bar.increment(0, {
-							filename: 'not a string',
-						})
-					}
-
-					if (!jsonData) {
-						opts.stats?.bar.increment(0, {
-							filename: `Skipping ${key} in ${opts.filepath} as ${filename} ... cannot parse data`,
-						})
-
-						return null
-					}
-
-					// if is an object return an array of json strings
-					Object.entries(jsonData).map(([k, v]) =>
-						jsonString(k[v], v, opts.filepath)
+		Object.entries(parsed)
+			// return the translations for each key in the json data
+			.map(([key, jsonData]) => {
+				// if is a string return a single json string
+				if (typeof jsonData === 'string') {
+					return jsonString(
+						key,
+						jsonData,
+						opts.filepath,
+						filename as 'block.json' | 'theme.json'
 					)
+				} else {
+					opts.stats?.bar.increment(0, {
+						filename: 'not a string',
+					})
+				}
+
+				if (!jsonData) {
+					opts.stats?.bar.increment(0, {
+						filename: `Skipping ${key} in ${opts.filepath} as ${filename} ... cannot parse data`,
+					})
+
+					return null
+				}
+
+				// if is an object return an array of json strings
+				return Object.entries(jsonData).map(([k, v]) => {
+					const entry = jsonString(
+						k,
+						v,
+						opts.filepath,
+						filename as 'block.json' | 'theme.json'
+					)
+
+					gettextTranslations[entry.msgctxt ?? ''] = {
+						...(gettextTranslations[entry.msgctxt ?? ''] || {}),
+						[entry.msgid]: entry,
+					}
 				})
-				.flat()
-				.filter(Boolean) as TranslationString[]
-		)
-	)
+			})
+			.flat()
+			.filter(Boolean)
+		resolve(gettextTranslations)
+	})
 }
 
 /**
@@ -77,7 +88,7 @@ export function yieldParsedData(
  * @param {string} sourceCode - The source code to be parsed.
  * @param {Args} language - The language to be used for parsing.
  * @param {string} filepath - The path to the file being parsed.
- * @return {TranslationString[]} An array of translation strings.
+ * @return {TranslationStrings[]} An array of translation strings.
  */
 export function doTree(sourceCode: string, language: Parser, filepath: string) {
 	// set up the parser
@@ -97,12 +108,12 @@ export function doTree(sourceCode: string, language: Parser, filepath: string) {
  * @param {object} opts
  * @param {string} opts.filepath - Path to the file to parse
  * @param {Parser|null} opts.language - Language of the file to parse
- * @return {Promise<TranslationString[]>}
+ * @return {Promise<TranslationStrings>}
  */
 export async function parseFile(opts: {
 	filepath: string
 	language: Parser | string
-}): Promise<TranslationString[] | null> {
+}): Promise<TranslationStrings | null> {
 	// check if the language is supported
 	if (typeof opts.language === 'string') {
 		if (opts.language === 'json') {

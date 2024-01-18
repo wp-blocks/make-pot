@@ -13,7 +13,7 @@ describe('makePot', () => {
 	it('Should build pot file', async () => {
 		const dataExtracted = await runExtract({
 			...args,
-			sourceDirectory: './tests/fixtures/sourcedir/',
+			sourceDirectory: './tests/fixtures/',
 			include: ['file.php'],
 			exclude: ['node_modules', 'dist'],
 		} as Args)
@@ -23,7 +23,7 @@ describe('makePot', () => {
 	it('Should build pot file from fixtures', async () => {
 		const dataExtracted = await runExtract({
 			...args,
-			sourceDirectory: './tests/fixtures/theme/',
+			sourceDirectory: './tests/fixtures/block/',
 			include: ['block.json'],
 			exclude: ['node_modules', 'dist'],
 			domain: 'theme',
@@ -34,7 +34,7 @@ describe('makePot', () => {
 	it('Should build pot file from fixtures/plugin', async () => {
 		const dataExtracted = await runExtract({
 			...args,
-			sourceDirectory: './tests/fixtures/plugin/',
+			sourceDirectory: './tests/fixtures/theme/',
 			include: ['**/*.css'],
 			exclude: ['node_modules', 'dist'],
 		} as Args)

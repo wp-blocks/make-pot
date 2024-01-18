@@ -12,7 +12,7 @@ export function consolidate(
 ): TranslationStrings {
 	const mergedTranslations: TranslationStrings = {}
 
-	translationsArray.forEach((translations) => {
+	Object.entries(translationsArray).forEach(([file, translations]) => {
 		Object.entries(translations).forEach(([msgctxt, translations]) => {
 			Object.entries(translations).forEach(([msgid, translation]) => {
 				if (!mergedTranslations[msgctxt]) {

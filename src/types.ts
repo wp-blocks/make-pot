@@ -1,4 +1,5 @@
 import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './extractors-maps'
+import { GetTextTranslation } from 'gettext-parser'
 
 export type ThemeHeadersType = keyof typeof themeHeaders
 export type PluginHeadersType = keyof typeof pluginHeaders
@@ -11,6 +12,7 @@ export type PotHeaders =
 	| (typeof pkgJsonHeaders)[PkgHeadersType]
 	| (typeof pluginHeaders)[PluginHeadersType]
 	| (typeof themeHeaders)[ThemeHeadersType]
+	| 'comment'
 
 // type is the value of the themeHeader Object
 export type DomainType =
@@ -88,7 +90,7 @@ export interface Args extends Patterns {
 	ignoreDomain?: boolean
 	fileComment?: string
 	packageName?: string
-	headers: Record<PotHeaders, string> | undefined
+	headers: Record<PotHeaders, string>
 	location?: boolean
 	skipJs?: boolean
 	skipPhp?: boolean
@@ -103,20 +105,12 @@ export interface Args extends Patterns {
  * Translation string metadata.
  * Gettext format: https://www.gnu.org/savannah-checkouts/gnu/gettext/FAQ.html
  *
- * @property {string} type - The type of the translation string.
- * @property {string} raw - The raw string.
- * @property {string | number} count - The number of occurrences of the string in the code.
- * @property {string} msgid - The translation string.
- * @property {string} msgctxt - The context of the translation string.
- * @property {string} reference - The reference of the translation string.
- * @property {string} comments - The comments of the translation string.
+ * @property {string} msgctxt - context for this translation, if not present the default context applies
+ * @property {string} msgid - string to be translated
+ * @property {string} msgid_plural the plural form of the original string (might not be present)
+ * @property {string[]} msgstr  an array of translations
+ * @property {{}} comments an object with the following properties: translator, reference, extracted, flag, previous.
  */
-export interface TranslationString {
-	type?: string
-	raw: string | string[]
-	count?: string | number
-	msgid: string
-	msgctxt?: string
-	comments?: string
-	reference: string
+export interface TranslationStrings {
+	[msgctxt: string]: { [msgId: string]: GetTextTranslation }
 }

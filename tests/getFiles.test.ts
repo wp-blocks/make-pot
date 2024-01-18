@@ -19,7 +19,6 @@ describe('getFiles', () => {
 		const files = await getFiles(args, pattern).then((files) =>
 			Array.from(files.iterateSync())
 		)
-		console.log(files)
 		expect(files.length).toBeGreaterThan(2)
 		expect(files.find((e) => e.includes('theme.json'))).toBeTruthy()
 	})
@@ -83,8 +82,6 @@ describe('getFiles', () => {
 		const files = await getFiles(args as Args, pattern).then((files) =>
 			Array.from(files.iterateSync())
 		)
-
-		console.log(files)
 
 		// for each file check if that strings contains the node_modules folder
 		expect(files.find((e) => e.includes('node_modules'))).toBeFalsy()

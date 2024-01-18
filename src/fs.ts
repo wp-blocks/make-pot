@@ -1,7 +1,6 @@
 import { type Args } from './types'
 import path from 'path'
 import fs from 'fs'
-import { generatePotHeader } from './utils'
 
 /**
  * Ensures that a folder exists at the specified path.
@@ -15,7 +14,10 @@ function ensureFolderExists(folderPath: string | undefined): string {
 	}
 	try {
 		// Check if the folder exists
-		fs.accessSync(path.resolve(folderPath), fs.constants.R_OK | fs.constants.W_OK)
+		fs.accessSync(
+			path.resolve(folderPath),
+			fs.constants.R_OK | fs.constants.W_OK
+		)
 	} catch (error) {
 		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
 			// The Folder does not exist, so create it
@@ -38,11 +40,7 @@ export async function writePotFile(args: Args, fileContent: string) {
 		? path.join(process.cwd(), args.destination, `${args.slug}.pot`)
 		: path.join(process.cwd(), `${args.slug}.pot`)
 
-	if (args.headers === undefined) {
-		console.log('No headers provided. Skipping header generation.')
-	}
-
 	if (ensureFolderExists(args.destination)) {
-		fs.writeFileSync(potFilePath, generatePotHeader(args) + fileContent)
+		fs.writeFileSync(potFilePath, fileContent)
 	}
 }

@@ -1,9 +1,10 @@
-import type { TranslationString } from './types'
+import type { TranslationStrings } from './types'
 import { extractNames, yieldParsedData } from './extractors'
 import path from 'path'
 import { readFileSync } from 'fs'
 import { SingleBar } from 'cli-progress'
 import { BlockJson, blockJson, ThemeBlock, themeJson } from './extractors-maps'
+import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 
 export function parseJsonFile(args: {
 	filepath: string
@@ -32,7 +33,7 @@ export function parseJsonFile(args: {
 		return yieldParsedData(parsed, filename, args)
 	}
 
-	return new Promise<TranslationString[]>((resolve) => resolve([]))
+	return new Promise<TranslationStrings>((resolve) => resolve({}))
 }
 
 /**
@@ -154,19 +155,20 @@ export function getJsonComment(
  * @param {string} data - The data for the translation string.
  * @param {string} path - The path of the translation string.
  * @param {'block.json' | 'theme.json'} [type] - The optional type of the translation string.
- * @return {TranslationString} The generated translation string.
+ * @return {TranslationStrings} The generated translation string.
  */
 export function jsonString(
 	key: string,
 	data: string,
 	path: string,
 	type?: 'block.json' | 'theme.json'
-): TranslationString {
+): GetTextTranslation {
 	return {
-		reference: `#: ${path}`,
-		type: 'msgid',
-		raw: [key, data],
-		msgid: data,
-		msgctxt: getJsonComment(key, type),
+		msgstr: [],
+		msgid: getJsonComment(key, type),
+		msgctxt: data,
+		comments: {
+			reference: `${path}`,
+		} as GetTextComment,
 	}
 }

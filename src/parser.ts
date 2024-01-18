@@ -1,5 +1,4 @@
-import type { Args, Patterns, PotHeaders, TranslationString } from './types'
-import { consolidateTranslations, outputTranslationsPot } from './consolidate'
+import type { Args, Patterns, TranslationStrings } from './types'
 import cliProgress, { type SingleBar } from 'cli-progress'
 import { parseFile } from './extractors'
 import { allowedFiles } from './const'
@@ -15,6 +14,8 @@ import Php from 'tree-sitter-php'
 import Ts from 'tree-sitter-typescript'
 import path from 'path'
 import gettextParser, { GetTextTranslations } from 'gettext-parser'
+import { generateHeaderComments } from './utils'
+import { consolidate } from './consolidate'
 
 /**
  * Return the parser based on the file extension
@@ -158,12 +159,12 @@ function initProgress(args: Args, filesCount: number): SingleBar | null {
  *
  * @param {Args} args - The arguments to specify which files to search and parse.
  * @param {Patterns} pattern - The pattern to match files against.
- * @return {Promise<TranslationString[]>} A promise that resolves to an array of translation strings found in the files.
+ * @return {Promise<TranslationStrings[]>} A promise that resolves to an array of translation strings found in the files.
  */
 export async function getStrings(args: Args, pattern: Patterns) {
 	const files = await getFiles(args, pattern)
 
-	const tasks: Array<Promise<TranslationString[]>> = []
+	const tasks: Array<Promise<TranslationStrings>> = []
 
 	const progressBar = initProgress(
 		args,
@@ -198,7 +199,7 @@ export async function getStrings(args: Args, pattern: Patterns) {
 		}
 
 		// add the task to the array if it's not null
-		if (task !== null) tasks.push(task as Promise<TranslationString[]>)
+		if (task !== null) tasks.push(task as Promise<TranslationStrings>)
 	}
 
 	const results = await Promise.all(tasks)
@@ -206,15 +207,14 @@ export async function getStrings(args: Args, pattern: Patterns) {
 	// stop the progress bar if it's not silent
 	if (progressBar) progressBar.stop()
 
-	// flatten the results and filter out null values
-	const result = results
-		.flat()
-		.filter((t) => t != null) as TranslationString[]
+	console.log(results)
+	const result = Object.assign({}, ...results)
+	console.log(result)
 
 	if (!args.silent) {
 		console.log(
 			'📝 Found',
-			result.length,
+			Object.values(result).length,
 			'strings in',
 			results.length,
 			'files.'
@@ -265,36 +265,26 @@ export async function runExtract(args: Args) {
 
 	const stringsJson = await getStrings(args, pattern)
 	// merge all strings collecting duplicates and returning the result as the default gettext format
-	const consolidated = consolidateTranslations(stringsJson)
-	/*// @ts-ignore
-	const gettextConsolidated: GetTextTranslations = stringsJson.map(
-		(item) => ({
-			[item.msgid]: { [item.msgid]: item },
-		})
-	)
+	const consolidated = consolidate(stringsJson)
+	console.log(stringsJson, consolidated)
+
+	const additionalHeaders = {
+		'file-comment': args.fileComment ?? generateHeaderComments(args),
+		'content-type': 'text/plain; charset=iso-8859-1',
+		...args.headers,
+		'plural-forms': 'nplurals=2; plural=(n != 1);',
+	}
+
 	const buffer = gettextParser.po.compile(
 		{
-			// @ts-ignore
-			headers: args.headers,
-			// @ts-ignore
-			translations: gettextConsolidated,
-			charset: 'utf-8',
-		},
+			headers: additionalHeaders,
+			translations: stringsJson,
+			charset: 'iso-8859-1',
+		} as unknown as GetTextTranslations,
 		{
 			sort: true,
 		}
 	)
-	// print the buffer to console
-	console.log(buffer.toString('utf-8'))*/
-	if (!args.silent) {
-		const duplicates = stringsJson.length - Object.keys(consolidated).length
-		console.log(
-			Object.keys(consolidated).length +
-				'unique strings (' +
-				duplicates +
-				' duplicates)'
-		)
-	}
 
-	return outputTranslationsPot(consolidated)
+	return buffer.toString('utf-8') as string
 }

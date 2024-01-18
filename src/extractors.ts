@@ -9,7 +9,6 @@ import { parsePHPFile } from './extractors-php'
 import { extractStrings } from './tree'
 import { extractFileData } from './extractors-text'
 import { pkgJsonHeaders } from './extractors-maps'
-import { GetTextTranslation } from 'gettext-parser'
 
 /**
  * Extracts the names from an array of items.
@@ -29,55 +28,26 @@ export const extractNames = (items: { name: string }[]): string[] =>
  * @return {TranslationStrings[]} An array of translation strings.
  */
 export function yieldParsedData(
-	parsed: Record<string, unknown>,
+	parsed: Record<string, any>,
 	filename: string | Parser,
 	opts: { filepath: string; stats?: { bar: SingleBar } }
 ): Promise<TranslationStrings> {
 	return new Promise<TranslationStrings>((resolve) => {
 		const gettextTranslations: TranslationStrings = {}
 
-		Object.entries(parsed)
-			// return the translations for each key in the json data
-			.map(([key, jsonData]) => {
-				// if is a string return a single json string
-				if (typeof jsonData === 'string') {
-					return jsonString(
-						key,
-						jsonData,
-						opts.filepath,
-						filename as 'block.json' | 'theme.json'
-					)
-				} else {
-					opts.stats?.bar.increment(0, {
-						filename: 'not a string',
-					})
-				}
+		Object.entries(parsed).map(([k, v]) => {
+			const entry = jsonString(
+				k,
+				v,
+				opts.filepath,
+				filename as 'block.json' | 'theme.json'
+			)
 
-				if (!jsonData) {
-					opts.stats?.bar.increment(0, {
-						filename: `Skipping ${key} in ${opts.filepath} as ${filename} ... cannot parse data`,
-					})
-
-					return null
-				}
-
-				// if is an object return an array of json strings
-				return Object.entries(jsonData).map(([k, v]) => {
-					const entry = jsonString(
-						k,
-						v,
-						opts.filepath,
-						filename as 'block.json' | 'theme.json'
-					)
-
-					gettextTranslations[entry.msgctxt ?? ''] = {
-						...(gettextTranslations[entry.msgctxt ?? ''] || {}),
-						[entry.msgid]: entry,
-					}
-				})
-			})
-			.flat()
-			.filter(Boolean)
+			gettextTranslations[entry.msgctxt ?? ''] = {
+				...(gettextTranslations[entry.msgctxt ?? ''] || {}),
+				[entry.msgid]: entry,
+			}
+		})
 		resolve(gettextTranslations)
 	})
 }

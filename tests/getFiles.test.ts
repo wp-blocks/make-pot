@@ -51,18 +51,12 @@ describe('getFiles', () => {
 			exclude: [],
 		}
 		const expectedFiles = [
-			'sourcedir' + path.sep + 'theme.json',
-			'sourcedir' + path.sep + 'package.json',
-			'sourcedir' +
-				path.sep +
-				'node_modules' +
-				path.sep +
-				'module' +
-				path.sep +
-				'block.json',
-			'node_modules' + path.sep + 'block.json',
-			'fse' + path.sep + 'theme.json',
-			'block' + path.sep + 'block.json',
+			`sourcedir${path.sep}theme.json`,
+			`sourcedir${path.sep}package.json`,
+			`sourcedir${path.sep}node_modules${path.sep}module${path.sep}block.json`,
+			`node_modules${path.sep}block.json`,
+			`fse${path.sep}theme.json`,
+			`block${path.sep}block.json`,
 		]
 
 		const files = await getFiles(args as Args, pattern).then((files) =>

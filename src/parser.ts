@@ -164,7 +164,7 @@ function initProgress(args: Args, filesCount: number): SingleBar | null {
 export async function getStrings(args: Args, pattern: Patterns) {
 	const files = await getFiles(args, pattern)
 
-	const tasks: Array<Promise<TranslationStrings>> = []
+	const tasks: Promise<TranslationStrings>[] = []
 
 	const progressBar = initProgress(
 		args,
@@ -189,7 +189,7 @@ export async function getStrings(args: Args, pattern: Patterns) {
 		const task = parseFile({
 			filepath: path.join(args.sourceDirectory, file),
 			language: getParser(file),
-		})
+		}) as Promise<TranslationStrings>
 
 		// log the filepath
 		if (progressBar) {
@@ -208,7 +208,11 @@ export async function getStrings(args: Args, pattern: Patterns) {
 	if (progressBar) progressBar.stop()
 
 	console.log(results)
-	const result = Object.assign({}, ...results)
+
+	// add the task to the array if it's not null
+	const result = results.reduce((current, next) => {
+		return { ...current, ...next }
+	}, {}) as TranslationStrings
 	console.log(result)
 
 	if (!args.silent) {
@@ -265,7 +269,7 @@ export async function runExtract(args: Args) {
 
 	const stringsJson = await getStrings(args, pattern)
 	// merge all strings collecting duplicates and returning the result as the default gettext format
-	const consolidated = consolidate(stringsJson)
+	const consolidated = Array.prototype.push.apply(stringsJson)
 	console.log(stringsJson, consolidated)
 
 	const additionalHeaders = {

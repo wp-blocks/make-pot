@@ -18,7 +18,8 @@ describe('makePot', () => {
 			exclude: ['node_modules', 'dist'],
 		} as Args)
 		console.log('Done', dataExtracted)
-		expect(true).toBe(true)
+		const expected = {}
+		expect(dataExtracted).toMatchObject(expected)
 	})
 	it('Should build pot file from fixtures', async () => {
 		const dataExtracted = await runExtract({
@@ -29,7 +30,8 @@ describe('makePot', () => {
 			domain: 'theme',
 		} as Args)
 		console.log('Done', dataExtracted)
-		expect(true).toBe(true)
+		const expected = {}
+		expect(dataExtracted).toMatchObject(expected)
 	})
 	it('Should build pot file from fixtures/plugin', async () => {
 		const dataExtracted = await runExtract({
@@ -39,6 +41,7 @@ describe('makePot', () => {
 			exclude: ['node_modules', 'dist'],
 		} as Args)
 		console.log('Done', dataExtracted)
-		expect(true).toBe(true)
+		const expected = {}
+		expect(dataExtracted).toMatchObject(expected)
 	})
 })

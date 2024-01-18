@@ -85,8 +85,8 @@ export const themeJson = {
 	],
 } as const
 
-export type ThemeBlock = typeof themeJson
-export type ThemeBlockKeys = keyof typeof themeJson
+export type ThemeJson = typeof themeJson
+export type ThemeJsonKeys = keyof typeof themeJson
 
 export const blockJson = {
 	title: 'block title',

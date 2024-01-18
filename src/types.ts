@@ -114,3 +114,6 @@ export interface Args extends Patterns {
 export interface TranslationStrings {
 	[msgctxt: string]: { [msgId: string]: GetTextTranslation }
 }
+
+/** a json */
+export type JsonData = Record<string, any>

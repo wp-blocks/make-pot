@@ -1,30 +1,57 @@
-import type { TranslationStrings } from './types'
+import type { JsonData, TranslationStrings } from './types'
 import { extractNames, yieldParsedData } from './extractors'
 import path from 'path'
 import { readFileSync } from 'fs'
 import { SingleBar } from 'cli-progress'
-import { BlockJson, blockJson, ThemeBlock, themeJson } from './extractors-maps'
+import { BlockJson, blockJson, ThemeJson, themeJson } from './extractors-maps'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
+
+function findValuesInJson<T extends BlockJson>(
+	block: T,
+	jsonData: JsonData | ThemeJson
+): Record<string, any> {
+	const result: Record<string, any> = {}
+
+	// Helper function to recursively search for values in JSON
+	const searchValues = (block: T, json: JsonData) => {
+		for (const key in block) {
+			if (typeof block[key] === 'object') {
+				if (typeof json[key] === 'object') {
+					// @ts-ignore
+					searchValues(block[key], json[key])
+				}
+			} else if (json[key] !== undefined) {
+				result[key] = json[key]
+			}
+		}
+	}
+
+	searchValues(block, jsonData)
+
+	return result
+}
 
 export function parseJsonFile(args: {
 	filepath: string
 	stats?: { bar: SingleBar; index: number }
 }) {
 	const filename = path.basename(args.filepath)
-	let parsed: ThemeBlock | BlockJson | null = null
+	let parsed: Record<string, string> | null = null
 	// parse the file based on the filename
 	switch (filename) {
 		case 'block.json':
 			args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
-			parsed = parseBlockJson(
-				readFileSync(args.filepath, 'utf8')
-			) as BlockJson
+			parsed = findValuesInJson(
+				JSON.parse(readFileSync(args.filepath, 'utf8')),
+				blockJson
+			)
 			break
 		case 'theme.json':
 			args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
-			parsed = parseThemeJson(
-				readFileSync(args.filepath, 'utf8')
-			) as ThemeBlock
+			parsed = findValuesInJson(
+				JSON.parse(readFileSync(args.filepath, 'utf8')),
+				themeJson
+			)
 			break
 	}
 
@@ -34,101 +61,6 @@ export function parseJsonFile(args: {
 	}
 
 	return new Promise<TranslationStrings>((resolve) => resolve({}))
-}
-
-/**
- * Parses a JSON string and returns a record with the extracted data.
- *
- * @param {string} jsondata - The JSON string to parse.
- * @return {Record<string, any>} - A record containing the extracted data.
- */
-export function parseBlockJson(jsondata: string): Record<string, any> {
-	const json = JSON.parse(jsondata)
-	return {
-		title: json?.title ?? undefined,
-		description: json?.description ?? undefined,
-		keywords: json?.keywords ?? undefined,
-		styles: json?.styles ? extractNames(json.styles) : undefined,
-		variations:
-			json?.variations?.map((variation: any) => ({
-				title: variation?.title ?? undefined,
-				description: variation?.description ?? undefined,
-				keywords: variation?.keywords ?? undefined,
-			})) ?? undefined,
-	}
-}
-
-/**
- * Parses a JSON string into a theme object.
- *
- * @param {string} jsondata - The JSON string to parse.
- * @return {Record<string, any>} - The parsed theme object.
- */
-export function parseThemeJson(jsondata: string): Record<string, any> {
-	const json = JSON.parse(jsondata)
-
-	const settings = json.settings
-	const typography = settings?.typography || {}
-	const color = settings?.color || {}
-	const spacing = settings?.spacing || {}
-	const blocks = settings?.blocks || {}
-
-	return {
-		title: json.title,
-		settings: {
-			typography: {
-				fontSizes: typography.fontSizes
-					? extractNames(typography.fontSizes)
-					: [],
-				fontFamilies: typography.fontFamilies
-					? extractNames(typography.fontFamilies)
-					: [],
-			},
-			color: {
-				palette: color.palette ? extractNames(color.palette) : [],
-				gradients: color.gradients ? extractNames(color.gradients) : [],
-				duotone: color.duotone ? extractNames(color.duotone) : [],
-			},
-			spacing: {
-				spacingSizes: spacing.spacingSizes
-					? extractNames(spacing.spacingSizes)
-					: [],
-			},
-			blocks: Object.keys(blocks).reduce((acc: any, key: string) => {
-				const block = blocks[key]
-				acc[key] = {
-					typography: {
-						fontSizes: block.typography?.fontSizes
-							? extractNames(block.typography.fontSizes)
-							: [],
-						fontFamilies: block.typography?.fontFamilies
-							? extractNames(block.typography.fontFamilies)
-							: [],
-					},
-					color: {
-						palette: block.color?.palette
-							? extractNames(block.color.palette)
-							: [],
-						gradients: block.color?.gradients
-							? extractNames(block.color.gradients)
-							: [],
-					},
-					spacing: {
-						spacingSizes: block.spacing?.spacingSizes
-							? extractNames(block.spacing.spacingSizes)
-							: [],
-					},
-				}
-				return acc
-			}, {}),
-		},
-		customTemplates: json.customTemplates
-			? json.customTemplates.map((template: any) => template.title)
-			: [],
-		templateParts: json.templateParts
-			? json.templateParts.map((templatePart: any) => templatePart.title)
-			: [],
-	}
 }
 
 /**

@@ -4,74 +4,42 @@ import { parseJsonFile } from '../src/extractors-json'
 describe('consolidateTranslations', () => {
 	it('should output translation strings with translator comments', async () => {
 		const expected = {
-			'': {
-				undefined: {
+			'block style label': {
+				label: {
 					comments: {
 						reference: './tests/fixtures/block/block.json',
 					},
+					msgctxt: 'block style label',
+					msgid: 'label',
 					msgstr: [],
 				},
 			},
-			'[object Object]': {
-				undefined: {
+			'block variation description': {
+				description: {
 					comments: {
 						reference: './tests/fixtures/block/block.json',
 					},
-					msgctxt: {
-						description: 'block variation description',
-						keywords: ['block variation keyword'],
-						title: 'block variation title',
-					},
+					msgctxt: 'block variation description',
+					msgid: 'description',
 					msgstr: [],
 				},
 			},
-			'block keyword': {
+			'block variation keyword': {
 				undefined: {
 					comments: {
 						reference: './tests/fixtures/block/block.json',
 					},
-					msgctxt: 'block keyword',
+					msgctxt: 'block variation keyword',
 					msgstr: [],
 				},
 			},
-		}
-
-		const result = await parseJsonFile({
-			filepath: './tests/fixtures/block/block.json',
-		})
-
-		expect(result).toEqual(expected)
-	})
-
-	it('should output translation strings with translator comments', async () => {
-		const expected = {
-			'': {
-				undefined: {
+			'block variation title': {
+				title: {
 					comments: {
 						reference: './tests/fixtures/block/block.json',
 					},
-					msgstr: [],
-				},
-			},
-			'[object Object]': {
-				undefined: {
-					comments: {
-						reference: './tests/fixtures/block/block.json',
-					},
-					msgctxt: {
-						description: 'block variation description',
-						keywords: ['block variation keyword'],
-						title: 'block variation title',
-					},
-					msgstr: [],
-				},
-			},
-			'block keyword': {
-				undefined: {
-					comments: {
-						reference: './tests/fixtures/block/block.json',
-					},
-					msgctxt: 'block keyword',
+					msgctxt: 'block variation title',
+					msgid: 'title',
 					msgstr: [],
 				},
 			},

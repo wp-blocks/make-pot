@@ -8,9 +8,9 @@ import { Args, DomainType } from './types'
 /**
  * Retrieves and returns the command line arguments and options.
  *
- * @return {Args} The parsed command line arguments and options.
+ * @return The parsed command line arguments and options.
  */
-export function getArgs() {
+export function getArgs(): Args {
 	const args = yargs(hideBin(process.argv))
 		.help('h')
 		.alias('help', 'help')
@@ -103,15 +103,24 @@ export function getArgs() {
 			},
 		})
 		.parseSync()
+	return parseCliArgs(args as Partial<Args>)
+}
 
+/**
+ * Parses the command line arguments and returns an object with the parsed values.
+ *
+ * @param {object} args - The command line arguments to be parsed.
+ * @return {object} - An object with the parsed values from the command line arguments.
+ */
+export function parseCliArgs(args: Partial<Args>): Args {
 	return {
 		// Paths
-		sourceDirectory: args.sourceDirectory ?? undefined,
-		destination: args.destination ?? undefined,
+		sourceDirectory: args.sourceDirectory ?? './',
+		destination: args.destination ?? './',
 		slug: args.slug ?? path.basename(process.cwd()),
 		domain: (args.domain as DomainType) ?? 'generic',
 		ignoreDomain: args.ignoreDomain ?? false,
-		headers: undefined,
+		headers: {},
 		location: args.location ?? false,
 		// Patterns
 		mergePaths: stringstring(args.mergePaths) ?? [],

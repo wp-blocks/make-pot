@@ -10,8 +10,10 @@ import { cpus, totalmem } from 'node:os'
  * @param {string} string - The string to be split.
  * @return {string[]} An array of strings after splitting the input string.
  */
-export function stringstring(string: string | undefined): string[] | null {
-	if (string) {
+export function stringstring(
+	string: string | string[] | undefined
+): string[] | null {
+	if (typeof string === 'string') {
 		if (string.includes(',')) {
 			return string.split(',')
 		}
@@ -42,9 +44,17 @@ export async function makePot(args: Args) {
 
 	const translations = await runExtract(args)
 
+	// audit
+	if (args.skipAudit) {
+		console.log('🔍 Audit strings...')
+		console.log(translations)
+		console.log('✅ Done')
+		process.exit(0)
+	}
+
 	if (!args.silent) {
 		console.log(
-			'.Memory usage:',
+			'Memory usage:',
 			(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
 			'MB (Free:',
 			(

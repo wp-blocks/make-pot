@@ -1,6 +1,6 @@
 import path from 'path'
 import fs, { readFileSync } from 'fs'
-import { type Args, PotHeaders, type TranslationString } from './types'
+import { type Args, type TranslationString } from './types'
 import { getCommentBlock } from './utils'
 import Parser from 'tree-sitter'
 import type { SingleBar } from 'cli-progress'
@@ -8,13 +8,7 @@ import { jsonString, parseJsonFile } from './extractors-json'
 import { parsePHPFile } from './extractors-php'
 import { extractStrings } from './tree'
 import { extractFileData } from './extractors-text'
-import {
-	BlockJson,
-	blockJson,
-	BlockJsonKeys,
-	pkgJsonHeaders,
-	ThemeBlockKeys,
-} from './extractors-maps'
+import { pkgJsonHeaders } from './extractors-maps'
 
 /**
  * Extracts the names from an array of items.
@@ -100,38 +94,38 @@ export function doTree(sourceCode: string, language: Parser, filepath: string) {
 /**
  * Parse a file and extract strings asynchronously
  *
- * @param {object} args
- * @param {string} args.filepath - Path to the file to parse
- * @param {Parser|null} args.language - Language of the file to parse
+ * @param {object} opts
+ * @param {string} opts.filepath - Path to the file to parse
+ * @param {Parser|null} opts.language - Language of the file to parse
  * @return {Promise<TranslationString[]>}
  */
-export async function parseFile(args: {
+export async function parseFile(opts: {
 	filepath: string
 	language: Parser | string
 }): Promise<TranslationString[] | null> {
 	// check if the language is supported
-	if (typeof args.language === 'string') {
-		if (args.language === 'json') {
-			return parseJsonFile(args)
+	if (typeof opts.language === 'string') {
+		if (opts.language === 'json') {
+			return parseJsonFile(opts)
 		}
 		console.log(
-			`Skipping ${args.filepath}... No parser found for ${args.language} file`
+			`Skipping ${opts.filepath}... No parser found for ${opts.language} file`
 		)
 		return null
 	}
 
 	// read the file
-	const sourceCode = readFileSync(path.resolve(args.filepath), 'utf8')
+	const sourceCode = readFileSync(opts.filepath, 'utf8')
 
 	// set up the parser
 	const parser = new Parser()
-	parser.setLanguage(args.language)
+	parser.setLanguage(opts.language)
 
 	// parse the file
 	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
 
 	// extract the strings from the file and return them
-	return extractStrings(tree.rootNode, args.language, args.filepath)
+	return extractStrings(tree.rootNode, opts.language, opts.filepath)
 }
 
 /**

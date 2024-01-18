@@ -81,8 +81,8 @@ export interface Patterns {
  * @param {boolean} silent - Whether to hide progress information.
  */
 export interface Args extends Patterns {
-	sourceDirectory?: string
-	destination?: string
+	sourceDirectory: string
+	destination: string
 	slug: string
 	domain: DomainType
 	ignoreDomain?: boolean

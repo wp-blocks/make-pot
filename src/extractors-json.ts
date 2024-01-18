@@ -16,13 +16,13 @@ export function parseJsonFile(args: {
 		case 'block.json':
 			args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
 			parsed = parseBlockJson(
-				readFileSync(path.resolve(args.filepath), 'utf8')
+				readFileSync(args.filepath, 'utf8')
 			) as BlockJson
 			break
 		case 'theme.json':
 			args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
 			parsed = parseThemeJson(
-				readFileSync(path.resolve(args.filepath), 'utf8')
+				readFileSync(args.filepath, 'utf8')
 			) as ThemeBlock
 			break
 	}

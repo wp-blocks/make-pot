@@ -20,7 +20,8 @@ export function extractStrings(
 	filename: string
 ): TranslationString[] {
 	const matches: TranslationString[] = []
-	const typeToMatch = lang !== Php ? 'call_expression' : 'function_call_expression'
+	const typeToMatch =
+		lang !== Php ? 'call_expression' : 'function_call_expression'
 
 	/**
 	 * Traverse the tree 🌳
@@ -34,13 +35,20 @@ export function extractStrings(
 		if (node.type === typeToMatch) {
 			// The function name is the first child
 			const functionName = node.firstChild?.text ?? null
-			if (functionName === null || !Object.keys(i18nFunctions).includes(functionName)) {
+			if (
+				functionName === null ||
+				!Object.keys(i18nFunctions).includes(functionName)
+			) {
 				return
 			}
 
 			// The arguments are the last child
 			const argsNode = node.lastChild
-			if (argsNode === null || argsNode.childCount === 0 || argsNode.type !== 'arguments') {
+			if (
+				argsNode === null ||
+				argsNode.childCount === 0 ||
+				argsNode.type !== 'arguments'
+			) {
 				return
 			}
 
@@ -48,19 +56,38 @@ export function extractStrings(
 			const translation: string[] = []
 			// Get the translation from the arguments (the quoted strings)
 			raw.children.slice(1, -1).forEach((child) => {
-				if (/^["|']/.exec(child.text[0])) translation.push(child.text.slice(1, -1))
+				if (/^["|']/.exec(child.text[0]))
+					translation.push(child.text.slice(1, -1))
 			})
 
 			let commentRaw = undefined
-			node.closest('program')?.children.forEach((comment) => {
-				// todo: regex to match insensitive "translators" and ":"
-				if (comment.type === 'text' && comment.text.toLowerCase().includes('translators:'))
-					return (commentRaw = 'translators: ' + stripTranslationMarkup(comment.text))
-			})
+			if (node.parent?.previousSibling?.type === 'comment') {
+				if (
+					node.parent?.previousSibling.text
+						.toLowerCase()
+						.includes('translators:')
+				)
+					commentRaw = stripTranslationMarkup(
+						node.parent?.previousSibling.text
+					)
+			} else {
+				/*				node
+					.closest(['program', 'comment'])
+					?.children.forEach((comment) => {
+						// todo: regex to match insensitive "translators" and ":"
+						if (
+							comment.type === 'comment' &&
+							comment.text.toLowerCase().includes('translators:')
+						)
+							commentRaw = stripTranslationMarkup(comment.text)
+					})*/
+			}
 
 			matches.push({
-				reference: `#: ${filename}:${node.startPosition.row + 1}`,
-				type: i18nFunctions[fn.text as keyof typeof i18nFunctions] ?? 'text_domain',
+				reference: `${filename}:${node.startPosition.row + 1}`,
+				type:
+					i18nFunctions[fn.text as keyof typeof i18nFunctions] ??
+					'text_domain',
 				raw: translation,
 				msgid: translation[0],
 				comments: commentRaw,

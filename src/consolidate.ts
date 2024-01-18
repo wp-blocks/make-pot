@@ -36,7 +36,7 @@ export function outputTranslationsPot(
 		const contextComment = t.msgctxt ? `msgctxt "${t.msgctxt}"\n` : ''
 		const msgidLine = `msgid "${msgid}"\n`
 		const referenceComments =
-			translations?.map((tr) => tr.reference).join('\n') + '\n'
+			translations?.map((tr) => '#.' + tr.reference).join('\n') + '\n'
 		const msgstr = 'msgstr ""\n'
 
 		const consolidatedString = `${translatorComment}${referenceComments}${contextComment}${msgidLine}${msgstr}\n`

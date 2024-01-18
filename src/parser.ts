@@ -1,9 +1,9 @@
-import type { Args, Patterns, TranslationString } from './types'
+import type { Args, Patterns, PotHeaders, TranslationString } from './types'
 import { consolidateTranslations, outputTranslationsPot } from './consolidate'
 import cliProgress, { type SingleBar } from 'cli-progress'
 import { parseFile } from './extractors'
 import { allowedFiles } from './const'
-import { Glob, IgnoreLike, Path } from 'glob'
+import { Glob, Path } from 'glob'
 import { minimatch } from 'minimatch'
 import Parser from 'tree-sitter'
 
@@ -13,6 +13,8 @@ import Js from 'tree-sitter-javascript'
 import Php from 'tree-sitter-php'
 // @ts-expect-error
 import Ts from 'tree-sitter-typescript'
+import path from 'path'
+import gettextParser, { GetTextTranslations } from 'gettext-parser'
 
 /**
  * Return the parser based on the file extension
@@ -121,7 +123,7 @@ export async function getFiles(args: Args, pattern: Patterns) {
 			},
 		},
 		nodir: true,
-		cwd: args.sourceDirectory ?? process.cwd(),
+		cwd: path.join(process.cwd(), args.sourceDirectory ?? ''),
 	})
 }
 
@@ -168,6 +170,7 @@ export async function getStrings(args: Args, pattern: Patterns) {
 		Array.from(files.iterateSync()).length
 	)
 
+	// loop through the files and parse them
 	for (const file of files) {
 		// get the file extension
 		const ext = file.split('.').pop() || 'undefined'
@@ -183,7 +186,7 @@ export async function getStrings(args: Args, pattern: Patterns) {
 		}
 
 		const task = parseFile({
-			filepath: file,
+			filepath: path.join(args.sourceDirectory, file),
 			language: getParser(file),
 		})
 
@@ -194,15 +197,16 @@ export async function getStrings(args: Args, pattern: Patterns) {
 			})
 		}
 
+		// add the task to the array if it's not null
 		if (task !== null) tasks.push(task as Promise<TranslationString[]>)
 	}
 
 	const results = await Promise.all(tasks)
 
-	if (progressBar) {
-		progressBar.stop()
-	}
+	// stop the progress bar if it's not silent
+	if (progressBar) progressBar.stop()
 
+	// flatten the results and filter out null values
 	const result = results
 		.flat()
 		.filter((t) => t != null) as TranslationString[]
@@ -237,8 +241,8 @@ export async function runExtract(args: Args) {
 
 	// Additional logic to handle different file types and formats
 	// Exclude blade.php files if --skip-blade is set
-	if (args.skipPhp !== true || args.skipBlade !== true) {
-		if (args.skipBlade !== true) {
+	if (args.skipPhp !== undefined || args.skipBlade !== undefined) {
+		if (args.skipBlade !== undefined) {
 			// php files but not blade.php
 			pattern.include.push('**/*.php')
 		} else {

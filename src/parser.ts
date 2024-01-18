@@ -263,25 +263,38 @@ export async function runExtract(args: Args) {
 		pattern.include.push('theme.json')
 	}
 
-	if (args.skipAudit !== true) {
-		const stringsJson = (await getStrings(
-			args,
-			pattern
-		)) as TranslationString[]
-		// merge all strings collecting duplicates and returning the result as the default gettext format
-		const consolidated = consolidateTranslations(stringsJson)
-		if (!args.silent) {
-			const duplicates =
-				stringsJson.length - Object.keys(consolidated).length
-			console.log(
-				Object.keys(consolidated).length +
-					'unique strings (' +
-					duplicates +
-					' duplicates)'
-			)
+	const stringsJson = await getStrings(args, pattern)
+	// merge all strings collecting duplicates and returning the result as the default gettext format
+	const consolidated = consolidateTranslations(stringsJson)
+	/*// @ts-ignore
+	const gettextConsolidated: GetTextTranslations = stringsJson.map(
+		(item) => ({
+			[item.msgid]: { [item.msgid]: item },
+		})
+	)
+	const buffer = gettextParser.po.compile(
+		{
+			// @ts-ignore
+			headers: args.headers,
+			// @ts-ignore
+			translations: gettextConsolidated,
+			charset: 'utf-8',
+		},
+		{
+			sort: true,
 		}
-		return outputTranslationsPot(consolidated)
-	} else {
-		return pattern.include.join('\n')
+	)
+	// print the buffer to console
+	console.log(buffer.toString('utf-8'))*/
+	if (!args.silent) {
+		const duplicates = stringsJson.length - Object.keys(consolidated).length
+		console.log(
+			Object.keys(consolidated).length +
+				'unique strings (' +
+				duplicates +
+				' duplicates)'
+		)
 	}
+
+	return outputTranslationsPot(consolidated)
 }

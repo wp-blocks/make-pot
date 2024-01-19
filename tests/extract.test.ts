@@ -1,17 +1,13 @@
 import { describe, expect } from '@jest/globals'
 import { doTree } from '../src/extractors'
 // @ts-expect-error
-import Js from 'tree-sitter-javascript'
-// @ts-expect-error
 import Php from 'tree-sitter-php'
-// @ts-expect-error
-import Ts from 'tree-sitter-typescript'
 import Parser from 'tree-sitter'
 
 describe('getStrings', () => {
 	it('should extract translations with context', () => {
+		const content = `<?php __('Hello World', 'greeting'); ?>`
 		const filename = 'filename'
-		const content = `<?php echo _x('Hello World', 'greeting'); ?>`
 		const expected = {
 			'': {
 				'Hello World': {

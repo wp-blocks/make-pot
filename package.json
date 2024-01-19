@@ -8,8 +8,8 @@
     "watch": "tsc --watch",
     "clean": "tsc --build --clean",
     "lint": "eslint ./src ./tests --fix",
-    "test": "jest --detectOpenHandles --forceExit --coverage",
-    "run": "node ./lib/index.js tests/fixtures"
+    "test": "jest --coverage",
+    "run": "node ./lib/index.js tests/fixtures/ --exclude null --include \"**\""
   },
   "bin": {
     "make-pot": "lib/index.js"

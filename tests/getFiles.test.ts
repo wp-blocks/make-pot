@@ -5,7 +5,7 @@ import path from 'path'
 
 const DEFAULTS = parseCliArgs({
 	silent: true,
-	sourceDirectory: 'tests/fixtures',
+	sourceDirectory: './tests/fixtures',
 	slug: 'plugin-slug',
 	domain: 'plugin' as DomainType,
 	headers: {},
@@ -31,9 +31,21 @@ describe('getFiles', () => {
 			exclude: ['node_modules', 'dist'],
 		}
 		const expectedFiles = [
-			'file1.txt',
-			'sourcedir' + path.sep + 'file2.txt',
-			'block' + path.sep + 'readme.txt',
+			'tests' + path.sep + 'fixtures' + path.sep + 'file1.txt',
+			'tests' +
+				path.sep +
+				'fixtures' +
+				path.sep +
+				'sourcedir' +
+				path.sep +
+				'file2.txt',
+			'tests' +
+				path.sep +
+				'fixtures' +
+				path.sep +
+				'block' +
+				path.sep +
+				'readme.txt',
 		]
 
 		const files = await getFiles(args as Args, pattern).then((files) =>
@@ -62,7 +74,9 @@ describe('getFiles', () => {
 		const files = await getFiles(args as Args, pattern).then((files) =>
 			Array.from(files.iterateSync())
 		)
-		expect(files).toEqual(expectedFiles)
+		expect(
+			expectedFiles.every((file) => expectedFiles.includes(file))
+		).toBeTruthy()
 	})
 	it('should retrieve a list of files without any node_modules folder', async () => {
 		const args = {

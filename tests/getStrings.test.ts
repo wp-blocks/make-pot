@@ -1,23 +1,21 @@
 import { describe, expect } from '@jest/globals'
-import { getStrings } from '../src/parser'
+import { getFiles, getStrings } from '../src/parser'
 import { Args, DomainType } from '../src/types'
 import path from 'path'
 
 const args = {
-	sourceDirectory: './tests/fixtures/',
+	sourceDirectory: 'tests/fixtures',
 	slug: 'plugin-slug',
 	domain: 'plugin' as DomainType,
 }
 
 describe('getStrings', () => {
 	it('Should build pot file', async () => {
-		const dataExtracted = await getStrings(
-			{ ...args, sourceDirectory: './tests/fixtures/' } as Args,
-			{
-				include: ['file.php'],
-				exclude: ['node_modules', 'dist'],
-			}
-		)
+		const files = await getFiles(args as Args, {
+			include: ['file.php'],
+			exclude: ['node_modules', 'dist'],
+		})
+		const dataExtracted = await getStrings({ ...args } as Args, files)
 		const expected = {
 			'': {
 				sdasdasdasd: {
@@ -92,21 +90,23 @@ describe('getStrings', () => {
 				},
 			},
 		}
-		console.log('Done', dataExtracted)
 		expect(dataExtracted).toMatchObject(expected)
 	})
 	it('Should build pot file from fixtures', async () => {
+		const files = await getFiles(args as Args, {
+			include: ['block.json'],
+			exclude: ['node_modules', 'dist'],
+		})
+		console.log(files)
 		const dataExtracted = await getStrings(
 			{
 				...args,
-				sourceDirectory: './tests/fixtures/block/',
+				sourceDirectory: 'tests/fixtures',
 				domain: 'theme',
 			} as Args,
-			{
-				include: ['block.json'],
-				exclude: ['node_modules', 'dist'],
-			}
+			files
 		)
+
 		const expected = {
 			'block variation keyword': {
 				undefined: {
@@ -137,7 +137,6 @@ describe('getStrings', () => {
 				},
 			},
 		}
-		console.log('Done', dataExtracted)
 		expect(dataExtracted).toMatchObject(expected)
 	})
 })

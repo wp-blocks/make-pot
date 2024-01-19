@@ -1,7 +1,8 @@
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { stringstring } from './makePot'
-import path from 'path'
+import * as path from 'path'
+import * as process from 'process'
 import { DEFAULT_EXCLUDED_PATH } from './const'
 import { Args, DomainType } from './types'
 
@@ -101,6 +102,10 @@ export function getArgs(): Args {
 				describe: 'No output to stdout',
 				type: 'boolean',
 			},
+			json: {
+				describe: 'output the json gettext data',
+				type: 'boolean',
+			},
 		})
 		.parseSync()
 	return parseCliArgs(args as Partial<Args>)
@@ -139,5 +144,6 @@ export function parseCliArgs(args: Partial<Args> & { _?: string[] }): Args {
 		fileComment: args.fileComment ?? '',
 		packageName: args.packageName ?? '',
 		silent: args.silent ?? false,
+		json: args.json ?? false,
 	} satisfies Args
 }

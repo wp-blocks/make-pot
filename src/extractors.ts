@@ -1,23 +1,13 @@
-import path from 'path'
-import fs, { readFileSync } from 'fs'
+import * as path from 'path'
+import * as fs from 'fs'
 import { type Args, type TranslationStrings } from './types'
 import { getCommentBlock } from './utils'
 import Parser from 'tree-sitter'
-import type { SingleBar } from 'cli-progress'
 import { jsonString, parseJsonFile } from './extractors-json'
 import { parsePHPFile } from './extractors-php'
 import { extractStrings } from './tree'
 import { extractFileData } from './extractors-text'
 import { pkgJsonHeaders } from './extractors-maps'
-
-/**
- * Extracts the names from an array of items.
- *
- * @param {unknown[]} items - The array of items.
- * @return {string[]} An array of names extracted from the items.
- */
-export const extractNames = (items: { name: string }[]): string[] =>
-	items.map((item) => item.name)
 
 /**
  * Extracts strings from parsed JSON data.
@@ -31,25 +21,24 @@ export function yieldParsedData(
 	parsed: Record<string, any>,
 	filename: string | Parser,
 	filepath: string
-): Promise<TranslationStrings> {
-	return new Promise<TranslationStrings>((resolve) => {
-		const gettextTranslations: TranslationStrings = {}
+): TranslationStrings {
+	const gettextTranslations: TranslationStrings = {}
 
-		Object.entries(parsed).map(([k, v]) => {
-			const entry = jsonString(
-				k,
-				v,
-				filepath,
-				filename as 'block.json' | 'theme.json'
-			)
+	Object.entries(parsed).map(([k, v]) => {
+		const entry = jsonString(
+			k,
+			v,
+			filepath,
+			filename as 'block.json' | 'theme.json'
+		)
 
-			gettextTranslations[entry.msgctxt ?? ''] = {
-				...(gettextTranslations[entry.msgctxt ?? ''] || {}),
-				[entry.msgid]: entry,
-			}
-		})
-		resolve(gettextTranslations)
+		gettextTranslations[entry.msgctxt ?? ''] = {
+			...(gettextTranslations[entry.msgctxt ?? ''] || {}),
+			[entry.msgid]: entry,
+		}
 	})
+
+	return gettextTranslations
 }
 
 /**
@@ -60,16 +49,20 @@ export function yieldParsedData(
  * @param {string} filepath - The path to the file being parsed.
  * @return {TranslationStrings[]} An array of translation strings.
  */
-export function doTree(sourceCode: string, language: Parser, filepath: string) {
+export function doTree(
+	sourceCode: string,
+	language: Parser,
+	filepath: string
+): TranslationStrings {
 	// set up the parser
 	const parser = new Parser()
 	parser.setLanguage(language)
 
 	// parse the file
-	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
+	const tree = parser.parse(sourceCode)
 
 	// extract the strings from the file and return them
-	return extractStrings(tree.rootNode, language, filepath)
+	return extractStrings(tree.rootNode, filepath)
 }
 
 /**
@@ -90,7 +83,7 @@ export async function parseFile(opts: {
 			const filename = path.basename(opts.filepath)
 
 			if (filename === 'theme.json' || filename === 'block.json') {
-				const sourceCode = readFileSync(opts.filepath, 'utf8')
+				const sourceCode = fs.readFileSync(opts.filepath, 'utf8')
 				return parseJsonFile({
 					sourceCode: sourceCode,
 					filename: filename,
@@ -101,21 +94,12 @@ export async function parseFile(opts: {
 				`Skipping ${opts.filepath}... No parser found for ${opts.language} file`
 			)
 		}
-		return null
 	}
 
 	// read the file
-	const sourceCode = readFileSync(opts.filepath, 'utf8')
+	const sourceCode = fs.readFileSync(opts.filepath, 'utf8')
 
-	// set up the parser
-	const parser = new Parser()
-	parser.setLanguage(opts.language)
-
-	// parse the file
-	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
-
-	// extract the strings from the file and return them
-	return extractStrings(tree.rootNode, opts.language as Parser, opts.filepath)
+	return doTree(sourceCode, opts.language as Parser, opts.filepath)
 }
 
 /**

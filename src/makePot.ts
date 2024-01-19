@@ -1,6 +1,6 @@
 import { type Args } from './types'
 import { extractMainFileData, extractPackageData } from './extractors'
-import { writePotFile } from './fs'
+import { writeFile } from './fs'
 import { runExtract } from './parser'
 import { cpus, totalmem } from 'node:os'
 
@@ -74,5 +74,5 @@ export async function makePot(args: Args) {
 		)
 	}
 
-	return await writePotFile(args, translations)
+	return await writeFile(args, translations as string, 'pot')
 }

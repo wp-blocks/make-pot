@@ -1,4 +1,4 @@
-import { getFiles } from '../src/parser'
+import { getFiles } from '../src/glob'
 import { Args, DomainType } from '../src/types'
 import { parseCliArgs } from '../src/cliArgs'
 import path from 'path'
@@ -25,7 +25,7 @@ describe('getFiles', () => {
 		expect(collected.length).toBeGreaterThan(2)
 		expect(collected.find((e) => e.includes('theme.json'))).toBeTruthy()
 	})
-	it('should retrieve a list of txt files based on the provided plugin pattern', async () => {
+	it('Should retrieve a list of txt files based on the provided plugin pattern', async () => {
 		const args = {
 			...DEFAULTS,
 		}
@@ -87,7 +87,7 @@ describe('getFiles', () => {
 			collected.filter((file) => !expectedFiles.includes(file))
 		).toBeTruthy()
 	})
-	it('should retrieve a list of files without any node_modules folder', async () => {
+	it('Should retrieve a list of files without any node_modules folder', async () => {
 		const args = {
 			...DEFAULTS,
 		}

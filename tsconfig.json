@@ -1,23 +1,32 @@
 {
-  "compilerOptions": {
-	"module": "NodeNext",
-    "target": "ESNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "strict": true,
-    "downlevelIteration": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    // Import non-ES modules as default imports.
-    "outDir": "lib",
-    "rootDir": "src",
-    // Minify
-    "pretty": false,
-    "removeComments": true,
-    // types
-    "typeRoots": ["src/types.d.ts", "node_modules/@types", "@types"]
-  },
-  "include": ["./src/**/*"],
-  "exclude": ["./src/makeJson.ts"]
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2015",
+		"lib": [ "es2015", "Es6" ],
+		"noImplicitAny": true,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"sourceMap": true,
+		"strict": true,
+		"declaration": true,
+		"downlevelIteration": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
+		// Import non-ES modules as default imports.
+		"outDir": "lib",
+		"rootDir": "src",
+		// Minify
+		"pretty": false,
+		// types
+		"typeRoots": [
+			"src/types.d.ts",
+			"node_modules/@types",
+			"@types"
+		]
+	},
+	"include": [
+		"./src/**/*"
+	]
 }

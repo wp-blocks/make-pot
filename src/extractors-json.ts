@@ -45,11 +45,11 @@ function findValuesInJson<T extends BlockJson>(
  * @param {number} opts.stats.index - The index of the progress bar.
  * @return {Promise<TranslationStrings>} A promise that resolves to an object containing the parsed data.
  */
-export async function parseJsonFile(opts: {
+export function parseJsonFile(opts: {
 	sourceCode: string
 	filename: 'block.json' | 'theme.json'
 	filepath: string
-}): Promise<TranslationStrings> {
+}): TranslationStrings {
 	const jsonData = JSON.parse(opts.sourceCode)
 	let parsed: Record<string, string> | null = null
 
@@ -63,7 +63,7 @@ export async function parseJsonFile(opts: {
 		// extract the strings from the file and return them as an array of objects
 		return yieldParsedData(parsed, opts.filename, opts.filepath)
 	} else {
-		return new Promise<TranslationStrings>((resolve) => resolve({}))
+		return {}
 	}
 }
 

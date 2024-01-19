@@ -3,7 +3,7 @@ import { consolidate } from '../src/consolidate'
 import { GetTextComment } from 'gettext-parser'
 
 describe('consolidate', () => {
-	it('should output translation strings with translator comments', () => {
+	it('should consolidate strings with translator comments', () => {
 		const translationStrings = {
 			'': {
 				'': {

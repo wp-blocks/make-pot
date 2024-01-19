@@ -1,9 +1,7 @@
-import Parser, { type SyntaxNode } from 'tree-sitter'
+import { type SyntaxNode } from 'tree-sitter'
 import { type TranslationStrings } from './types'
 import { i18nFunctions } from './const'
 
-// @ts-expect-error
-import Php from 'tree-sitter-php'
 import { stripTranslationMarkup } from './utils'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 
@@ -11,18 +9,15 @@ import { GetTextComment, GetTextTranslation } from 'gettext-parser'
  * Extract strings from a file
  *
  * @param {Tree} node
- * @param {string} lang
  * @param {string} filename
  * @return {{}}
  */
-export function extractStrings(
-	node: SyntaxNode,
-	lang: Parser | null,
-	filename: string
-) {
+export function extractStrings(node: SyntaxNode, filename: string) {
 	const gettextTranslations: TranslationStrings = {}
 	const typeToMatch =
-		lang !== Php ? 'call_expression' : 'function_call_expression'
+		filename.split('.').pop()?.toLowerCase() !== 'php'
+			? 'call_expression'
+			: 'function_call_expression'
 
 	/**
 	 * Traverse the tree 🌳
@@ -92,7 +87,7 @@ export function extractStrings(
 					'comment',
 					'block_comment',
 					'echo',
-					'expression_statement',
+					typeToMatch,
 				])?.previousSibling
 				// todo: regex to match insensitive "translators" and ":"
 				if (

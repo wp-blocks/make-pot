@@ -1,11 +1,9 @@
 import { describe, expect } from '@jest/globals'
 import { parseJsonFile } from '../src/extractors-json'
-import { Args } from '../src/types'
-import path from 'path'
-import fs from 'fs'
+const fs = require('fs')
 
 describe('consolidateTranslations', () => {
-	it('should output translation strings with translator comments', async () => {
+	it('Should output translation strings with comments', async () => {
 		const expected = {
 			'block style label': {
 				label: {

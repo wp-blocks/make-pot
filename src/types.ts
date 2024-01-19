@@ -99,6 +99,7 @@ export interface Args extends Patterns {
 	skipThemeJson?: boolean
 	skipAudit?: boolean
 	silent?: boolean
+	json?: boolean
 }
 
 /**

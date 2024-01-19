@@ -1,6 +1,6 @@
 import { type Args } from './types'
-import path from 'path'
-import fs from 'fs'
+import * as path from 'path'
+import * as fs from 'fs'
 
 /**
  * Ensures that a folder exists at the specified path.
@@ -33,8 +33,9 @@ function ensureFolderExists(folderPath: string | undefined): string {
  * Writes the .pot file to disk
  * @param args
  * @param fileContent
+ * @param ext
  */
-export async function writePotFile(args: Args, fileContent: string) {
+export async function writeFile(args: Args, fileContent: string, ext: string) {
 	// the path to the .pot file
 	const potFilePath = args.destination
 		? path.join(process.cwd(), args.destination)
@@ -42,7 +43,7 @@ export async function writePotFile(args: Args, fileContent: string) {
 
 	if (ensureFolderExists(potFilePath)) {
 		fs.writeFileSync(
-			path.join(potFilePath, `${args.slug}.pot`),
+			path.join(potFilePath, `${args.slug}.${ext}`),
 			fileContent
 		)
 	}

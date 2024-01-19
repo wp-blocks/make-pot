@@ -1,4 +1,4 @@
-import { pluginHeaders } from './const'
+import { pluginHeaders } from './extractors-maps'
 
 /**
  * Parses a PHP file and extracts the plugin information from the comment block.

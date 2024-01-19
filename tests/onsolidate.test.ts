@@ -1,74 +1,77 @@
-import { describe, expect, test } from "@jest/globals";
-import { consolidateTranslations } from "../src/consolidate";
-import { TranslationString } from "../src/types";
+import { describe, expect } from '@jest/globals'
+import { consolidate } from '../src/consolidate'
+import { GetTextComment } from 'gettext-parser'
 
-describe("consolidateTranslations", () => {
-  it("should output translation strings with translator comments", () => {
-    const translationStrings = [
-      {
-        msgid: "Hello World",
-        raw: ["Hello World", "tl"],
-        reference: "#: includes/class-controller.php:1",
-      },
-      {
-        msgid: "asdasdasd",
-        raw: ["asdasdasd", "tl"],
-        reference: "#: includes/class-controller.php:99",
-      },
-      {
-        msgid: "qweqweqweqwe",
-        raw: ["qweqweqweqwe", "tl"],
-        reference: "#: includes/class-controller.php:12",
-      },
-    ];
+describe('consolidate', () => {
+	it('should consolidate strings with translator comments', () => {
+		const translationStrings = {
+			'': {
+				'': {
+					msgid: '',
+					msgstr: [
+						'Content-Type: text/plain; charset=iso-8859-1\n...',
+					],
+				},
+			},
+			'': {
+				a: {
+					msgid: '',
+					msgstr: ['a'],
+				},
+			},
+			'another context': {
+				'%s example': {
+					msgctxt: 'another context',
+					msgid: '%s example',
+					msgid_plural: '%s examples',
+					msgstr: ['% näide', '%s näidet'],
+					comments: {
+						translator: 'This is a regular comment',
+						reference: '/path/to/file:123',
+					} as GetTextComment,
+				},
+			},
+		}
+		const translationStrings2 = {
+			'': {
+				'': {
+					msgid: '',
+					msgstr: [
+						'Content-Type: text/plain; charset=iso-8859-1\n...',
+					],
+				},
+			},
+		}
+		// eslint-disable-next-line
+		const expected = {
+			'': {
+				'': {
+					msgid: '',
+					msgstr: [
+						'Content-Type: text/plain; charset=iso-8859-1\n...',
+					],
+				},
+				a: {
+					msgid: '',
+					msgstr: ['a'],
+				},
+			},
+			'another context': {
+				'%s example': {
+					comments: {
+						reference: '/path/to/file:123',
+						translator: 'This is a regular comment',
+					},
+					msgctxt: 'another context',
+					msgid: '%s example',
+					msgid_plural: '%s examples',
+					msgstr: ['% näide', '%s näidet'],
+				},
+			},
+		}
 
-    const expected = `#: includes/class-controller.php:1
-msgid "Hello World"
-msgstr ""
+		const result = consolidate([translationStrings, translationStrings2])
 
-#: includes/class-controller.php:99
-msgid "asdasdasd"
-msgstr ""
-
-#: includes/class-controller.php:12
-msgid "qweqweqweqwe"
-msgstr ""`;
-
-    const result = consolidateTranslations(translationStrings);
-
-    expect(result).toBe(expected);
-  });
-
-  it("should consolidate translation strings with translator comments", () => {
-    const translationStrings = [
-      {
-        msgid: "World",
-        raw: ["World", "tl"],
-        reference: "#: includes/class-controller.php:1",
-      },
-      {
-        msgid: "World",
-        raw: ["World", "tl"],
-        reference: "#: includes/class-controller.php:99",
-      },
-      {
-        msgid: "qweqweqweqwe",
-        raw: ["qweqweqweqwe", "tl"],
-        reference: "#: includes/class-controller.php:12",
-      },
-    ];
-
-    const expected = `#: includes/class-controller.php:1
-#: includes/class-controller.php:99
-msgid "World"
-msgstr ""
-
-#: includes/class-controller.php:12
-msgid "qweqweqweqwe"
-msgstr ""`;
-
-    const result = consolidateTranslations(translationStrings);
-
-    expect(result).toBe(expected);
-  });
-});
+		expect(result).toStrictEqual(expected)
+	})
+})

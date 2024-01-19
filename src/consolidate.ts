@@ -1,35 +1,30 @@
-import type { TranslationString } from './types'
+// flatten the results merging results into one array of strings
+import type { TranslationStrings } from './types'
 
 /**
- * Consolidate an array of translation strings into a single i18n file string.
- * The output follows the gettext specifications.
+ * Consolidates an array of translation strings into a single object.
  *
- * @param {TranslationString[]} translationStrings - Array of translation strings.
- * @return {string} Consolidated i18n file string.
+ * @returns The consolidated translation strings object.
+ * @param translationsArray
  */
-export function consolidateTranslations(translationStrings: TranslationString[]): string {
-	const groupedTranslations: Record<string, TranslationString[]> = {}
-
-	translationStrings.forEach((translation) => {
-		groupedTranslations[translation.msgid] = groupedTranslations[translation.msgid] || []
-		groupedTranslations[translation.msgid].push(translation)
+export function consolidate(
+	translationsArray: TranslationStrings[]
+): TranslationStrings {
+	const mergedTranslations: TranslationStrings = {}
+	Object.entries(translationsArray).forEach(([file, translations]) => {
+		Object.entries(translations).forEach(([msgctxt, translations]) => {
+			Object.entries(translations).forEach(([msgid, translation]) => {
+				if (!mergedTranslations[msgctxt]) {
+					const mergedTranslation = {
+						[msgid]: translation,
+					}
+					mergedTranslations[msgctxt] = mergedTranslation
+				} else {
+					mergedTranslations[msgctxt][msgid] = translation
+				}
+			})
+		})
 	})
 
-	let consolidatedStrings = ''
-
-	for (const msgid in groupedTranslations) {
-		const translations = groupedTranslations[msgid]
-		const t = translations[0]
-
-		const translatorComment = t.comments ? `#. translators: ${t.comments}\n` : ''
-		const contextComment = t.msgctxt ? `msgctxt "${t.msgctxt}"\n` : ''
-		const msgidLine = `msgid "${msgid}"\n`
-		const referenceComments = translations?.map((tr) => tr.reference).join('\n') + '\n'
-		const msgstr = 'msgstr ""\n'
-
-		const consolidatedString = `${translatorComment}${referenceComments}${contextComment}${msgidLine}${msgstr}\n`
-		consolidatedStrings += consolidatedString
-	}
-
-	return consolidatedStrings.trim()
+	return mergedTranslations
 }

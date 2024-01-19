@@ -1,110 +1,105 @@
-import path from 'path'
-import fs, { readFileSync } from 'fs'
-import { type Args, type TranslationString } from './types'
-import { pkgJsonHeaders } from './const'
-import { getCommentBlock, removeCommentMarkup } from './utils'
+import * as path from 'path'
+import * as fs from 'fs'
+import { type Args, type TranslationStrings } from './types'
+import { getCommentBlock } from './utils'
 import Parser from 'tree-sitter'
-import type { SingleBar } from 'cli-progress'
-import { jsonString, parseBlockJson, parseJsonFile, parseThemeJson } from './extractors-json'
+import { jsonString, parseJsonFile } from './extractors-json'
 import { parsePHPFile } from './extractors-php'
 import { extractStrings } from './tree'
-
-/**
- * Extracts the names from an array of items.
- *
- * @param {unknown[]} items - The array of items.
- * @return {string[]} An array of names extracted from the items.
- */
-export const extractNames = (items: { name: string }[]): string[] => items.map((item) => item.name)
+import { extractFileData } from './extractors-text'
+import { pkgJsonHeaders } from './extractors-maps'
 
 /**
  * Extracts strings from parsed JSON data.
  *
  * @param {Record<string, any> | Parser.SyntaxNode} parsed - The parsed JSON data or syntax node.
  * @param {string | Parser} filename - The filename or parser.
- * @param opts - The metadata of this translation string.
- * @return {TranslationString[]} An array of translation strings.
+ * @param filepath - the path to the file being parsed
+ * @return {TranslationStrings[]} An array of translation strings.
  */
 export function yieldParsedData(
-	parsed: Record<string, string | string[]> | Parser.SyntaxNode,
+	parsed: Record<string, any>,
 	filename: string | Parser,
-	opts: { filepath: string; stats?: { bar: SingleBar } }
-): Promise<TranslationString[]> {
-	return new Promise<TranslationString[]>((resolve) =>
-		resolve(
-			Object.entries(parsed as Record<string, string | string[]>)
+	filepath: string
+): TranslationStrings {
+	const gettextTranslations: TranslationStrings = {}
 
-				// return the translations for each key in the json data
-				.map(([key, jsonData]) => {
-					// if is a string return a single json string
-					if (typeof jsonData === 'string') {
-						return jsonString(
-							key,
-							jsonData,
-							opts.filepath,
-							filename as 'block.json' | 'theme.json'
-						)
-					} else {
-						opts.stats?.bar.increment(0, { filename: 'not a string' })
-					}
-
-					if (!jsonData) {
-						opts.stats?.bar.increment(0, {
-							filename: `Skipping ${key} in ${opts.filepath} as ${filename} ... cannot parse data`,
-						})
-
-						return null
-					}
-
-					// if is an object return an array of json strings
-					Object.entries(jsonData).map(([k, v]) => jsonString(k, v, opts.filepath))
-				})
-				.flat() as TranslationString[]
+	Object.entries(parsed).map(([k, v]) => {
+		const entry = jsonString(
+			k,
+			v,
+			filepath,
+			filename as 'block.json' | 'theme.json'
 		)
-	)
+
+		gettextTranslations[entry.msgctxt ?? ''] = {
+			...(gettextTranslations[entry.msgctxt ?? ''] || {}),
+			[entry.msgid]: entry,
+		}
+	})
+
+	return gettextTranslations
+}
+
+/**
+ * Parses the source code using the specified language parser and extracts the strings from the file.
+ *
+ * @param {string} sourceCode - The source code to be parsed.
+ * @param {Args} language - The language to be used for parsing.
+ * @param {string} filepath - The path to the file being parsed.
+ * @return {TranslationStrings[]} An array of translation strings.
+ */
+export function doTree(
+	sourceCode: string,
+	language: Parser,
+	filepath: string
+): TranslationStrings {
+	// set up the parser
+	const parser = new Parser()
+	parser.setLanguage(language)
+
+	// parse the file
+	const tree = parser.parse(sourceCode)
+
+	// extract the strings from the file and return them
+	return extractStrings(tree.rootNode, filepath)
 }
 
 /**
  * Parse a file and extract strings asynchronously
  *
- * @param {object} args
- * @param {string} args.filepath - Path to the file to parse
- * @param {Parser|null} args.language - Language of the file to parse
- * @return {Promise<TranslationString[]>}
+ * @param {object} opts
+ * @param {string} opts.filepath - Path to the file to parse
+ * @param {Parser|null} opts.language - Language of the file to parse
+ * @return {Promise<TranslationStrings>}
  */
-export async function parseFile(args: {
+export async function parseFile(opts: {
 	filepath: string
 	language: Parser | string
-	stats?: { bar: SingleBar; index: number }
-}): Promise<TranslationString[] | null> {
+}): Promise<TranslationStrings | null> {
 	// check if the language is supported
-	if (typeof args.language === 'string') {
-		if (args.language === 'json') {
-			return parseJsonFile(args) || []
+	if (typeof opts.language === 'string') {
+		if (opts.language === 'json') {
+			const filename = path.basename(opts.filepath)
+
+			if (filename === 'theme.json' || filename === 'block.json') {
+				const sourceCode = fs.readFileSync(opts.filepath, 'utf8')
+				return parseJsonFile({
+					sourceCode: sourceCode,
+					filename: filename,
+					filepath: opts.filepath,
+				})
+			}
+			console.log(
+				`Skipping ${opts.filepath}... No parser found for ${opts.language} file`
+			)
 		}
-		console.log(`Skipping ${args.filepath}... No parser found for ${args.language} file`)
-		return null
 	}
 
 	// read the file
-	const sourceCode = readFileSync(path.resolve(args.filepath), 'utf8')
+	const sourceCode = fs.readFileSync(opts.filepath, 'utf8')
 
-	// log the filepath
-	if (args.stats) {
-		args.stats.bar.increment(1, {
-			filename: args.filepath + ' (' + args.stats.index + ')',
-		})
-	}
-
-	// set up the parser
-	const parser = new Parser()
-	parser.setLanguage(args.language)
-
-	// parse the file
-	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
-
-	// extract the strings from the file and return them
-	return extractStrings(tree.rootNode, args.language, args.filepath)
+	return doTree(sourceCode, opts.language as Parser, opts.filepath)
 }
 
 /**
@@ -115,7 +110,10 @@ export async function parseFile(args: {
  * @param {Record<string, string>} fields - The fields to extract from the package.json file. Default is pkgJsonHeaders.
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
-export function extractPackageData(args: Args, fields = pkgJsonHeaders): Record<string, string> {
+export function extractPackageData(
+	args: Args,
+	fields = pkgJsonHeaders
+): Record<string, string> {
 	// TODO: package.json "files" could be used to get the file list
 	const pkgJsonMeta: Record<string, string> = {}
 	// read the package.json file
@@ -135,32 +133,6 @@ export function extractPackageData(args: Args, fields = pkgJsonHeaders): Record<
 }
 
 /**
- * Extracts file data from the given file content.
- *
- * @param {string} fileContent - The content of the file.
- * @return {Record<string, string>} An object containing the extracted file data.
- */
-export function extractFileData(fileContent: string): Record<string, string> {
-	const data: Record<string, string> = {}
-
-	// split by lines and trim every line
-	fileContent
-		.split('\n')
-		.map((line) => line.trim())
-		.map((line) => removeCommentMarkup(line))
-		// split each line by colon trim each part and add to data
-		.forEach((line) => {
-			const parts = line.split(':')
-			if (parts[1] === undefined) {
-				return
-			}
-			data[parts[0]?.trim()] = parts[1]?.trim()
-		})
-
-	return data
-}
-
-/**
  * Extracts main file data based on the given arguments.
  *
  * @param {Args} args - The arguments for extracting the main file data.
@@ -168,12 +140,13 @@ export function extractFileData(fileContent: string): Record<string, string> {
  */
 export function extractMainFileData(args: Args) {
 	let fileData: Record<string, string> = {}
-	const sourceDir = args.sourceDirectory
-		? path.join(process.cwd(), args.sourceDirectory)
-		: process.cwd()
 
 	if (['plugin', 'block', 'generic'].includes(args.domain)) {
-		const folderPhpFile = path.join(sourceDir, `${args.slug}.php`)
+		const folderPhpFile = path.join(
+			process.cwd(),
+			args.sourceDirectory,
+			`${args.slug}.php`
+		)
 
 		if (fs.existsSync(folderPhpFile)) {
 			const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
@@ -189,7 +162,11 @@ export function extractMainFileData(args: Args) {
 			console.log(`Missing Plugin filename: ${folderPhpFile}`)
 		}
 	} else if (['theme', 'theme-block'].includes(args.domain)) {
-		const styleCssFile = path.join(sourceDir, 'style.css')
+		const styleCssFile = path.join(
+			process.cwd(),
+			args.sourceDirectory,
+			'style.css'
+		)
 
 		if (fs.existsSync(styleCssFile)) {
 			const fileContent = fs.readFileSync(styleCssFile, 'utf8')
@@ -200,7 +177,7 @@ export function extractMainFileData(args: Args) {
 			console.log(`Theme stylesheet: ${styleCssFile}`)
 			args.domain = 'theme'
 		} else {
-			console.log(`Theme stylesheet not found in ${path.resolve(sourceDir)}`)
+			console.log(`Theme stylesheet not found in ${styleCssFile}`)
 		}
 	}
 

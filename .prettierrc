@@ -3,8 +3,9 @@
   "tabWidth": 4,
   "semi": false,
   "singleQuote": true,
-  "printWidth": 100,
+  "printWidth": 80,
   "bracketSameLine": false,
   "bracketSpacing": true,
-  "arrowParens": "always"
+  "arrowParens": "always",
+	"proseWrap": "always"
 }

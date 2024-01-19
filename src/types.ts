@@ -1,17 +1,56 @@
-import { type themeHeaders, type pluginHeaders, type pkgJsonHeaders } from './const'
+import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './extractors-maps'
+import { GetTextTranslation } from 'gettext-parser'
 
 export type ThemeHeadersType = keyof typeof themeHeaders
 export type PluginHeadersType = keyof typeof pluginHeaders
 export type PkgHeadersType = keyof typeof pkgJsonHeaders
 
-// type is the value of the themeHeader Object
+/**
+ * The args headers Object types
+ */
 export type PotHeaders =
 	| (typeof pkgJsonHeaders)[PkgHeadersType]
 	| (typeof pluginHeaders)[PluginHeadersType]
 	| (typeof themeHeaders)[ThemeHeadersType]
+	| 'comment'
 
 // type is the value of the themeHeader Object
-export type DomainType = 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic'
+export type DomainType =
+	| 'plugin'
+	| 'theme'
+	| 'block'
+	| 'theme-block'
+	| 'generic'
+
+/**
+ * The patterns to use when extracting strings from files.
+ *
+ * @param {string} mergePaths - Comma-separated list of POT files whose contents should be merged with the extracted strings.
+ *   If left empty, defaults to the destination POT file. POT file headers will be ignored.
+ * @param {string} subtractPaths - Comma-separated list of POT files whose contents should act as some sort of denylist
+ *   for string extraction. Any string which is found on that denylist will not be extracted. This can be useful when
+ *   you want to create multiple POT files from the same source directory with slightly different content and no duplicate
+ *   strings between them.
+ * @param {boolean} subtractAndMerge - Whether source code references and comments from the generated POT file should be
+ *   instead added to the POT file used for subtraction. Warning: this modifies the files passed to `subtractPaths`!
+ * @param {string} include - Comma-separated list of files and paths that should be used for string extraction.
+ *   If provided, only these files and folders will be taken into account for string extraction.
+ *   For example, `--include="src,my-file.php` will ignore anything besides `my-file.php` and files in the `src`
+ *   directory. Simple glob patterns can be used, i.e. `--include=foo-*.php` includes any PHP file with the `foo-`
+ *   prefix. Leading and trailing slashes are ignored, i.e. `/my/directory/` is the same as `my/directory`.
+ * @param {string} exclude - Comma-separated list of files and paths that should be skipped for string extraction.
+ *   For example, `--exclude=.github,myfile.php` would ignore any strings found within `myfile.php` or the `.github`
+ *   folder. Simple glob patterns can be used, i.e. `--exclude=foo-*.php` excludes any PHP file with the `foo-`
+ *   prefix. Leading and trailing slashes are ignored, i.e. `/my/directory/` is the same as `my/directory`.
+ *   The following files and folders are always excluded: node_modules, .git, .svn, .CVS, .hg, vendor, *.min.js.
+ */
+export interface Patterns {
+	mergePaths?: string[]
+	subtractPaths?: string[]
+	subtractAndMerge?: boolean
+	include: string[]
+	exclude: string[]
+}
 
 /**
  * Create a POT file for a WordPress project.
@@ -26,24 +65,6 @@ export type DomainType = 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic
  *   unless the `ignoreDomain` option is used. By default, the "Text Domain" header of the plugin or theme is used.
  *   If none is provided, it falls back to the project slug.
  * @param {boolean} ignoreDomain - Ignore the text domain completely and extract strings with any text domain.
- * @param {string} mergePaths - Comma-separated list of POT files whose contents should be merged with the extracted strings.
- *   If left empty, defaults to the destination POT file. POT file headers will be ignored.
- * @param {string} subtractPaths - Comma-separated list of POT files whose contents should act as some sort of denylist
- *   for string extraction. Any string which is found on that denylist will not be extracted. This can be useful when
- *   you want to create multiple POT files from the same source directory with slightly different content and no duplicate
- *   strings between them.
- * @param {boolean} subtractAndMerge - Whether source code references and comments from the generated POT file should be
- *   instead added to the POT file used for subtraction. Warning: this modifies the files passed to `subtractPaths`!
- * @param {string} includePaths - Comma-separated list of files and paths that should be used for string extraction.
- *   If provided, only these files and folders will be taken into account for string extraction.
- *   For example, `--include="src,my-file.php` will ignore anything besides `my-file.php` and files in the `src`
- *   directory. Simple glob patterns can be used, i.e. `--include=foo-*.php` includes any PHP file with the `foo-`
- *   prefix. Leading and trailing slashes are ignored, i.e. `/my/directory/` is the same as `my/directory`.
- * @param {string} excludePaths - Comma-separated list of files and paths that should be skipped for string extraction.
- *   For example, `--exclude=.github,myfile.php` would ignore any strings found within `myfile.php` or the `.github`
- *   folder. Simple glob patterns can be used, i.e. `--exclude=foo-*.php` excludes any PHP file with the `foo-`
- *   prefix. Leading and trailing slashes are ignored, i.e. `/my/directory/` is the same as `my/directory`.
- *   The following files and folders are always excluded: node_modules, .git, .svn, .CVS, .hg, vendor, *.min.js.
  * @param {{}} headers - Array in JSON format of custom headers which will be added to the POT file. Defaults to empty array.
  * @param {boolean} location - Whether to write `#: filename:line` lines. Defaults to true, use `--no-location`
  *   to skip the removal. Note that disabling this option makes it harder for technically skilled translators
@@ -59,22 +80,17 @@ export type DomainType = 'plugin' | 'theme' | 'block' | 'theme-block' | 'generic
  *   By default, a copyright comment is added for WordPress plugins and themes.
  * @param {string} packageName - Name to use for the package name in the resulting POT file's `Project-Id-Version` header.
  *   Overrides the plugin or theme name, if applicable.
+ * @param {boolean} silent - Whether to hide progress information.
  */
-
-export interface Args {
-	sourceDirectory?: string
-	destination?: string
+export interface Args extends Patterns {
+	sourceDirectory: string
+	destination: string
 	slug: string
 	domain: DomainType
 	ignoreDomain?: boolean
 	fileComment?: string
 	packageName?: string
-	mergePaths?: string[]
-	subtractPaths?: string[]
-	subtractAndMerge?: boolean
-	include?: string[]
-	exclude?: string[]
-	headers: Record<PotHeaders, string> | undefined
+	headers: Record<PotHeaders, string>
 	location?: boolean
 	skipJs?: boolean
 	skipPhp?: boolean
@@ -82,22 +98,23 @@ export interface Args {
 	skipBlockJson?: boolean
 	skipThemeJson?: boolean
 	skipAudit?: boolean
+	silent?: boolean
+	json?: boolean
 }
 
-export interface TranslationString {
-	type?: string
-	raw: string | string[]
-	count?: string | number
-	msgid: string
-	msgctxt?: string
-	comments?: string
-	reference: string
+/**
+ * Translation string metadata.
+ * Gettext format: https://www.gnu.org/savannah-checkouts/gnu/gettext/FAQ.html
+ *
+ * @property {string} msgctxt - context for this translation, if not present the default context applies
+ * @property {string} msgid - string to be translated
+ * @property {string} msgid_plural the plural form of the original string (might not be present)
+ * @property {string[]} msgstr  an array of translations
+ * @property {{}} comments an object with the following properties: translator, reference, extracted, flag, previous.
+ */
+export interface TranslationStrings {
+	[msgctxt: string]: { [msgId: string]: GetTextTranslation }
 }
 
-export interface Patterns {
-	included: string[]
-	excluded: string[]
-	mergePaths: string[]
-	subtractPaths: string[]
-	subtractAndMerge: boolean
-}
+/** a json */
+export type JsonData = Record<string, any>

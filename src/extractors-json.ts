@@ -1,119 +1,69 @@
-import { blockJsonComments, themeJsonComments } from './const'
-import type { Args, TranslationString } from './types'
-import { extractNames, yieldParsedData } from './extractors'
-import path from 'path'
-import { readFileSync } from 'fs'
-import { extractStrings } from './tree'
-import { SingleBar } from 'cli-progress'
-
-export function parseJsonFile(args: {
-	filepath: string
-	stats?: { bar: SingleBar; index: number }
-}) {
-	const filename = path.basename(args.filepath)
-	let parsed: Record<string, string | string[]> | null = null
-	// parse the file based on the filename
-	switch (filename) {
-		case 'block.json':
-			args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
-			parsed = parseBlockJson(readFileSync(path.resolve(args.filepath), 'utf8'))
-			break
-		case 'theme.json':
-			args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
-			parsed = parseThemeJson(readFileSync(path.resolve(args.filepath), 'utf8'))
-			break
-	}
-
-	if (parsed !== null) {
-		// extract the strings from the file and return them as an array of objects
-		return yieldParsedData(parsed, filename, args)
-	}
-}
+import type { JsonData, TranslationStrings } from './types'
+import { yieldParsedData } from './extractors'
+import { BlockJson, blockJson, ThemeJson, themeJson } from './extractors-maps'
+import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 
 /**
- * Parses a JSON string and returns a record with the extracted data.
+ * Finds values in a JSON object based on a given block.
  *
- * @param {string} jsondata - The JSON string to parse.
- * @return {Record<string, any>} - A record containing the extracted data.
+ * @param {T extends BlockJson} block - The block to search for values in the JSON.
+ * @param {JsonData | ThemeJson} jsonData - The JSON object to search in.
+ * @return {Record<string, any>} - The found values in a record.
  */
-export function parseBlockJson(jsondata: string): Record<string, any> {
-	const json = JSON.parse(jsondata)
-	return {
-		title: json?.title ?? undefined,
-		description: json?.description ?? undefined,
-		keywords: json?.keywords ?? undefined,
-		styles: json?.styles ? extractNames(json.styles) : undefined,
-		variations:
-			json?.variations?.map((variation: any) => ({
-				title: variation?.title ?? undefined,
-				description: variation?.description ?? undefined,
-				keywords: variation?.keywords ?? undefined,
-			})) ?? undefined,
-	}
-}
+function findValuesInJson<T extends BlockJson>(
+	block: T,
+	jsonData: JsonData | ThemeJson
+): Record<string, any> {
+	const result: Record<string, any> = {}
 
-/**
- * Parses a JSON string into a theme object.
- *
- * @param {string} jsondata - The JSON string to parse.
- * @return {Record<string, any>} - The parsed theme object.
- */
-export function parseThemeJson(jsondata: string): Record<string, any> {
-	const json = JSON.parse(jsondata)
-
-	const settings = json.settings
-	const typography = settings?.typography || {}
-	const color = settings?.color || {}
-	const spacing = settings?.spacing || {}
-	const blocks = settings?.blocks || {}
-
-	return {
-		title: json.title,
-		settings: {
-			typography: {
-				fontSizes: typography.fontSizes ? extractNames(typography.fontSizes) : [],
-				fontFamilies: typography.fontFamilies ? extractNames(typography.fontFamilies) : [],
-			},
-			color: {
-				palette: color.palette ? extractNames(color.palette) : [],
-				gradients: color.gradients ? extractNames(color.gradients) : [],
-				duotone: color.duotone ? extractNames(color.duotone) : [],
-			},
-			spacing: {
-				spacingSizes: spacing.spacingSizes ? extractNames(spacing.spacingSizes) : [],
-			},
-			blocks: Object.keys(blocks).reduce((acc: any, key: string) => {
-				const block = blocks[key]
-				acc[key] = {
-					typography: {
-						fontSizes: block.typography?.fontSizes
-							? extractNames(block.typography.fontSizes)
-							: [],
-						fontFamilies: block.typography?.fontFamilies
-							? extractNames(block.typography.fontFamilies)
-							: [],
-					},
-					color: {
-						palette: block.color?.palette ? extractNames(block.color.palette) : [],
-						gradients: block.color?.gradients
-							? extractNames(block.color.gradients)
-							: [],
-					},
-					spacing: {
-						spacingSizes: block.spacing?.spacingSizes
-							? extractNames(block.spacing.spacingSizes)
-							: [],
-					},
+	// Helper function to recursively search for values in JSON
+	const searchValues = (block: T, json: JsonData) => {
+		for (const key in block) {
+			if (typeof block[key] === 'object') {
+				if (typeof json[key] === 'object') {
+					// @ts-ignore
+					searchValues(block[key], json[key])
 				}
-				return acc
-			}, {}),
-		},
-		customTemplates: json.customTemplates
-			? json.customTemplates.map((template: any) => template.title)
-			: [],
-		templateParts: json.templateParts
-			? json.templateParts.map((templatePart: any) => templatePart.title)
-			: [],
+			} else if (json[key] !== undefined) {
+				result[key] = json[key]
+			}
+		}
+	}
+
+	searchValues(block, jsonData)
+
+	return result
+}
+
+/**
+ * Parses a JSON file and returns an array of parsed data.
+ *
+ * @param {Object} opts - The arguments for parsing the JSON file.
+ * @param {string} opts.filepath - The filepath of the JSON file to parse.
+ * @param {Object} [opts.stats] - Optional statistics object.
+ * @param {SingleBar} opts.stats.bar - The progress bar for tracking parsing progress.
+ * @param {number} opts.stats.index - The index of the progress bar.
+ * @return {Promise<TranslationStrings>} A promise that resolves to an object containing the parsed data.
+ */
+export function parseJsonFile(opts: {
+	sourceCode: string
+	filename: 'block.json' | 'theme.json'
+	filepath: string
+}): TranslationStrings {
+	const jsonData = JSON.parse(opts.sourceCode)
+	let parsed: Record<string, string> | null = null
+
+	// parse the file based on the filename
+	parsed = findValuesInJson(
+		jsonData,
+		opts.filename === 'block.json' ? blockJson : themeJson
+	)
+
+	if (parsed) {
+		// extract the strings from the file and return them as an array of objects
+		return yieldParsedData(parsed, opts.filename, opts.filepath)
+	} else {
+		return {}
 	}
 }
 
@@ -124,9 +74,14 @@ export function parseThemeJson(jsondata: string): Record<string, any> {
  * @param {('block.json' | 'theme.json')=} type - The type of JSON file to search for the comment. Defaults to 'block.json'.
  * @return {string} - The comment associated with the given key. If the key is not found, the key itself is returned.
  */
-export function getJsonComment(key: string, type?: 'block.json' | 'theme.json'): string {
-	const comments = type === 'block.json' ? blockJsonComments : themeJsonComments
-	return key in comments ? comments[key as keyof typeof comments] : key
+export function getJsonComment(
+	key: string,
+	type?: 'block.json' | 'theme.json'
+): string {
+	const comments = type === 'block.json' ? blockJson : themeJson
+	return key in Object.values(comments)
+		? comments[key as keyof typeof comments]
+		: key
 }
 
 /**
@@ -136,19 +91,20 @@ export function getJsonComment(key: string, type?: 'block.json' | 'theme.json'):
  * @param {string} data - The data for the translation string.
  * @param {string} path - The path of the translation string.
  * @param {'block.json' | 'theme.json'} [type] - The optional type of the translation string.
- * @return {TranslationString} The generated translation string.
+ * @return {TranslationStrings} The generated translation string.
  */
 export function jsonString(
 	key: string,
 	data: string,
 	path: string,
 	type?: 'block.json' | 'theme.json'
-): TranslationString {
+): GetTextTranslation {
 	return {
-		reference: `#: ${path}`,
-		type: 'msgid',
-		raw: [key, data],
-		msgid: data,
-		msgctxt: getJsonComment(key, type),
+		msgstr: [],
+		msgid: getJsonComment(key, type),
+		msgctxt: data,
+		comments: {
+			reference: `${path}`,
+		} as GetTextComment,
 	}
 }

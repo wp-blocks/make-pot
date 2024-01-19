@@ -1,111 +1,113 @@
-#!/usr/bin/env node
-import Parser, { type SyntaxNode } from 'tree-sitter'
-// @ts-expect-error
-import Js from 'tree-sitter-javascript'
-// @ts-expect-error
-import Php from 'tree-sitter-php'
-// @ts-expect-error
-import Ts from 'tree-sitter-typescript'
-import { type TranslationString } from './types'
+import { type SyntaxNode } from 'tree-sitter'
+import { type TranslationStrings } from './types'
 import { i18nFunctions } from './const'
 
+import { stripTranslationMarkup } from './utils'
+import { GetTextComment, GetTextTranslation } from 'gettext-parser'
+
 /**
- * Extract strings from a file 🌳
+ * Extract strings from a file
  *
  * @param {Tree} node
- * @param {string} lang
  * @param {string} filename
  * @return {{}}
  */
-export function extractStrings(
-	node: SyntaxNode,
-	lang: Parser | null,
-	filename: string
-): TranslationString[] {
-	const matches: TranslationString[] = []
-	const typeToMatch = lang !== Php ? 'call_expression' : 'function_call_expression'
+export function extractStrings(node: SyntaxNode, filename: string) {
+	const gettextTranslations: TranslationStrings = {}
+	const typeToMatch =
+		filename.split('.').pop()?.toLowerCase() !== 'php'
+			? 'call_expression'
+			: 'function_call_expression'
 
 	/**
 	 * Traverse the tree 🌳
 	 *
 	 * @param {SyntaxNode} node The node to traverse through
-	 * @param {SyntaxNode|null} previousNode The previous node in the tree
 	 */
-	function traverse(node: SyntaxNode, previousNode: SyntaxNode | null = null): void {
-		if (node.type === typeToMatch) {
-			const functionNameNode = node.firstChild
-			const functionName = functionNameNode?.text ?? null
+	function traverse(node: SyntaxNode): void {
+		// Walk the tree
+		if (node?.children.length)
+			for (const child of node.children) {
+				traverse(child)
+			}
 
-			if (functionName === null || !Object.keys(i18nFunctions).includes(functionName)) {
+		// Check if the node matches
+		if (node?.type === typeToMatch) {
+			// The function name is the first child
+			const functionName = node.firstChild?.text ?? null
+			if (
+				functionName === null ||
+				!Object.keys(i18nFunctions).includes(functionName)
+			) {
 				return
 			}
 
+			// The arguments are the last child
 			const argsNode = node.lastChild
-
-			if (argsNode === null || argsNode.childCount === 0 || argsNode.type !== 'arguments') {
+			if (
+				argsNode === null ||
+				argsNode.childCount === 0 ||
+				argsNode.type !== 'arguments'
+			) {
 				return
 			}
 
 			const [fn, raw] = node.children
 			const translation: string[] = []
+
+			// Get the translation from the arguments (the quoted strings)
+			// Todo: parse the translations string by type of function "fn"
 			raw.children.slice(1, -1).forEach((child) => {
-				if (child.text !== ',') translation.push(child.text.slice(1, -1))
+				if (/^["|']/.exec(child.text[0]))
+					translation.push(child.text.slice(1, -1))
 			})
 
-			let comments
-
-			while (previousNode !== null && previousNode.type !== 'comment') {
-				previousNode = previousNode.previousSibling
-			}
-
-			if (previousNode?.type === 'comment' && previousNode.text.includes('translators:')) {
-				comments = previousNode.text.trim()
-			}
-
-			const type = i18nFunctions[fn.text as keyof typeof i18nFunctions] ?? 'text_domain'
-			const position = node.startPosition
-
-			matches.push({
-				reference: `#: ${filename}:${position.row + 1}`,
-				type,
-				raw: translation,
+			// Get the msgid from the translation data
+			const gettext: GetTextTranslation = {
 				msgid: translation[0],
-				comments,
-			})
-		}
+				msgid_plural: undefined,
+				msgstr: [],
+				comments: {
+					reference: `${filename}:${node.startPosition.row + 1}`,
+				} as GetTextComment,
+			}
 
-		for (const child of node.children) {
-			traverse(child, node)
+			if (node.parent?.previousSibling?.type === 'comment') {
+				if (
+					node.parent?.previousSibling.text
+						.toLowerCase()
+						.includes('translators:')
+				)
+					(gettext.comments as GetTextComment).translator =
+						stripTranslationMarkup(
+							node.parent?.previousSibling.text
+						)
+			} else {
+				const el = node.closest([
+					'comment',
+					'block_comment',
+					'echo',
+					typeToMatch,
+				])?.previousSibling
+				// todo: regex to match insensitive "translators" and ":"
+				if (
+					el &&
+					(el.type === 'comment' || el.type === 'block_comment') &&
+					el.text.toLowerCase().includes('translators:')
+				)
+					(gettext.comments as GetTextComment).translator =
+						stripTranslationMarkup(el.text)
+			}
+
+			gettextTranslations[gettext.msgctxt ?? ''] = {
+				...(gettextTranslations[gettext.msgctxt ?? ''] || {}),
+				[gettext.msgid]: gettext,
+			}
 		}
 	}
 
 	traverse(node)
 
 	// Return both matches and entries
-	return matches
-}
-
-/**
- * Return the parser based on the file extension
- *
- * @param file - Path to the file
- * @return {Parser|{}|null} - the parser to be used with the file or null if no parser is found
- */
-export function getParser(file: string): string | Parser {
-	const ext = file.split('.').pop()
-	switch (ext) {
-		case 'ts':
-			return Ts.typescript
-		case 'tsx':
-			return Ts.tsx
-		case 'js':
-		case 'jsx':
-		case 'mjs':
-		case 'cjs':
-			return Js
-		case 'php':
-			return Php
-		default:
-			return ext!
-	}
+	return gettextTranslations
 }

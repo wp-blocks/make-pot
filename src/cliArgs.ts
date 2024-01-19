@@ -1,16 +1,17 @@
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { stringstring } from './makePot'
-import path from 'path'
+import * as path from 'path'
+import * as process from 'process'
 import { DEFAULT_EXCLUDED_PATH } from './const'
 import { Args, DomainType } from './types'
 
 /**
  * Retrieves and returns the command line arguments and options.
  *
- * @return {Args} The parsed command line arguments and options.
+ * @return The parsed command line arguments and options.
  */
-export function getArgs() {
+export function getArgs(): Args {
 	const args = yargs(hideBin(process.argv))
 		.help('h')
 		.alias('help', 'help')
@@ -85,7 +86,8 @@ export function getArgs() {
 				type: 'string',
 			},
 			subtractAndMerge: {
-				describe: 'Subtract and merge strings from existing POT file(s)',
+				describe:
+					'Subtract and merge strings from existing POT file(s)',
 				type: 'boolean',
 			},
 			include: {
@@ -96,18 +98,36 @@ export function getArgs() {
 				describe: 'Exclude specific files',
 				type: 'string',
 			},
+			silent: {
+				describe: 'No output to stdout',
+				type: 'boolean',
+			},
+			json: {
+				describe: 'output the json gettext data',
+				type: 'boolean',
+			},
 		})
 		.parseSync()
+	return parseCliArgs(args as Partial<Args>)
+}
 
+/**
+ * Parses the command line arguments and returns an object with the parsed values.
+ *
+ * @param {object} args - The command line arguments to be parsed.
+ * @return {object} - An object with the parsed values from the command line arguments.
+ */
+export function parseCliArgs(args: Partial<Args> & { _?: string[] }): Args {
+	const [inputPath, outputPath, ..._others] = args._ ?? []
 	return {
 		// Paths
-		sourceDirectory: args.sourceDirectory ?? undefined,
-		destination: args.destination ?? undefined,
-		slug: args.slug ?? path.basename(process.cwd()),
-		domain: (args.domain as DomainType) ?? 'generic',
-		ignoreDomain: args.ignoreDomain ?? false,
-		headers: undefined,
-		location: args.location ?? false,
+		sourceDirectory: inputPath ?? '.',
+		destination: outputPath ?? '.',
+		slug: args?.slug ?? path.basename(process.cwd()),
+		domain: (args?.domain as DomainType) ?? 'generic',
+		ignoreDomain: args?.ignoreDomain ?? false,
+		headers: {},
+		location: args?.location ?? false,
 		// Patterns
 		mergePaths: stringstring(args.mergePaths) ?? [],
 		subtractPaths: stringstring(args.subtractPaths) ?? [],
@@ -123,5 +143,7 @@ export function getArgs() {
 		skipAudit: args.skipAudit ?? false,
 		fileComment: args.fileComment ?? '',
 		packageName: args.packageName ?? '',
+		silent: args.silent ?? false,
+		json: args.json ?? false,
 	} satisfies Args
 }

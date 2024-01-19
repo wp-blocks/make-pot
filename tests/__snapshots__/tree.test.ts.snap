@@ -120,6 +120,153 @@ exports[`doTree Should build pot file 1`] = `
 }
 `;
 
+exports[`doTree Should build pot file 2`] = `
+{
+  "": {
+    "%d thing.": {
+      "comments": {
+        "reference": "sourcedir/file.php:42",
+      },
+      "msgid": "%d thing.",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "%s comment": {
+      "comments": {
+        "reference": "sourcedir/file.php:30",
+      },
+      "msgid": "%s comment",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "%s comment.": {
+      "comments": {
+        "reference": "sourcedir/file.php:46",
+      },
+      "msgid": "%s comment.",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    ", and your zip code is ": {
+      "comments": {
+        "reference": "sourcedir/file.php:86",
+      },
+      "msgid": ", and your zip code is ",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "<strong>Version %1$s</strong> addressed %2$s bug.": {
+      "comments": {
+        "reference": "sourcedir/file.php:71",
+        "translator": "",
+      },
+      "msgid": "<strong>Version %1$s</strong> addressed %2$s bug.",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Blog Options": {
+      "comments": {
+        "reference": "sourcedir/file.php:3",
+      },
+      "msgid": "Blog Options",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Last thing!": {
+      "comments": {
+        "reference": "sourcedir/file.php:40",
+      },
+      "msgid": "Last thing!",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Post": {
+      "comments": {
+        "reference": "sourcedir/file.php:63",
+      },
+      "msgid": "Post",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Posts:": {
+      "comments": {
+        "reference": "sourcedir/file.php:89",
+      },
+      "msgid": "Posts:",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Search results for: %s": {
+      "comments": {
+        "reference": "sourcedir/file.php:78",
+      },
+      "msgid": "Search results for: %s",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "WordPress is the best!": {
+      "comments": {
+        "reference": "sourcedir/file.php:7",
+      },
+      "msgid": "WordPress is the best!",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Your city is ": {
+      "comments": {
+        "reference": "sourcedir/file.php:86",
+      },
+      "msgid": "Your city is ",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Your city is $city.": {
+      "comments": {
+        "reference": "sourcedir/file.php:74",
+      },
+      "msgid": "Your city is $city.",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Your city is %1$s, and your zip code is %2$s.": {
+      "comments": {
+        "reference": "sourcedir/file.php:83",
+      },
+      "msgid": "Your city is %1$s, and your zip code is %2$s.",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Your city is %s.": {
+      "comments": {
+        "reference": "sourcedir/file.php:11",
+        "translator": "",
+      },
+      "msgid": "Your city is %s.",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Your zip code is %2$s, and your city is %1$s.": {
+      "comments": {
+        "reference": "sourcedir/file.php:24",
+        "translator": "",
+      },
+      "msgid": "Your zip code is %2$s, and your city is %1$s.",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "g:i:s a": {
+      "comments": {
+        "reference": "sourcedir/file.php:66",
+        "translator": "",
+      },
+      "msgid": "g:i:s a",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+  },
+}
+`;
+
 exports[`doTree Should parse TSX file and extract strings 1`] = `
 {
   "": {

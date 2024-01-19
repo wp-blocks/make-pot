@@ -22,6 +22,15 @@ describe('doTree', () => {
 		console.log(fileParsed)
 		expect(fileParsed).toMatchSnapshot()
 	})
+	it('Should build pot file', async () => {
+		const fileParsed = doTree(
+			fs.readFileSync(path.join(__dirname, 'fixtures/php.php'), 'utf8'),
+			Php,
+			'sourcedir/file.php'
+		)
+		console.log(fileParsed)
+		expect(fileParsed).toMatchSnapshot()
+	})
 	it('Should parse js', async () => {
 		const fileParsed = doTree(
 			fs.readFileSync(

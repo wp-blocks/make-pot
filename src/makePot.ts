@@ -73,5 +73,6 @@ export async function makePot(args: Args) {
 			'cores'
 		)
 	}
-	await writePotFile(args, translations)
+
+	return await writePotFile(args, translations)
 }

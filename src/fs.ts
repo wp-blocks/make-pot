@@ -37,10 +37,13 @@ function ensureFolderExists(folderPath: string | undefined): string {
 export async function writePotFile(args: Args, fileContent: string) {
 	// the path to the .pot file
 	const potFilePath = args.destination
-		? path.join(process.cwd(), args.destination, `${args.slug}.pot`)
-		: path.join(process.cwd(), `${args.slug}.pot`)
+		? path.join(process.cwd(), args.destination)
+		: path.join(process.cwd())
 
 	if (ensureFolderExists(potFilePath)) {
-		fs.writeFileSync(potFilePath, fileContent)
+		fs.writeFileSync(
+			path.join(potFilePath, `${args.slug}.pot`),
+			fileContent
+		)
 	}
 }

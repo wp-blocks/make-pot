@@ -116,8 +116,8 @@ export function parseCliArgs(args: Partial<Args> & { _?: string[] }): Args {
 	const [inputPath, outputPath, ..._others] = args._ ?? []
 	return {
 		// Paths
-		sourceDirectory: inputPath ?? './',
-		destination: outputPath ?? './',
+		sourceDirectory: inputPath ?? '.',
+		destination: outputPath ?? '.',
 		slug: args?.slug ?? path.basename(process.cwd()),
 		domain: (args?.domain as DomainType) ?? 'generic',
 		ignoreDomain: args?.ignoreDomain ?? false,

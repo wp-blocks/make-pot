@@ -2,7 +2,8 @@
   "preset": "ts-jest",
   "testRegex": "(/tests/.*(test|spec))\\.tsx?$",
   "transformIgnorePatterns": ["/node_modules/"],
-  "coverageThreshold": {
+  "testPathIgnorePatterns": ["!makeJson.ts"],
+	"coverageThreshold": {
     "global": {
       "branches": 10,
       "functions": 10,

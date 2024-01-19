@@ -16,7 +16,6 @@ import path from 'path'
 import gettextParser, { GetTextTranslations } from 'gettext-parser'
 import { generateHeaderComments } from './utils'
 import { consolidate } from './consolidate'
-import { string } from 'yargs'
 
 /**
  * Return the parser based on the file extension

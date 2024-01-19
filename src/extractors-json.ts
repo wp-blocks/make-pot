@@ -1,8 +1,5 @@
 import type { JsonData, TranslationStrings } from './types'
-import { extractNames, yieldParsedData } from './extractors'
-import path from 'path'
-import { readFileSync } from 'fs'
-import { SingleBar } from 'cli-progress'
+import { yieldParsedData } from './extractors'
 import { BlockJson, blockJson, ThemeJson, themeJson } from './extractors-maps'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 
@@ -41,29 +38,30 @@ function findValuesInJson<T extends BlockJson>(
 /**
  * Parses a JSON file and returns an array of parsed data.
  *
- * @param {Object} args - The arguments for parsing the JSON file.
- * @param {string} args.filepath - The filepath of the JSON file to parse.
- * @param {Object} [args.stats] - Optional statistics object.
- * @param {SingleBar} args.stats.bar - The progress bar for tracking parsing progress.
- * @param {number} args.stats.index - The index of the progress bar.
+ * @param {Object} opts - The arguments for parsing the JSON file.
+ * @param {string} opts.filepath - The filepath of the JSON file to parse.
+ * @param {Object} [opts.stats] - Optional statistics object.
+ * @param {SingleBar} opts.stats.bar - The progress bar for tracking parsing progress.
+ * @param {number} opts.stats.index - The index of the progress bar.
  * @return {Promise<TranslationStrings>} A promise that resolves to an object containing the parsed data.
  */
-export function parseJsonFile(args: {
+export async function parseJsonFile(opts: {
+	sourceCode: string
+	filename: 'block.json' | 'theme.json'
 	filepath: string
-	stats?: { bar: SingleBar; index: number }
-}) {
-	const filename = path.basename(args.filepath)
+}): Promise<TranslationStrings> {
+	const jsonData = JSON.parse(opts.sourceCode)
 	let parsed: Record<string, string> | null = null
+
 	// parse the file based on the filename
-	args.stats?.bar.increment(0, { filename: `Parsing ${filename}` })
 	parsed = findValuesInJson(
-		JSON.parse(readFileSync(args.filepath, 'utf8')),
-		filename === 'block.json' ? blockJson : themeJson
+		jsonData,
+		opts.filename === 'block.json' ? blockJson : themeJson
 	)
 
 	if (parsed) {
 		// extract the strings from the file and return them as an array of objects
-		return yieldParsedData(parsed, filename, args)
+		return yieldParsedData(parsed, opts.filename, opts.filepath)
 	} else {
 		return new Promise<TranslationStrings>((resolve) => resolve({}))
 	}

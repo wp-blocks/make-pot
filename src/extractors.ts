@@ -24,13 +24,13 @@ export const extractNames = (items: { name: string }[]): string[] =>
  *
  * @param {Record<string, any> | Parser.SyntaxNode} parsed - The parsed JSON data or syntax node.
  * @param {string | Parser} filename - The filename or parser.
- * @param opts - The metadata of this translation string.
+ * @param filepath - the path to the file being parsed
  * @return {TranslationStrings[]} An array of translation strings.
  */
 export function yieldParsedData(
 	parsed: Record<string, any>,
 	filename: string | Parser,
-	opts: { filepath: string; stats?: { bar: SingleBar } }
+	filepath: string
 ): Promise<TranslationStrings> {
 	return new Promise<TranslationStrings>((resolve) => {
 		const gettextTranslations: TranslationStrings = {}
@@ -39,7 +39,7 @@ export function yieldParsedData(
 			const entry = jsonString(
 				k,
 				v,
-				opts.filepath,
+				filepath,
 				filename as 'block.json' | 'theme.json'
 			)
 
@@ -87,11 +87,20 @@ export async function parseFile(opts: {
 	// check if the language is supported
 	if (typeof opts.language === 'string') {
 		if (opts.language === 'json') {
-			return parseJsonFile(opts)
+			const filename = path.basename(opts.filepath)
+
+			if (filename === 'theme.json' || filename === 'block.json') {
+				const sourceCode = readFileSync(opts.filepath, 'utf8')
+				return parseJsonFile({
+					sourceCode: sourceCode,
+					filename: filename,
+					filepath: opts.filepath,
+				})
+			}
+			console.log(
+				`Skipping ${opts.filepath}... No parser found for ${opts.language} file`
+			)
 		}
-		console.log(
-			`Skipping ${opts.filepath}... No parser found for ${opts.language} file`
-		)
 		return null
 	}
 
@@ -106,7 +115,7 @@ export async function parseFile(opts: {
 	const tree = parser.parse(sourceCode) // Assuming parse is an async operation
 
 	// extract the strings from the file and return them
-	return extractStrings(tree.rootNode, opts.language, opts.filepath)
+	return extractStrings(tree.rootNode, opts.language as Parser, opts.filepath)
 }
 
 /**

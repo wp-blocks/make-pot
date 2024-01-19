@@ -16,6 +16,7 @@ import path from 'path'
 import gettextParser, { GetTextTranslations } from 'gettext-parser'
 import { generateHeaderComments } from './utils'
 import { consolidate } from './consolidate'
+import { string } from 'yargs'
 
 /**
  * Return the parser based on the file extension
@@ -51,7 +52,8 @@ export function detectPatternType(
 	pattern: string
 ): 'file' | 'directory' | 'glob' {
 	const containsFileExtension = pattern.includes('.')
-	const containsDirectorySeparator = pattern.includes('/')
+	const containsDirectorySeparator =
+		pattern.includes(path.sep) || pattern.endsWith(path.sep)
 
 	if (pattern.includes('*')) {
 		return 'glob'
@@ -109,12 +111,13 @@ export async function getFiles(args: Args, pattern: Patterns) {
 		}) as boolean
 	}
 
-	console.log(
-		'Searching in :',
-		args.sourceDirectory ?? process.cwd(),
-		' for ' + includeFunction(includedPatterns).join(),
-		'\nExcluding : ' + excludedPatterns.join()
-	)
+	if (!args.silent)
+		console.log(
+			'Searching in :',
+			path.resolve(args.sourceDirectory),
+			'for ' + includeFunction(includedPatterns).join(),
+			'\nExcluding : ' + excludedPatterns.join()
+		)
 
 	// Execute the glob search with the built patterns
 	return new Glob(includedPatterns, {
@@ -124,7 +127,7 @@ export async function getFiles(args: Args, pattern: Patterns) {
 			},
 		},
 		nodir: true,
-		cwd: path.join(process.cwd(), args.sourceDirectory ?? ''),
+		cwd: args.sourceDirectory,
 	})
 }
 
@@ -158,12 +161,13 @@ function initProgress(args: Args, filesCount: number): SingleBar | null {
  * Retrieves an array of translation strings from files that match the specified arguments and pattern.
  *
  * @param {Args} args - The arguments to specify which files to search and parse.
- * @param {Patterns} pattern - The pattern to match files against.
+ * @param {string[]} files - An array of file names to search and parse.
  * @return {Promise<TranslationStrings[]>} A promise that resolves to an array of translation strings found in the files.
  */
-export async function getStrings(args: Args, pattern: Patterns) {
-	const files = await getFiles(args, pattern)
-
+export async function getStrings(
+	args: Args,
+	files: Glob<{}>
+): Promise<TranslationStrings> {
 	const tasks: Promise<TranslationStrings>[] = []
 
 	const progressBar = initProgress(
@@ -187,7 +191,7 @@ export async function getStrings(args: Args, pattern: Patterns) {
 		}
 
 		const task = parseFile({
-			filepath: path.join(args.sourceDirectory, file),
+			filepath: path.join(process.cwd(), args.sourceDirectory, file),
 			language: getParser(file),
 		}) as Promise<TranslationStrings>
 
@@ -207,25 +211,26 @@ export async function getStrings(args: Args, pattern: Patterns) {
 	// stop the progress bar if it's not silent
 	if (progressBar) progressBar.stop()
 
-	console.log(results)
+	const mergedResult = consolidate(results.filter((r) => r !== null).flat())
 
-	// add the task to the array if it's not null
-	const result = results.reduce((current, next) => {
-		return { ...current, ...next }
-	}, {}) as TranslationStrings
-	console.log(result)
+	console.log('Strings grouped')
 
 	if (!args.silent) {
 		console.log(
 			'📝 Found',
-			Object.values(result).length,
-			'strings in',
+			Object.values(mergedResult).length,
+			'group of strings in',
 			results.length,
-			'files.'
+			'files.\n',
+			'In total ' +
+				Object.values(mergedResult)
+					.map((v) => Object.keys(v).length)
+					.reduce((acc, val) => acc + val, 0) +
+				' strings were found'
 		)
 	}
 
-	return result
+	return mergedResult
 }
 
 /**
@@ -267,13 +272,10 @@ export async function runExtract(args: Args) {
 		pattern.include.push('theme.json')
 	}
 
-	const stringsJson = await getStrings(args, pattern)
-	// merge all strings collecting duplicates and returning the result as the default gettext format
-	const consolidated = Array.prototype.push.apply(stringsJson)
-	console.log(stringsJson, consolidated)
+	const files = await getFiles(args, pattern)
+	const stringsJson = await getStrings(args, files)
 
 	const additionalHeaders = {
-		'file-comment': args.fileComment ?? generateHeaderComments(args),
 		'content-type': 'text/plain; charset=iso-8859-1',
 		...args.headers,
 		'plural-forms': 'nplurals=2; plural=(n != 1);',
@@ -282,6 +284,7 @@ export async function runExtract(args: Args) {
 	const buffer = gettextParser.po.compile(
 		{
 			headers: additionalHeaders,
+			comments: generateHeaderComments(args),
 			translations: stringsJson,
 			charset: 'iso-8859-1',
 		} as unknown as GetTextTranslations,

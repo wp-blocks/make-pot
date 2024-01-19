@@ -11,7 +11,6 @@ export function consolidate(
 	translationsArray: TranslationStrings[]
 ): TranslationStrings {
 	const mergedTranslations: TranslationStrings = {}
-
 	Object.entries(translationsArray).forEach(([file, translations]) => {
 		Object.entries(translations).forEach(([msgctxt, translations]) => {
 			Object.entries(translations).forEach(([msgid, translation]) => {

@@ -6,6 +6,13 @@ import { SingleBar } from 'cli-progress'
 import { BlockJson, blockJson, ThemeJson, themeJson } from './extractors-maps'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 
+/**
+ * Finds values in a JSON object based on a given block.
+ *
+ * @param {T extends BlockJson} block - The block to search for values in the JSON.
+ * @param {JsonData | ThemeJson} jsonData - The JSON object to search in.
+ * @return {Record<string, any>} - The found values in a record.
+ */
 function findValuesInJson<T extends BlockJson>(
 	block: T,
 	jsonData: JsonData | ThemeJson
@@ -31,6 +38,16 @@ function findValuesInJson<T extends BlockJson>(
 	return result
 }
 
+/**
+ * Parses a JSON file and returns an array of parsed data.
+ *
+ * @param {Object} args - The arguments for parsing the JSON file.
+ * @param {string} args.filepath - The filepath of the JSON file to parse.
+ * @param {Object} [args.stats] - Optional statistics object.
+ * @param {SingleBar} args.stats.bar - The progress bar for tracking parsing progress.
+ * @param {number} args.stats.index - The index of the progress bar.
+ * @return {Promise<TranslationStrings>} A promise that resolves to an object containing the parsed data.
+ */
 export function parseJsonFile(args: {
 	filepath: string
 	stats?: { bar: SingleBar; index: number }
@@ -38,29 +55,18 @@ export function parseJsonFile(args: {
 	const filename = path.basename(args.filepath)
 	let parsed: Record<string, string> | null = null
 	// parse the file based on the filename
-	switch (filename) {
-		case 'block.json':
-			args.stats?.bar.increment(0, { filename: 'Parsing block.json' })
-			parsed = findValuesInJson(
-				JSON.parse(readFileSync(args.filepath, 'utf8')),
-				blockJson
-			)
-			break
-		case 'theme.json':
-			args.stats?.bar.increment(0, { filename: 'Parsing theme.json' })
-			parsed = findValuesInJson(
-				JSON.parse(readFileSync(args.filepath, 'utf8')),
-				themeJson
-			)
-			break
-	}
+	args.stats?.bar.increment(0, { filename: `Parsing ${filename}` })
+	parsed = findValuesInJson(
+		JSON.parse(readFileSync(args.filepath, 'utf8')),
+		filename === 'block.json' ? blockJson : themeJson
+	)
 
 	if (parsed) {
 		// extract the strings from the file and return them as an array of objects
 		return yieldParsedData(parsed, filename, args)
+	} else {
+		return new Promise<TranslationStrings>((resolve) => resolve({}))
 	}
-
-	return new Promise<TranslationStrings>((resolve) => resolve({}))
 }
 
 /**

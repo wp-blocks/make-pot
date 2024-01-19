@@ -37,7 +37,7 @@ export function extractStrings(
 			}
 
 		// Check if the node matches
-		if (node.type === typeToMatch) {
+		if (node?.type === typeToMatch) {
 			// The function name is the first child
 			const functionName = node.firstChild?.text ?? null
 			if (
@@ -88,17 +88,20 @@ export function extractStrings(
 							node.parent?.previousSibling.text
 						)
 			} else {
-				node
-					.closest(['expression_statement', 'comment'])
-					?.children.forEach((comment) => {
-						// todo: regex to match insensitive "translators" and ":"
-						if (
-							comment.type === 'comment' &&
-							comment.text.toLowerCase().includes('translators:')
-						)
-							(gettext.comments as GetTextComment).translator =
-								stripTranslationMarkup(comment.text)
-					})
+				const el = node.closest([
+					'comment',
+					'block_comment',
+					'echo',
+					'expression_statement',
+				])?.previousSibling
+				// todo: regex to match insensitive "translators" and ":"
+				if (
+					el &&
+					(el.type === 'comment' || el.type === 'block_comment') &&
+					el.text.toLowerCase().includes('translators:')
+				)
+					(gettext.comments as GetTextComment).translator =
+						stripTranslationMarkup(el.text)
 			}
 
 			gettextTranslations[gettext.msgctxt ?? ''] = {

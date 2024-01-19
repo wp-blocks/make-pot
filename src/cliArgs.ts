@@ -112,16 +112,17 @@ export function getArgs(): Args {
  * @param {object} args - The command line arguments to be parsed.
  * @return {object} - An object with the parsed values from the command line arguments.
  */
-export function parseCliArgs(args: Partial<Args>): Args {
+export function parseCliArgs(args: Partial<Args> & { _?: string[] }): Args {
+	const [inputPath, outputPath, ..._others] = args._ ?? []
 	return {
 		// Paths
-		sourceDirectory: args.sourceDirectory ?? './',
-		destination: args.destination ?? './',
-		slug: args.slug ?? path.basename(process.cwd()),
-		domain: (args.domain as DomainType) ?? 'generic',
-		ignoreDomain: args.ignoreDomain ?? false,
+		sourceDirectory: inputPath ?? './',
+		destination: outputPath ?? './',
+		slug: args?.slug ?? path.basename(process.cwd()),
+		domain: (args?.domain as DomainType) ?? 'generic',
+		ignoreDomain: args?.ignoreDomain ?? false,
 		headers: {},
-		location: args.location ?? false,
+		location: args?.location ?? false,
 		// Patterns
 		mergePaths: stringstring(args.mergePaths) ?? [],
 		subtractPaths: stringstring(args.subtractPaths) ?? [],

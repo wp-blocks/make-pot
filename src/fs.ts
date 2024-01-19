@@ -40,7 +40,7 @@ export async function writePotFile(args: Args, fileContent: string) {
 		? path.join(process.cwd(), args.destination, `${args.slug}.pot`)
 		: path.join(process.cwd(), `${args.slug}.pot`)
 
-	if (ensureFolderExists(args.destination)) {
+	if (ensureFolderExists(potFilePath)) {
 		fs.writeFileSync(potFilePath, fileContent)
 	}
 }

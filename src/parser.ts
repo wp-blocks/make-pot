@@ -79,14 +79,12 @@ export async function getStrings(
 		}
 	}
 
-	const results = await Promise.all(tasks)
-
-	// stop the progress bar if it's not silent
-	if (progressBar) progressBar.stop()
+	const results = await Promise.all(tasks).finally(() => {
+		// stop the progress bar if it's not silent
+		if (progressBar) progressBar.stop()
+	})
 
 	const mergedResult = consolidate(results.filter((r) => r !== null))
-
-	console.log('Strings grouped', results, mergedResult)
 
 	if (!args.options.silent) {
 		console.log(

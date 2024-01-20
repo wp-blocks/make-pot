@@ -91,7 +91,7 @@ export interface Args {
 		out: string
 		root?: string
 	}
-	options: {
+	options?: {
 		ignoreDomain?: boolean
 		silent?: boolean
 		json?: boolean
@@ -106,7 +106,7 @@ export interface Args {
 			audit?: boolean
 		}
 	}
-	headers: Record<PotHeaders, string>
+	headers?: Record<PotHeaders, string>
 	patterns: Patterns
 }
 

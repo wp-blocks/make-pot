@@ -65,7 +65,7 @@ export const ignoreFunc = (
  * @return A promise that resolves to an array of file paths.
  */
 export async function getFiles(args: Args, pattern: Patterns) {
-	if (!args.options.silent)
+	if (!args.options?.silent)
 		console.log(
 			'Searching in :',
 			path.resolve(args.paths.cwd),

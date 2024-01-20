@@ -93,21 +93,6 @@ export function doTree(
 						stripTranslationMarkup(
 							node.parent?.previousSibling.text
 						)
-			} else {
-				const el = node.closest([
-					'comment',
-					'block_comment',
-					'echo',
-					typeToMatch,
-				])?.previousSibling
-				// todo: regex to match insensitive "translators" and ":"
-				if (
-					el &&
-					(el.type === 'comment' || el.type === 'block_comment') &&
-					el.text.toLowerCase().includes('translators:')
-				)
-					(gettext.comments as GetTextComment).translator =
-						stripTranslationMarkup(el.text)
 			}
 
 			gettextTranslations[gettext.msgctxt ?? ''] = {

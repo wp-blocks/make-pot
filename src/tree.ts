@@ -1,21 +1,32 @@
-import { type SyntaxNode } from 'tree-sitter'
+import Parser, { type SyntaxNode } from 'tree-sitter'
 import { type TranslationStrings } from './types'
 import { i18nFunctions } from './const'
 
 import { stripTranslationMarkup } from './utils'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
+import { getParser } from './glob'
 
 /**
- * Extract strings from a file
+ * Parses the source code using the specified language parser and extracts the strings from the file.
  *
- * @param {Tree} node
- * @param {string} filename
- * @return {{}}
+ * @param {string} sourceCode - The source code to be parsed.
+ * @param {string} filepath - The path to the file being parsed.
+ * @return {TranslationStrings[]} An array of translation strings.
  */
-export function extractStrings(node: SyntaxNode, filename: string) {
+export function doTree(
+	sourceCode: string,
+	filepath: string
+): TranslationStrings {
+	// set up the parser
+	const parser = new Parser()
+	parser.setLanguage(getParser(filepath))
+
+	// parse the file
+	const tree = parser.parse(sourceCode)
+
 	const gettextTranslations: TranslationStrings = {}
 	const typeToMatch =
-		filename.split('.').pop()?.toLowerCase() !== 'php'
+		filepath.split('.').pop()?.toLowerCase() !== 'php'
 			? 'call_expression'
 			: 'function_call_expression'
 
@@ -68,7 +79,7 @@ export function extractStrings(node: SyntaxNode, filename: string) {
 				msgid_plural: undefined,
 				msgstr: [],
 				comments: {
-					reference: `${filename}:${node.startPosition.row + 1}`,
+					reference: `${filepath}:${node.startPosition.row + 1}`,
 				} as GetTextComment,
 			}
 
@@ -106,7 +117,7 @@ export function extractStrings(node: SyntaxNode, filename: string) {
 		}
 	}
 
-	traverse(node)
+	traverse(tree.rootNode)
 
 	// Return both matches and entries
 	return gettextTranslations

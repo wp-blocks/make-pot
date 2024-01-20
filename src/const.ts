@@ -8,11 +8,12 @@ export const DEFAULT_EXCLUDED_PATH = [
 	'vendor',
 	'build',
 	'dist',
+	'uploads',
 	'Gruntfile.js',
 	'webpack.config.js',
 	'**/*.min.js',
 	'tsconfig.js',
-	'**/*.test.**',
+	'**.test.**',
 	'tests',
 ]
 

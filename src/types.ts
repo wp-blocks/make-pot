@@ -12,7 +12,8 @@ export type PotHeaders =
 	| (typeof pkgJsonHeaders)[PkgHeadersType]
 	| (typeof pluginHeaders)[PluginHeadersType]
 	| (typeof themeHeaders)[ThemeHeadersType]
-	| 'comment'
+	| 'fileComment'
+	| 'packageName'
 
 // type is the value of the themeHeader Object
 export type DomainType =
@@ -82,24 +83,31 @@ export interface Patterns {
  *   Overrides the plugin or theme name, if applicable.
  * @param {boolean} silent - Whether to hide progress information.
  */
-export interface Args extends Patterns {
-	sourceDirectory: string
-	destination: string
+export interface Args {
 	slug: string
 	domain: DomainType
-	ignoreDomain?: boolean
-	fileComment?: string
-	packageName?: string
+	paths: {
+		cwd: string
+		out: string
+		root?: string
+	}
+	options: {
+		ignoreDomain?: boolean
+		silent?: boolean
+		json?: boolean
+		location?: boolean
+		packageName?: string
+		skip: {
+			js?: boolean
+			php?: boolean
+			blade?: boolean
+			blockJson?: boolean
+			themeJson?: boolean
+			audit?: boolean
+		}
+	}
 	headers: Record<PotHeaders, string>
-	location?: boolean
-	skipJs?: boolean
-	skipPhp?: boolean
-	skipBlade?: boolean
-	skipBlockJson?: boolean
-	skipThemeJson?: boolean
-	skipAudit?: boolean
-	silent?: boolean
-	json?: boolean
+	patterns: Patterns
 }
 
 /**

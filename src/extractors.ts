@@ -5,9 +5,9 @@ import { getCommentBlock } from './utils'
 import Parser from 'tree-sitter'
 import { jsonString, parseJsonFile } from './extractors-json'
 import { parsePHPFile } from './extractors-php'
-import { extractStrings } from './tree'
 import { extractFileData } from './extractors-text'
 import { pkgJsonHeaders } from './extractors-maps'
+import { doTree } from './tree'
 
 /**
  * Extracts strings from parsed JSON data.
@@ -42,64 +42,38 @@ export function yieldParsedData(
 }
 
 /**
- * Parses the source code using the specified language parser and extracts the strings from the file.
- *
- * @param {string} sourceCode - The source code to be parsed.
- * @param {Args} language - The language to be used for parsing.
- * @param {string} filepath - The path to the file being parsed.
- * @return {TranslationStrings[]} An array of translation strings.
- */
-export function doTree(
-	sourceCode: string,
-	language: Parser,
-	filepath: string
-): TranslationStrings {
-	// set up the parser
-	const parser = new Parser()
-	parser.setLanguage(language)
-
-	// parse the file
-	const tree = parser.parse(sourceCode)
-
-	// extract the strings from the file and return them
-	return extractStrings(tree.rootNode, filepath)
-}
-
-/**
  * Parse a file and extract strings asynchronously
  *
- * @param {object} opts
- * @param {string} opts.filepath - Path to the file to parse
- * @param {Parser|null} opts.language - Language of the file to parse
  * @return {Promise<TranslationStrings>}
  */
-export async function parseFile(opts: {
-	filepath: string
-	language: Parser | string
-}): Promise<TranslationStrings | null> {
-	// check if the language is supported
-	if (typeof opts.language === 'string') {
-		if (opts.language === 'json') {
-			const filename = path.basename(opts.filepath)
+export async function parseFile(
+	file: string
+): Promise<TranslationStrings | null> {
+	const ext = path.extname(file).replace(/^./, '')
 
-			if (filename === 'theme.json' || filename === 'block.json') {
-				const sourceCode = fs.readFileSync(opts.filepath, 'utf8')
-				return parseJsonFile({
-					sourceCode: sourceCode,
-					filename: filename,
-					filepath: opts.filepath,
-				})
-			}
-			console.log(
-				`Skipping ${opts.filepath}... No parser found for ${opts.language} file`
-			)
+	// check if the language is supported
+	if (ext === 'json') {
+		const filename = path.basename(file)
+
+		if (filename === 'theme.json' || filename === 'block.json') {
+			// read the file
+			const sourceCode = fs.readFileSync(file, 'utf8')
+			return parseJsonFile({
+				sourceCode: sourceCode,
+				filename: filename,
+				filepath: file,
+			})
 		}
 	}
 
-	// read the file
-	const sourceCode = fs.readFileSync(opts.filepath, 'utf8')
+	if (['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'php'].includes(ext)) {
+		// read the file
+		const sourceCode = fs.readFileSync(file, 'utf8')
 
-	return doTree(sourceCode, opts.language as Parser, opts.filepath)
+		return doTree(sourceCode, file)
+	}
+
+	return new Promise((resolve) => resolve(null))
 }
 
 /**
@@ -117,8 +91,8 @@ export function extractPackageData(
 	// TODO: package.json "files" could be used to get the file list
 	const pkgJsonMeta: Record<string, string> = {}
 	// read the package.json file
-	const packageJsonPath = args.sourceDirectory
-		? path.join(args.sourceDirectory, 'package.json')
+	const packageJsonPath = args.paths.cwd
+		? path.join(args.paths.cwd, 'package.json')
 		: 'package.json'
 	if (fs.existsSync(packageJsonPath)) {
 		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
@@ -142,11 +116,7 @@ export function extractMainFileData(args: Args) {
 	let fileData: Record<string, string> = {}
 
 	if (['plugin', 'block', 'generic'].includes(args.domain)) {
-		const folderPhpFile = path.join(
-			process.cwd(),
-			args.sourceDirectory,
-			`${args.slug}.php`
-		)
+		const folderPhpFile = path.join(args.paths.cwd, `${args.slug}.php`)
 
 		if (fs.existsSync(folderPhpFile)) {
 			const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
@@ -162,11 +132,7 @@ export function extractMainFileData(args: Args) {
 			console.log(`Missing Plugin filename: ${folderPhpFile}`)
 		}
 	} else if (['theme', 'theme-block'].includes(args.domain)) {
-		const styleCssFile = path.join(
-			process.cwd(),
-			args.sourceDirectory,
-			'style.css'
-		)
+		const styleCssFile = path.join(args.paths.cwd, 'style.css')
 
 		if (fs.existsSync(styleCssFile)) {
 			const fileContent = fs.readFileSync(styleCssFile, 'utf8')

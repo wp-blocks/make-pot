@@ -41,7 +41,6 @@ function findValuesInJson<T extends BlockJson>(
  * @param {Object} opts - The arguments for parsing the JSON file.
  * @param {string} opts.filepath - The filepath of the JSON file to parse.
  * @param {Object} [opts.stats] - Optional statistics object.
- * @param {SingleBar} opts.stats.bar - The progress bar for tracking parsing progress.
  * @param {number} opts.stats.index - The index of the progress bar.
  * @return {Promise<TranslationStrings>} A promise that resolves to an object containing the parsed data.
  */

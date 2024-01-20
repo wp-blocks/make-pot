@@ -9,7 +9,7 @@ const args = {
 }
 describe('makePot', () => {
 	it('Should build pot file', async () => {
-		const dataExtracted = runExtract({
+		const dataExtracted = await runExtract({
 			...args,
 			patterns: {
 				include: ['file.php'],
@@ -21,7 +21,7 @@ describe('makePot', () => {
 })
 describe('makePot block json', () => {
 	it('Should build pot file from fixtures', async () => {
-		const dataExtracted = runExtract({
+		const dataExtracted = await runExtract({
 			...args,
 			patterns: {
 				include: ['block.json'],
@@ -33,7 +33,7 @@ describe('makePot block json', () => {
 })
 describe('makePot plugin', () => {
 	it('Should build pot file from fixtures/plugin', async () => {
-		const dataExtracted = runExtract({
+		const dataExtracted = await runExtract({
 			...args,
 			sourceDirectory: 'tests/fixtures/theme/',
 			patterns: {

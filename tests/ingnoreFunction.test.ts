@@ -4,20 +4,28 @@ import { ignoreFunc } from '../src/glob'
 import path from 'path'
 import { minimatch } from 'minimatch'
 
+const sep = path.sep
+
 describe('includes or not', () => {
 	it('tesing paths includes', () => {
 		expect(
-			path.relative(
-				'D:\\vvv-local\\www\\phpeighttwo\\public_html\\wp-content\\plugins\\makePot\\tests\\fixtures',
-				'fixtures'
+			path.normalize(
+				path.relative(
+					'D:\\vvv-local\\www\\phpeighttwo\\public_html\\wp-content\\plugins\\makePot\\tests\\fixtures',
+					'fixtures'
+				)
 			)
-		).toBe('..\\..\\fixtures')
+		).toBe(path.normalize('..\\..\\fixtures'))
 		expect(
-			'D:\\vvv-local\\www\\phpeighttwo\\public_html\\wp-content\\plugins\\makePot\\tests\\fixtures'.includes(
-				'tests'
-			)
+			path
+				.normalize(
+					'D:\\vvv-local\\www\\phpeighttwo\\public_html\\wp-content\\plugins\\makePot\\tests\\fixtures'
+				)
+				.includes('tests')
 		).toBe(true)
-		expect(minimatch('block\\SvgControls.tsx', 'block/**')).toBe(true)
+		expect(
+			minimatch(path.normalize('block\\SvgControls.tsx'), 'block/**')
+		).toBe(true)
 	})
 })
 
@@ -91,7 +99,7 @@ const tests = [
 			'plugin-header.php',
 			'package.json',
 			'file2.txt',
-			'vendor\\index.php',
+			'vendor' + path.sep + 'index.php',
 			'node_modules\\module\\block.json',
 		],
 	},

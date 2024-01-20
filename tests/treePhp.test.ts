@@ -2,8 +2,8 @@ import { doTree } from '../src/tree'
 import path from 'path'
 import fs from 'fs'
 
-describe('doTree', () => {
-	it('Should build pot file', async () => {
+describe('doTree php', () => {
+	it('Should build pot file', () => {
 		const filePath = path.join(
 			process.cwd(),
 			'tests/fixtures/sourcedir/file.php'
@@ -15,7 +15,7 @@ describe('doTree', () => {
 		expect(fileParsed).toMatchSnapshot()
 	})
 
-	it('Should build pot file php', async () => {
+	it('Should build pot file php', () => {
 		const fileContent = fs.readFileSync(
 			path.join(process.cwd(), 'tests/fixtures/sourcedir/file.php'),
 			'utf8'

@@ -13,14 +13,14 @@ import { generateHeaderComments } from './utils'
  * @return {Promise<string>} - A promise that resolves with the generated pot file
  */
 async function exec(args: Args): Promise<string> {
-	if (!args.options.silent) {
+	if (!args.options?.silent) {
 		console.log('📝 Making a pot file...')
-		console.log('🔍 Extracting strings...', args.slug, args)
+		console.log('🔍 Extracting strings...', args?.slug, args)
 	}
 
 	const stringsJson = await runExtract(args)
 
-	if (!args.options.silent) {
+	if (!args.options?.silent) {
 		console.log(
 			'Memory usage:',
 			(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
@@ -38,7 +38,7 @@ async function exec(args: Args): Promise<string> {
 	}
 
 	// audit
-	if (args.options.skip.audit) {
+	if (args.options?.skip.audit) {
 		console.log('Audit strings...')
 		// TODO: --
 		console.log('✅ Done')
@@ -48,22 +48,23 @@ async function exec(args: Args): Promise<string> {
 	const getTextTranslations: GetTextTranslations = {
 		charset: 'iso-8859-1',
 		headers: {
-			'': args.headers.fileComment ?? generateHeaderComments(args),
+			'': args.headers?.fileComment ?? generateHeaderComments(args),
 		},
 		translations: stringsJson,
 	}
 
 	// push the rest of the headers to the header object
-	Object.entries(args.headers).map(
-		(header) =>
-			(getTextTranslations.headers[header[0]] =
-				typeof header[1] === 'string'
-					? header[1]
-					: JSON.stringify(header[1]))
-	)
+	if (args.headers && Object.values(args.headers).length)
+		Object.entries(args.headers).map(
+			(header) =>
+				(getTextTranslations.headers[header[0]] =
+					typeof header[1] === 'string'
+						? header[1]
+						: JSON.stringify(header[1]))
+		)
 
 	// if --json is true output and die
-	if (args.options.json) {
+	if (args.options?.json) {
 		return JSON.stringify(getTextTranslations)
 	}
 
@@ -96,6 +97,6 @@ export async function makePot(args: Args) {
 	return await writeFile(
 		args,
 		jsonTranslations,
-		`${args.slug}.${args.options.json ? 'json' : 'pot'}`
+		`${args?.slug}.${args.options?.json ? 'json' : 'pot'}`
 	)
 }

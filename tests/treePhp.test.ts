@@ -1,9 +1,6 @@
-import { doTree } from '../src/extractors'
+import { doTree } from '../src/tree'
 import path from 'path'
 import fs from 'fs'
-
-// @ts-ignore
-import Php from 'tree-sitter-php'
 
 describe('doTree', () => {
 	it('Should build pot file', async () => {
@@ -13,10 +10,8 @@ describe('doTree', () => {
 		)
 		const fileContent = fs.readFileSync(filePath, 'utf8')
 		console.log('My file path is: ' + filePath)
-		console.log('the content is : ' + fileContent.slice(0, 500))
-		console.log('the parser is : ' + Php)
-		const fileParsed = doTree(fileContent, Php, 'tests/fixtures/php.php')
-		console.log(fileContent.slice(0, 500), fileParsed)
+		const fileParsed = doTree(fileContent, 'tests/fixtures/php.php')
+
 		expect(fileParsed).toMatchSnapshot()
 	})
 
@@ -27,10 +22,9 @@ describe('doTree', () => {
 		)
 		const fileParsed = doTree(
 			fileContent,
-			Php,
 			'tests/fixtures/sourcedir/file.php'
 		)
-		console.log(fileContent.slice(0, 500), fileParsed)
+
 		expect(fileParsed).toMatchSnapshot()
 	})
 })

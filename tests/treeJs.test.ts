@@ -1,11 +1,8 @@
-import { doTree } from '../src/extractors'
+import { doTree } from '../src/tree'
 
 import fs from 'fs'
 
 import path from 'path'
-
-// @ts-ignore
-import Javascript from 'tree-sitter-javascript'
 
 describe('doTree', () => {
 	it('Should build pot file js', async () => {
@@ -13,11 +10,7 @@ describe('doTree', () => {
 			path.join(process.cwd(), 'tests/fixtures/block/javascript.js'),
 			'utf8'
 		)
-		const fileParsed = doTree(
-			fileContent,
-			Javascript,
-			'block/javascript.js'
-		)
+		const fileParsed = doTree(fileContent, 'block/javascript.js')
 		console.log(fileContent.slice(0, 500), fileParsed)
 		expect(fileParsed).toMatchSnapshot()
 	})

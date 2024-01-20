@@ -56,11 +56,10 @@ export async function parseFile(
 		const filename = path.basename(file)
 
 		if (filename === 'theme.json' || filename === 'block.json') {
-			// read the file
-			const sourceCode = fs.readFileSync(file, 'utf8')
+			// read the file and parse it
 			return parseJsonFile({
-				sourceCode: sourceCode,
-				filename: filename,
+				sourceCode: fs.readFileSync(file, 'utf8'),
+				filename: filename as 'block.json' | 'theme.json',
 				filepath: file,
 			})
 		}
@@ -94,6 +93,7 @@ export function extractPackageData(
 	const packageJsonPath = args.paths.cwd
 		? path.join(args.paths.cwd, 'package.json')
 		: 'package.json'
+	// check if the package.json extract the fields
 	if (fs.existsSync(packageJsonPath)) {
 		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
 		// extract the fields from the package.json file

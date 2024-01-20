@@ -6,19 +6,22 @@ import path from 'path'
 
 describe('getFiles', () => {
 	const DEFAULTS = parseCliArgs({
-		silent: true,
-		sourceDirectory: 'tests/fixtures/',
-		slug: 'plugin-slug',
 		domain: 'plugin' as DomainType,
-		headers: {},
-	} as Args)
+		slug: 'plugin-slug',
+		paths: { cwd: 'tests/fixtures/', out: 'tests/fixtures/' },
+		options: {
+			silent: true,
+		},
+		$0: 'makepot',
+		_: [0, 1],
+	})
 
 	it('should retrieve a all files', async () => {
 		const args = { ...DEFAULTS, domain: 'theme' } as Args
 		const pattern = { include: ['**'], exclude: [] }
 
 		const files = await getFiles(args, pattern)
-		let collected = []
+		const collected: string[] = []
 		for (const file of files) {
 			expect(file).toBeTruthy()
 			collected.push(file)
@@ -53,7 +56,7 @@ describe('getFiles', () => {
 		]
 
 		const files = await getFiles(args, pattern)
-		let collected = []
+		const collected: string[] = []
 		for (const file of files) {
 			expect(file).toBeTruthy()
 			collected.push(file)

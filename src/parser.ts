@@ -15,7 +15,7 @@ import path from 'path'
  * @return {cliProgress.SingleBar} The progress bar element.
  */
 function initProgress(args: Args, filesCount: number): SingleBar | null {
-	if (args.options.silent) return null
+	if (args.options?.silent) return null
 	// Set up the progress bar
 	const progressBar = new cliProgress.SingleBar(
 		{
@@ -86,7 +86,7 @@ export async function getStrings(
 
 	const mergedResult = consolidate(results.filter((r) => r !== null))
 
-	if (!args.options.silent) {
+	if (!args.options?.silent) {
 		console.log(
 			'📝 Found',
 			Object.values(mergedResult).length,
@@ -122,10 +122,10 @@ export async function runExtract(args: Args) {
 	// Additional logic to handle different file types and formats
 	// Exclude blade.php files if --skip-blade is set
 	if (
-		args.options.skip.php !== undefined ||
-		args.options.skip.blade !== undefined
+		args.options?.skip.php !== undefined ||
+		args.options?.skip.blade !== undefined
 	) {
-		if (args.options.skip.blade !== undefined) {
+		if (args.options?.skip.blade !== undefined) {
 			// php files but not blade.php
 			pattern.include.push('**/*.php')
 		} else {
@@ -134,15 +134,15 @@ export async function runExtract(args: Args) {
 	}
 
 	// js typescript mjs cjs etc
-	if (args.options.skip.js !== undefined) {
+	if (args.options?.skip.js !== undefined) {
 		pattern.include.push('**/*.{js,jsx,ts,tsx,mjs,cjs}')
 	}
 
-	if (args.options.skip.blockJson !== undefined) {
+	if (args.options?.skip.blockJson !== undefined) {
 		pattern.include.push('block.json')
 	}
 
-	if (args.options.skip.themeJson !== undefined) {
+	if (args.options?.skip.themeJson !== undefined) {
 		pattern.include.push('theme.json')
 	}
 

@@ -160,7 +160,6 @@ describe('testing the ignoreFunc used to ignore files', () => {
 			})
 
 			for (const dir of dirs) {
-				console.log('dir', dir)
 				foundDirs.push(dir)
 			}
 

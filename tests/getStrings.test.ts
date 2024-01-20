@@ -4,10 +4,20 @@ import { Args, DomainType } from '../src/types'
 import { getFiles } from '../lib/glob'
 
 const args: Args = {
-	sourceDirectory: 'tests/fixtures/',
 	slug: 'plugin-slug',
+	paths: { cwd: 'tests/fixtures/sourcedir/', out: 'tests/fixtures/' },
 	domain: 'plugin' as DomainType,
-} as Args
+	patterns: {
+		include: ['**'],
+		exclude: [
+			'node_modules',
+			'vendor',
+			'dist',
+			'tests',
+			'package-lock.json',
+		],
+	},
+}
 
 describe('getStrings', () => {
 	it('Should build pot file', async () => {
@@ -92,25 +102,23 @@ describe('getStrings', () => {
 		}
 		expect(dataExtracted).toMatchObject(expected)
 	})
-	it('Should build pot file from fixtures', async () => {
-		const files = await getFiles(args as Args, {
-			include: ['theme.json'],
-			exclude: [],
-		})
-		const dataExtracted = await getStrings(
-			{
-				...args,
-				sourceDirectory: 'tests/fixtures/fse/',
-				domain: 'theme',
-			} as Args,
-			files
-		)
+	it('Should build pot file from fixtures block.json', async () => {
+		const currentArgs = {
+			...args,
+			paths: { cwd: 'tests/fixtures/block/', out: 'tests/fixtures/' },
+			patterns: {
+				include: ['block.json'],
+				exclude: ['node_modules'],
+			},
+		} as Args
+		const files = await getFiles(currentArgs as Args, currentArgs.patterns)
+		const dataExtracted = await getStrings(currentArgs as Args, files)
 
 		const expected = {
 			'block variation keyword': {
 				undefined: {
 					msgstr: [],
-					msgid: undefined,
+					msgid: 'undefined',
 					msgctxt: 'block variation keyword',
 				},
 			},

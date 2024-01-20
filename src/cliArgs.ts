@@ -5,7 +5,6 @@ import * as path from 'path'
 import * as process from 'process'
 import { DEFAULT_EXCLUDED_PATH } from './const'
 import { Args, DomainType } from './types'
-import { type } from 'node:os'
 
 /**
  * Retrieves and returns the command line arguments and options.
@@ -121,7 +120,9 @@ export function getArgs() {
 export function parseCliArgs(
 	args: yargs.PositionalOptions & yargs.Options & yargs.Arguments
 ): Args {
-	const [inputPath, outputPath] = args._ as [string, string]
+	const inputPath: string = typeof args._[0] === 'string' ? args._[0] : '.'
+	const outputPath: string = typeof args._[1] === 'string' ? args._[1] : '.'
+
 	const parsedArgs: Args = {
 		slug:
 			args.slug && typeof args.slug === 'string'
@@ -129,8 +130,8 @@ export function parseCliArgs(
 				: path.basename(process.cwd()),
 		domain: (args?.domain as DomainType) ?? 'generic',
 		paths: {
-			cwd: inputPath ? path.relative(process.cwd(), inputPath) : '.',
-			out: outputPath ? path.relative(process.cwd(), outputPath) : '.',
+			cwd: path.relative(process.cwd(), inputPath),
+			out: path.relative(process.cwd(), outputPath),
 		},
 		options: {
 			ignoreDomain: !!args?.ignoreDomain,

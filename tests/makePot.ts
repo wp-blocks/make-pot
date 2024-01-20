@@ -19,7 +19,7 @@ describe('makePot', () => {
 		expect(dataExtracted).toMatchSnapshot()
 	})
 })
-describe('makePot block', () => {
+describe('makePot block json', () => {
 	it('Should build pot file from fixtures', async () => {
 		const dataExtracted = runExtract({
 			...args,

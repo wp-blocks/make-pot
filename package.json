@@ -8,7 +8,7 @@
 		"watch": "tsc --watch",
 		"clean": "tsc --build --clean",
 		"lint": "eslint ./src ./tests --fix",
-		"test": "jest --coverage",
+		"test": "jest",
 		"run": "node ./lib/index.js"
 	},
 	"bin": {

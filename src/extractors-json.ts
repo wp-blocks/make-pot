@@ -49,12 +49,11 @@ export function parseJsonFile(opts: {
 	filename: 'block.json' | 'theme.json'
 	filepath: string
 }): TranslationStrings {
-	const jsonData = JSON.parse(opts.sourceCode)
 	let parsed: Record<string, string> | null = null
-
+	const JsonData = JSON.parse(opts.sourceCode)
 	// parse the file based on the filename
 	parsed = findValuesInJson(
-		jsonData,
+		JsonData,
 		opts.filename === 'block.json' ? blockJson : themeJson
 	)
 

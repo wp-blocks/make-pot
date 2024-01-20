@@ -1,5 +1,5 @@
 {
-  "name": "make-pot",
+  "name": "make-pot-tests",
   "version": "0.0.1",
   "description": "A Node.js script for generating a POT file from source code",
   "author": "Erik Golinelli <https://github.com/erikyo>",

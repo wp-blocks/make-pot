@@ -9,10 +9,10 @@
 		"clean": "tsc --build --clean",
 		"lint": "eslint ./src ./tests --fix",
 		"test": "jest --coverage",
-		"run": "node ./lib/index.js tests/fixtures/ --exclude null --include \"**\""
+		"run": "node ./lib/index.js"
 	},
 	"bin": {
-		"make-pot": "lib/index.js"
+		"make-pot": "lib/index.js **"
 	},
 	"dependencies": {
 		"cli-progress": "^3.12.0",

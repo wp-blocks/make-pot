@@ -10,7 +10,7 @@ import Javascript from 'tree-sitter-javascript'
 import Ts from 'tree-sitter-typescript'
 // @ts-ignore
 import Php from 'tree-sitter-php'
-import { detectPatternType, includeFunction } from './utils'
+import { detectPatternType } from './utils'
 
 /**
  * Return the parser based on the file extension

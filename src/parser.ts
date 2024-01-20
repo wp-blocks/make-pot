@@ -61,7 +61,7 @@ export async function getStrings(
 					filename: `Skipping ${ext} (not a valid file extension)`,
 				})
 			}
-			break
+			continue
 		}
 
 		const task = parseFile(path.resolve(args.paths.cwd, file))

@@ -2,23 +2,19 @@ import { describe, expect } from '@jest/globals'
 import { getStrings } from '../src/parser'
 import { Args, DomainType } from '../src/types'
 import { getFiles } from '../lib/glob'
-import path from 'path'
+
+const args: Args = {
+	sourceDirectory: 'tests/fixtures/',
+	slug: 'plugin-slug',
+	domain: 'plugin' as DomainType,
+} as Args
 
 describe('getStrings', () => {
-	let args: Args
-	beforeAll(() => {
-		args = {
-			sourceDirectory: 'tests/fixtures/',
-			slug: 'plugin-slug',
-			domain: 'plugin' as DomainType,
-		} as Args
-	})
 	it('Should build pot file', async () => {
 		const files = await getFiles(args as Args, {
 			include: ['file.php'],
 			exclude: ['node_modules', 'dist'],
 		})
-		console.log('files', files)
 		const dataExtracted = await getStrings({ ...args } as Args, files)
 		const expected = {
 			'': {
@@ -98,13 +94,13 @@ describe('getStrings', () => {
 	})
 	it('Should build pot file from fixtures', async () => {
 		const files = await getFiles(args as Args, {
-			include: ['block.json'],
-			exclude: ['node_modules', 'dist'],
+			include: ['theme.json'],
+			exclude: [],
 		})
 		const dataExtracted = await getStrings(
 			{
 				...args,
-				sourceDirectory: 'tests/fixtures/',
+				sourceDirectory: 'tests/fixtures/fse/',
 				domain: 'theme',
 			} as Args,
 			files

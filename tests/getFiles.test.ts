@@ -1,3 +1,4 @@
+import { describe, expect } from '@jest/globals'
 import { getFiles } from '../src/glob'
 import { Args, DomainType } from '../src/types'
 import { parseCliArgs } from '../src/cliArgs'

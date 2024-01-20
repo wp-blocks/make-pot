@@ -1,6 +1,6 @@
 import { describe, expect } from '@jest/globals'
 import { parseJsonFile } from '../src/extractors-json'
-const fs = require('fs')
+import fs from 'fs'
 
 describe('consolidateTranslations', () => {
 	it('Should output translation strings with comments', async () => {
@@ -46,13 +46,12 @@ describe('consolidateTranslations', () => {
 			},
 		}
 
-		const result = await parseJsonFile({
-			filepath: 'tests/fixtures/block/block.json',
-			filename: 'block.json',
-			sourceCode: fs.readFileSync(
-				'tests/fixtures/block/block.json',
-				'utf8'
+		const result = parseJsonFile({
+			sourceCode: JSON.parse(
+				fs.readFileSync('tests/fixtures/block/block.json', 'utf8')
 			),
+			filename: 'block.json',
+			filepath: 'block/block.json',
 		})
 
 		expect(result).toEqual(expected)

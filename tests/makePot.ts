@@ -1,5 +1,4 @@
 import { describe, expect } from '@jest/globals'
-
 import { Args, DomainType } from '../src/types'
 import { runExtract } from '../src/parser'
 

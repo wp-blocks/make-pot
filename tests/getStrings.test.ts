@@ -1,7 +1,7 @@
 import { describe, expect } from '@jest/globals'
 import { getStrings } from '../src/parser'
 import { Args, DomainType } from '../src/types'
-import { getFiles } from '../lib/glob'
+import { getFiles } from '../src/glob'
 
 const args: Args = {
 	slug: 'plugin-slug',

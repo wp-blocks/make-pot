@@ -1,5 +1,5 @@
 import { describe, expect } from '@jest/globals'
-import { doTree } from '../lib/tree'
+import { doTree } from '../src/tree'
 
 describe('getStrings', () => {
 	it('should extract translations with context', () => {
@@ -212,13 +212,11 @@ _e( 'Your site at %1$s' )`
 		]
 
 		const result = doTree(content, filename)
-		console.log('result', result)
 		expect(result).toMatchObject(result)
-		//expect(result).toEqual(expected)
 	})
 
 	/** see https://github.com/wp-cli/i18n-command/blob/main/features/makepot.feature */
-	it('should extract translations from code content with no context or translator comments', () => {
+	it('should extract translations and comments from code content', () => {
 		const content = `<?php
 
     And a foo-plugin/foo-plugin.php file:
@@ -278,7 +276,18 @@ _e( 'Your site at %1$s' )`
 
       __( 'wrong-domain', 'wrong-domain' );
 
-      __( 'Hello world' ); // translators: Greeting
+      __( 'Hello world' ); // translators: Greeting`
+
+		const filename = 'filename.php'
+
+		const result = doTree(content, filename)
+
+		expect(result).toMatchSnapshot()
+	})
+
+	/** see wp cli tests */
+	it('should extract translations and comments from code content', () => {
+		const content = `<?php
 
       // translators: Foo Bar Comment
       __( 'Foo Bar', 'foo-plugin' );
@@ -365,8 +374,6 @@ _e( 'Your site at %1$s' )`
 		const filename = 'filename.php'
 
 		const result = doTree(content, filename)
-
-		console.log(result)
 
 		expect(result).toMatchSnapshot()
 	})

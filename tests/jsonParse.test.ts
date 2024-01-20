@@ -1,5 +1,5 @@
 import { describe, expect } from '@jest/globals'
-import { parseJsonFile } from '../lib/extractors-json'
+import { parseJsonFile } from '../src/extractors-json'
 import fs from 'fs'
 
 describe('should parse json', () => {

@@ -114,7 +114,8 @@ echo $link;`
 
 		expect(result).toEqual(expected)
 	})
-
+})
+describe('getStrings wp cli', () => {
 	it('should extract translations with translator comments inside the formatting hell', () => {
 		const filename = 'filename.php'
 		const content = `<?php /** 1*/
@@ -224,16 +225,6 @@ _e( 'Your site at %1$s' )`
       """
       <?php
       /**
-       * Plugin Name: Foo Plugin
-       * Plugin URI:  https://example.com
-       * Description: Plugin Description
-       * Version:     0.1.0
-       * Author:
-       * Author URI:
-       * License:     GPL-2.0+
-       * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
-       * Text Domain: foo-plugin
-       * Domain Path: /languages
        */
        __( 'Hello World', 'foo-plugin' );
       """
@@ -374,6 +365,8 @@ _e( 'Your site at %1$s' )`
 		const filename = 'filename.php'
 
 		const result = doTree(content, filename)
+
+		console.log(result)
 
 		expect(result).toMatchSnapshot()
 	})

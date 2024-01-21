@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "A Node.js script for generating a POT file from source code",
 	"author": "Erik Golinelli <https://github.com/erikyo>",
 	"scripts": {

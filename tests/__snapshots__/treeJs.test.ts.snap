@@ -1,45 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`doTree Should build pot file js 1`] = `
-{
-  "": {
-    "Hello World": {
-      "comments": {
-        "reference": "block/javascript.js:19",
-      },
-      "msgid": "Hello World",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Simple Block": {
-      "comments": {
-        "reference": "block/javascript.js:7",
-      },
-      "msgid": "Simple Block",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-  },
-}
-`;
-
 exports[`doTree js Should build pot file js 1`] = `
 {
   "": {
     "Hello World": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "block/javascript.js:19",
+        "translator": undefined,
       },
       "msgid": "Hello World",
-      "msgid_plural": undefined,
+      "msgid_plural": "myguten",
       "msgstr": [],
     },
     "Simple Block": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "block/javascript.js:7",
+        "translator": undefined,
       },
       "msgid": "Simple Block",
-      "msgid_plural": undefined,
+      "msgid_plural": "myguten",
       "msgstr": [],
     },
   },

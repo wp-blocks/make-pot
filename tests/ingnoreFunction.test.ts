@@ -54,8 +54,10 @@ const tests = [
 		],
 		result: [
 			'tsconfig.json',
+			'README.md',
 			'package.json',
 			'package-lock.json',
+			'LICENSE.md',
 			'jest.config.json',
 			'src\\utils.ts',
 			'src\\types.ts',

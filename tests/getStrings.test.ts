@@ -26,81 +26,8 @@ describe('getStrings', () => {
 			exclude: ['node_modules', 'dist'],
 		})
 		const dataExtracted = await getStrings({ ...args } as Args, files)
-		const expected = {
-			'': {
-				sdasdasdasd: {
-					msgid: 'sdasdasdasd',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'strong magenta': {
-					msgid: 'strong magenta',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'light grayish magenta': {
-					msgid: 'light grayish magenta',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'very light gray': {
-					msgid: 'very light gray',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'very dark gray': {
-					msgid: 'very dark gray',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'Vivid cyan blue to vivid purple': {
-					msgid: 'Vivid cyan blue to vivid purple',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'Vivid green cyan to vivid cyan blue': {
-					msgid: 'Vivid green cyan to vivid cyan blue',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'Light green cyan to vivid green cyan': {
-					msgid: 'Light green cyan to vivid green cyan',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'Luminous vivid amber to luminous vivid orange': {
-					msgid: 'Luminous vivid amber to luminous vivid orange',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				'Luminous vivid orange to vivid red': {
-					msgid: 'Luminous vivid orange to vivid red',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				Small: {
-					msgid: 'Small',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				Regular: {
-					msgid: 'Regular',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				Large: {
-					msgid: 'Large',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-				Huge: {
-					msgid: 'Huge',
-					msgid_plural: undefined,
-					msgstr: [],
-				},
-			},
-		}
-		expect(dataExtracted).toMatchObject(expected)
+
+		expect(dataExtracted).toMatchSnapshot()
 	})
 	it('Should build pot file from fixtures block.json', async () => {
 		const currentArgs = {

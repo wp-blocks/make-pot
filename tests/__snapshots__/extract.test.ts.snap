@@ -1,403 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`getStrings should extract translations from code content with no context or translator comments 1`] = `
-{
-  "": {
-    "Bar Baz": {
-      "comments": {
-        "reference": "filename.php:66",
-        "translator": "",
-      },
-      "msgid": "Bar Baz",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "F j, Y g:i a": {
-      "comments": {
-        "reference": "filename.php:117",
-        "translator": "",
-      },
-      "msgid": "F j, Y g:i a",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Foo Bar": {
-      "comments": {
-        "reference": "filename.php:63",
-        "translator": "",
-      },
-      "msgid": "Foo Bar",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Hello JSX": {
-      "comments": {
-        "reference": "filename.php:81",
-      },
-      "msgid": "Hello JSX",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Hello World": {
-      "comments": {
-        "reference": "filename.php:8",
-      },
-      "msgid": "Hello World",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Hello world": {
-      "comments": {
-        "reference": "filename.php:60",
-      },
-      "msgid": "Hello world",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "I am being ignored": {
-      "comments": {
-        "reference": "filename.php:13",
-      },
-      "msgid": "I am being ignored",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Plugin name": {
-      "comments": {
-        "reference": "filename.php:138",
-        "translator": "",
-      },
-      "msgid": "Plugin name",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Short text": {
-      "comments": {
-        "reference": "filename.php:78",
-      },
-      "msgid": "Short text",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Spacey text": {
-      "comments": {
-        "reference": "filename.php:73",
-        "translator": "",
-      },
-      "msgid": "Spacey text",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "WordPress": {
-      "comments": {
-        "reference": "filename.php:69",
-      },
-      "msgid": "WordPress",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_": {
-      "comments": {
-        "reference": "filename.php:34",
-      },
-      "msgid": "_",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "__": {
-      "comments": {
-        "reference": "filename.php:15",
-      },
-      "msgid": "__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "__ngettext_noop_single": {
-      "comments": {
-        "reference": "filename.php:40",
-      },
-      "msgid": "__ngettext_noop_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "__ngettext_single": {
-      "comments": {
-        "reference": "filename.php:39",
-      },
-      "msgid": "__ngettext_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_c": {
-      "comments": {
-        "reference": "filename.php:37",
-      },
-      "msgid": "_c",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_e": {
-      "comments": {
-        "reference": "filename.php:19",
-      },
-      "msgid": "_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_ex": {
-      "comments": {
-        "reference": "filename.php:24",
-      },
-      "msgid": "_ex",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_n_noop_single": {
-      "comments": {
-        "reference": "filename.php:30",
-      },
-      "msgid": "_n_noop_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_n_single": {
-      "comments": {
-        "reference": "filename.php:55",
-      },
-      "msgid": "_n_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_nc_single": {
-      "comments": {
-        "reference": "filename.php:38",
-      },
-      "msgid": "_nc_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_nx_noop_single": {
-      "comments": {
-        "reference": "filename.php:31",
-      },
-      "msgid": "_nx_noop_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_nx_single": {
-      "comments": {
-        "reference": "filename.php:56",
-      },
-      "msgid": "_nx_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_x": {
-      "comments": {
-        "reference": "filename.php:54",
-      },
-      "msgid": "_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "baba": {
-      "comments": {
-        "reference": "filename.php:128",
-      },
-      "msgid": "baba",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "bubu": {
-      "comments": {
-        "reference": "filename.php:130",
-      },
-      "msgid": "bubu",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_attr__": {
-      "comments": {
-        "reference": "filename.php:16",
-      },
-      "msgid": "esc_attr__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_attr_e": {
-      "comments": {
-        "reference": "filename.php:20",
-      },
-      "msgid": "esc_attr_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_attr_x": {
-      "comments": {
-        "reference": "filename.php:25",
-      },
-      "msgid": "esc_attr_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_html__": {
-      "comments": {
-        "reference": "filename.php:17",
-      },
-      "msgid": "esc_html__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_html_e": {
-      "comments": {
-        "reference": "filename.php:21",
-      },
-      "msgid": "esc_html_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_html_x": {
-      "comments": {
-        "reference": "filename.php:26",
-      },
-      "msgid": "esc_html_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_xml__": {
-      "comments": {
-        "reference": "filename.php:18",
-      },
-      "msgid": "esc_xml__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_xml_e": {
-      "comments": {
-        "reference": "filename.php:22",
-      },
-      "msgid": "esc_xml_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_xml_x": {
-      "comments": {
-        "reference": "filename.php:27",
-      },
-      "msgid": "esc_xml_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "foo": {
-      "comments": {
-        "reference": "filename.php:114",
-      },
-      "msgid": "foo",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "foo-plugin": {
-      "comments": {
-        "reference": "filename.php:104",
-      },
-      "msgid": "foo-plugin",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "hello world": {
-      "comments": {
-        "reference": "filename.php:111",
-        "translator": "",
-      },
-      "msgid": "hello world",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "https://example.com": {
-      "comments": {
-        "reference": "filename.php:141",
-        "translator": "",
-      },
-      "msgid": "https://example.com",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "off": {
-      "comments": {
-        "reference": "filename.php:126",
-        "translator": "",
-      },
-      "msgid": "off",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "on": {
-      "comments": {
-        "reference": "filename.php:120",
-        "translator": "",
-      },
-      "msgid": "on",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "translate.__": {
-      "comments": {
-        "reference": "filename.php:89",
-      },
-      "msgid": "translate.__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "wp.i18n.__": {
-      "comments": {
-        "reference": "filename.php:85",
-      },
-      "msgid": "wp.i18n.__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "wp.i18n._n_single": {
-      "comments": {
-        "reference": "filename.php:86",
-      },
-      "msgid": "wp.i18n._n_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "wrong-domain": {
-      "comments": {
-        "reference": "filename.php:58",
-      },
-      "msgid": "wrong-domain",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "yolo": {
-      "comments": {
-        "reference": "filename.php:135",
-      },
-      "msgid": "yolo",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-  },
-}
-`;
-
 exports[`getStrings wp cli should extract translations and comments from code content 1`] = `
 {
   "": {
     "Hello World": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:8",
+        "translator": "/**
+       */",
       },
       "msgid": "Hello World",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "Hello world": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:60",
+        "translator": undefined,
       },
       "msgid": "Hello world",
       "msgid_plural": undefined,
@@ -405,194 +32,314 @@ exports[`getStrings wp cli should extract translations and comments from code co
     },
     "I am being ignored": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:13",
+        "translator": undefined,
       },
       "msgid": "I am being ignored",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "_": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:34",
+        "translator": "// Compat.",
       },
       "msgid": "_",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "__": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:15",
+        "translator": undefined,
       },
       "msgid": "__",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "__ngettext_noop_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:40",
+        "translator": undefined,
       },
       "msgid": "__ngettext_noop_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "__ngettext_noop_plural",
       "msgstr": [],
     },
     "__ngettext_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:39",
+        "translator": undefined,
       },
       "msgid": "__ngettext_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "__ngettext_plural",
       "msgstr": [],
     },
     "_c": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:37",
+        "translator": "// Deprecated.",
       },
       "msgid": "_c",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "_e": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:19",
+        "translator": undefined,
       },
       "msgid": "_e",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "_ex": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:24",
+        "translator": undefined,
       },
       "msgid": "_ex",
-      "msgid_plural": undefined,
+      "msgid_plural": "_ex_context",
       "msgstr": [],
     },
     "_n_noop_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:30",
+        "translator": undefined,
       },
       "msgid": "_n_noop_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "_n_noop_plural",
       "msgstr": [],
     },
     "_n_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:55",
+        "translator": undefined,
       },
       "msgid": "_n_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "_n_plural",
       "msgstr": [],
     },
     "_nc_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:38",
+        "translator": undefined,
       },
       "msgid": "_nc_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "_nc_plural",
       "msgstr": [],
     },
     "_nx_noop_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:31",
+        "translator": undefined,
       },
       "msgid": "_nx_noop_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "_nx_noop_plural",
       "msgstr": [],
     },
     "_nx_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:56",
+        "translator": undefined,
       },
       "msgid": "_nx_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "_nx_plural",
       "msgstr": [],
     },
     "_x": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:54",
+        "translator": undefined,
       },
       "msgid": "_x",
-      "msgid_plural": undefined,
+      "msgid_plural": "_x_context",
       "msgstr": [],
     },
     "esc_attr__": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:16",
+        "translator": undefined,
       },
       "msgid": "esc_attr__",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "esc_attr_e": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:20",
+        "translator": undefined,
       },
       "msgid": "esc_attr_e",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "esc_attr_x": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:25",
+        "translator": undefined,
       },
       "msgid": "esc_attr_x",
-      "msgid_plural": undefined,
+      "msgid_plural": "esc_attr_x_context",
       "msgstr": [],
     },
     "esc_html__": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:17",
+        "translator": undefined,
       },
       "msgid": "esc_html__",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "esc_html_e": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:21",
+        "translator": undefined,
       },
       "msgid": "esc_html_e",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "esc_html_x": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:26",
+        "translator": undefined,
       },
       "msgid": "esc_html_x",
-      "msgid_plural": undefined,
+      "msgid_plural": "esc_html_x_context",
       "msgstr": [],
     },
     "esc_xml__": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:18",
+        "translator": undefined,
       },
       "msgid": "esc_xml__",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "esc_xml_e": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:22",
+        "translator": undefined,
       },
       "msgid": "esc_xml_e",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "esc_xml_x": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:27",
+        "translator": undefined,
       },
       "msgid": "esc_xml_x",
-      "msgid_plural": undefined,
+      "msgid_plural": "esc_xml_x_context",
       "msgstr": [],
     },
     "wrong-domain": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:58",
+        "translator": undefined,
       },
       "msgid": "wrong-domain",
-      "msgid_plural": undefined,
+      "msgid_plural": "wrong-domain",
       "msgstr": [],
     },
   },
@@ -604,100 +351,157 @@ exports[`getStrings wp cli should extract translations and comments from code co
   "": {
     "Bar Baz": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:7",
-        "translator": "",
+        "translator": undefined,
       },
       "msgid": "Bar Baz",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "F j, Y g:i a": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:58",
-        "translator": "",
+        "translator": "localized date and time format, see https://secure.php.net/date",
       },
       "msgid": "F j, Y g:i a",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "Foo Bar": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:4",
-        "translator": "",
+        "translator": undefined,
       },
       "msgid": "Foo Bar",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "Hello JSX": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:22",
+        "translator": undefined,
       },
       "msgid": "Hello JSX",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "Plugin name": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:79",
-        "translator": "",
+        "translator": "This is a comment",
       },
       "msgid": "Plugin name",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "Short text": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:19",
+        "translator": "Long comment
+      spanning multiple
+      lines",
       },
       "msgid": "Short text",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "Spacey text": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:14",
-        "translator": "",
+        "translator": undefined,
       },
       "msgid": "Spacey text",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "WordPress": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:10",
+        "translator": undefined,
       },
       "msgid": "WordPress",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "baba": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:69",
+        "translator": "this should get extracted.",
       },
       "msgid": "baba",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "bubu": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:71",
+        "translator": "/* some other comment */",
       },
       "msgid": "bubu",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "foo": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:55",
+        "translator": "Translators 2!",
       },
       "msgid": "foo",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "foo-plugin": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:45",
+        "translator": undefined,
       },
       "msgid": "foo-plugin",
       "msgid_plural": undefined,
@@ -705,454 +509,109 @@ exports[`getStrings wp cli should extract translations and comments from code co
     },
     "hello world": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:52",
-        "translator": "",
+        "translator": "Translators 1!",
       },
       "msgid": "hello world",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "https://example.com": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:82",
-        "translator": "",
+        "translator": "This is another comment!",
       },
       "msgid": "https://example.com",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "off": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:67",
-        "translator": "",
+        "translator": "/*
+       * Translators: If there are characters in your language that are not supported
+       * by Lato, translate this to 'off'. Do not translate into your own language.
+       */",
       },
       "msgid": "off",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "on": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:61",
-        "translator": "",
+        "translator": undefined,
       },
       "msgid": "on",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "translate.__": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:30",
+        "translator": undefined,
       },
       "msgid": "translate.__",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "wp.i18n.__": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:26",
+        "translator": undefined,
       },
       "msgid": "wp.i18n.__",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
     "wp.i18n._n_single": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:27",
+        "translator": undefined,
       },
       "msgid": "wp.i18n._n_single",
-      "msgid_plural": undefined,
+      "msgid_plural": "wp.i18n._n_plural",
       "msgstr": [],
     },
     "yolo": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "filename.php:76",
+        "translator": undefined,
       },
       "msgid": "yolo",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-  },
-}
-`;
-
-exports[`getStrings wp cli should extract translations from code content with no context or translator comments 1`] = `
-{
-  "": {
-    "Bar Baz": {
-      "comments": {
-        "reference": "filename.php:66",
-        "translator": "",
-      },
-      "msgid": "Bar Baz",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "F j, Y g:i a": {
-      "comments": {
-        "reference": "filename.php:117",
-        "translator": "",
-      },
-      "msgid": "F j, Y g:i a",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Foo Bar": {
-      "comments": {
-        "reference": "filename.php:63",
-        "translator": "",
-      },
-      "msgid": "Foo Bar",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Hello JSX": {
-      "comments": {
-        "reference": "filename.php:81",
-      },
-      "msgid": "Hello JSX",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Hello World": {
-      "comments": {
-        "reference": "filename.php:8",
-      },
-      "msgid": "Hello World",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Hello world": {
-      "comments": {
-        "reference": "filename.php:60",
-      },
-      "msgid": "Hello world",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "I am being ignored": {
-      "comments": {
-        "reference": "filename.php:13",
-      },
-      "msgid": "I am being ignored",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Plugin name": {
-      "comments": {
-        "reference": "filename.php:138",
-        "translator": "",
-      },
-      "msgid": "Plugin name",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Short text": {
-      "comments": {
-        "reference": "filename.php:78",
-      },
-      "msgid": "Short text",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Spacey text": {
-      "comments": {
-        "reference": "filename.php:73",
-        "translator": "",
-      },
-      "msgid": "Spacey text",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "WordPress": {
-      "comments": {
-        "reference": "filename.php:69",
-      },
-      "msgid": "WordPress",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_": {
-      "comments": {
-        "reference": "filename.php:34",
-      },
-      "msgid": "_",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "__": {
-      "comments": {
-        "reference": "filename.php:15",
-      },
-      "msgid": "__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "__ngettext_noop_single": {
-      "comments": {
-        "reference": "filename.php:40",
-      },
-      "msgid": "__ngettext_noop_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "__ngettext_single": {
-      "comments": {
-        "reference": "filename.php:39",
-      },
-      "msgid": "__ngettext_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_c": {
-      "comments": {
-        "reference": "filename.php:37",
-      },
-      "msgid": "_c",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_e": {
-      "comments": {
-        "reference": "filename.php:19",
-      },
-      "msgid": "_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_ex": {
-      "comments": {
-        "reference": "filename.php:24",
-      },
-      "msgid": "_ex",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_n_noop_single": {
-      "comments": {
-        "reference": "filename.php:30",
-      },
-      "msgid": "_n_noop_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_n_single": {
-      "comments": {
-        "reference": "filename.php:55",
-      },
-      "msgid": "_n_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_nc_single": {
-      "comments": {
-        "reference": "filename.php:38",
-      },
-      "msgid": "_nc_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_nx_noop_single": {
-      "comments": {
-        "reference": "filename.php:31",
-      },
-      "msgid": "_nx_noop_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_nx_single": {
-      "comments": {
-        "reference": "filename.php:56",
-      },
-      "msgid": "_nx_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "_x": {
-      "comments": {
-        "reference": "filename.php:54",
-      },
-      "msgid": "_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "baba": {
-      "comments": {
-        "reference": "filename.php:128",
-      },
-      "msgid": "baba",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "bubu": {
-      "comments": {
-        "reference": "filename.php:130",
-      },
-      "msgid": "bubu",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_attr__": {
-      "comments": {
-        "reference": "filename.php:16",
-      },
-      "msgid": "esc_attr__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_attr_e": {
-      "comments": {
-        "reference": "filename.php:20",
-      },
-      "msgid": "esc_attr_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_attr_x": {
-      "comments": {
-        "reference": "filename.php:25",
-      },
-      "msgid": "esc_attr_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_html__": {
-      "comments": {
-        "reference": "filename.php:17",
-      },
-      "msgid": "esc_html__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_html_e": {
-      "comments": {
-        "reference": "filename.php:21",
-      },
-      "msgid": "esc_html_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_html_x": {
-      "comments": {
-        "reference": "filename.php:26",
-      },
-      "msgid": "esc_html_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_xml__": {
-      "comments": {
-        "reference": "filename.php:18",
-      },
-      "msgid": "esc_xml__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_xml_e": {
-      "comments": {
-        "reference": "filename.php:22",
-      },
-      "msgid": "esc_xml_e",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "esc_xml_x": {
-      "comments": {
-        "reference": "filename.php:27",
-      },
-      "msgid": "esc_xml_x",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "foo": {
-      "comments": {
-        "reference": "filename.php:114",
-      },
-      "msgid": "foo",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "foo-plugin": {
-      "comments": {
-        "reference": "filename.php:104",
-      },
-      "msgid": "foo-plugin",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "hello world": {
-      "comments": {
-        "reference": "filename.php:111",
-        "translator": "",
-      },
-      "msgid": "hello world",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "https://example.com": {
-      "comments": {
-        "reference": "filename.php:141",
-        "translator": "",
-      },
-      "msgid": "https://example.com",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "off": {
-      "comments": {
-        "reference": "filename.php:126",
-        "translator": "",
-      },
-      "msgid": "off",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "on": {
-      "comments": {
-        "reference": "filename.php:120",
-        "translator": "",
-      },
-      "msgid": "on",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "translate.__": {
-      "comments": {
-        "reference": "filename.php:89",
-      },
-      "msgid": "translate.__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "wp.i18n.__": {
-      "comments": {
-        "reference": "filename.php:85",
-      },
-      "msgid": "wp.i18n.__",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "wp.i18n._n_single": {
-      "comments": {
-        "reference": "filename.php:86",
-      },
-      "msgid": "wp.i18n._n_single",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "wrong-domain": {
-      "comments": {
-        "reference": "filename.php:58",
-      },
-      "msgid": "wrong-domain",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "yolo": {
-      "comments": {
-        "reference": "filename.php:135",
-      },
-      "msgid": "yolo",
-      "msgid_plural": undefined,
+      "msgid_plural": "foo-plugin",
       "msgstr": [],
     },
   },

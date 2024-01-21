@@ -129,7 +129,7 @@ exports[`getStrings-extra should extract translations and comments from code con
         "flag": "",
         "previous": "",
         "reference": "filename.php:71",
-        "translator": undefined,
+        "translator": "/* some other comment */",
       },
       "msgid": "bubu",
       "msgid_plural": "foo-plugin",

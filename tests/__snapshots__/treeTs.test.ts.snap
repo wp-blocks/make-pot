@@ -1,42 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`doTree Should parse TSX file and extract strings 1`] = `
-{
-  "": {
-    "Edit Link": {
-      "comments": {
-        "reference": "SvgControls.tsx:93",
-      },
-      "msgid": "Edit Link",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Replace SVG": {
-      "comments": {
-        "reference": "SvgControls.tsx:107",
-      },
-      "msgid": "Replace SVG",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-    "Unlink": {
-      "comments": {
-        "reference": "SvgControls.tsx:99",
-      },
-      "msgid": "Unlink",
-      "msgid_plural": undefined,
-      "msgstr": [],
-    },
-  },
-}
-`;
-
 exports[`doTree tsx Should parse TSX file and extract strings 1`] = `
 {
   "": {
     "Edit Link": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "SvgControls.tsx:93",
+        "translator": undefined,
       },
       "msgid": "Edit Link",
       "msgid_plural": undefined,
@@ -44,7 +18,12 @@ exports[`doTree tsx Should parse TSX file and extract strings 1`] = `
     },
     "Replace SVG": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "SvgControls.tsx:107",
+        "translator": undefined,
       },
       "msgid": "Replace SVG",
       "msgid_plural": undefined,
@@ -52,7 +31,12 @@ exports[`doTree tsx Should parse TSX file and extract strings 1`] = `
     },
     "Unlink": {
       "comments": {
+        "comment": "",
+        "extracted": "",
+        "flag": "",
+        "previous": "",
         "reference": "SvgControls.tsx:99",
+        "translator": undefined,
       },
       "msgid": "Unlink",
       "msgid_plural": undefined,

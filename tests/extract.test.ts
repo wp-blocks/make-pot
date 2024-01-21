@@ -12,6 +12,10 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
+						comment: '',
+						extracted: '',
+						flag: '',
+						previous: '',
 						reference: 'filename.php:1',
 					},
 					msgid: 'Hello World',
@@ -26,6 +30,10 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
+						comment: '',
+						extracted: '',
+						flag: '',
+						previous: '',
 						reference: 'filename.php:1',
 					},
 					msgid: 'Hello World',
@@ -48,10 +56,15 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
+						comment: '',
+						extracted: '',
+						flag: '',
+						previous: '',
 						reference: 'filename.php:2',
 						translator: 'ciao!',
 					},
 					msgid: 'Hello World',
+					msgid_plural: 'greeting',
 					msgstr: [],
 				},
 			},
@@ -78,9 +91,14 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
+						comment: '',
+						extracted: '',
+						flag: '',
+						previous: '',
 						reference: 'filename.php:10',
 					},
 					msgid: 'Hello World',
+					msgid_plural: 'greeting',
 					msgstr: [],
 				},
 			},
@@ -102,9 +120,14 @@ echo $link;`
 				'Check out this link to my <a href="%s">website</a> made with WordPress.':
 					{
 						comments: {
+							comment: '',
+							extracted: '',
+							flag: '',
+							previous: '',
 							reference: 'filename.php:3',
 						},
 						msgid: 'Check out this link to my <a href="%s">website</a> made with WordPress.',
+						msgid_plural: 'my-text-domain',
 						msgstr: [],
 					},
 			},

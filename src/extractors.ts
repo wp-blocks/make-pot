@@ -72,7 +72,7 @@ export async function parseFile(
 
 	if (['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'php'].includes(ext)) {
 		// read the file
-		const sourceCode = fs.readFileSync(file, 'utf8')
+		const sourceCode = fs.readFileSync(fileRealPath, 'utf8')
 
 		return doTree(sourceCode, file)
 	}

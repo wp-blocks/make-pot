@@ -7,6 +7,30 @@ import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 import { getParser } from './glob'
 
 /**
+ * Collect comments from the AST node and its preceding siblings.
+ *
+ * @param {SyntaxNode} node - The AST node.
+ * @param typeToMatch
+ * @return {string[]} An array of collected comments.
+ */
+function collectComments(
+	node: SyntaxNode,
+	typeToMatch: string
+): string | undefined {
+	let currentNode = node
+	let depth = 0
+
+	// Check the node's preceding siblings for comments
+	while (currentNode && depth < 10) {
+		if (currentNode?.previousSibling?.type === 'comment') {
+			return stripTranslationMarkup(currentNode?.previousSibling.text)
+		}
+		depth++
+		currentNode = currentNode.parent as SyntaxNode
+	}
+}
+
+/**
  * Parses the source code using the specified language parser and extracts the strings from the file.
  *
  * @param {string} sourceCode - The source code to be parsed.
@@ -63,6 +87,7 @@ export function doTree(
 				return
 			}
 
+			const rawI18nStrnig = node.text
 			const [fn, raw] = node.children
 			const translation: string[] = []
 
@@ -76,23 +101,16 @@ export function doTree(
 			// Get the msgid from the translation data
 			const gettext: GetTextTranslation = {
 				msgid: translation[0],
-				msgid_plural: undefined,
+				msgid_plural: translation[1],
 				msgstr: [],
 				comments: {
+					previous: '',
 					reference: `${filepath}:${node.startPosition.row + 1}`,
+					comment: '',
+					translator: collectComments(node, typeToMatch),
+					extracted: '',
+					flag: '',
 				} as GetTextComment,
-			}
-
-			if (node.parent?.previousSibling?.type === 'comment') {
-				if (
-					node.parent?.previousSibling.text
-						.toLowerCase()
-						.includes('translators:')
-				)
-					(gettext.comments as GetTextComment).translator =
-						stripTranslationMarkup(
-							node.parent?.previousSibling.text
-						)
 			}
 
 			gettextTranslations[gettext.msgctxt ?? ''] = {

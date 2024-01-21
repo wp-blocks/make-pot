@@ -64,7 +64,7 @@ export async function getStrings(
 			continue
 		}
 
-		const task = parseFile(path.resolve(args.paths.cwd, file))
+		const task = parseFile(file, args.paths.cwd)
 
 		// log the filepath
 		if (progressBar) {

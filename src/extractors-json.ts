@@ -19,11 +19,12 @@ function findValuesInJson<T extends BlockJson>(
 	// Helper function to recursively search for values in JSON
 	const searchValues = (block: T, json: JsonData) => {
 		for (const key in block) {
-			if (typeof block[key] === 'object') {
-				if (typeof json[key] === 'object') {
-					// @ts-ignore
-					searchValues(block[key], json[key])
-				}
+			if (
+				typeof block[key] === 'object' &&
+				typeof json[key] === 'object' &&
+				key in block
+			) {
+				searchValues(block[key] as T, json[key])
 			} else if (json[key] !== undefined) {
 				result[key] = json[key]
 			}

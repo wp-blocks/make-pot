@@ -1,5 +1,5 @@
 import { type Args } from './types'
-import { extractMainFileData, extractPackageData } from './extractors'
+import { extractMainFileData, extractPackageJson } from './extractors'
 import { writeFile } from './fs'
 import { runExtract } from './parser'
 import { cpus, totalmem } from 'node:os'
@@ -86,7 +86,7 @@ export async function makePot(args: Args) {
 	// get metadata from the main file (theme and plugin)
 	const metadata = extractMainFileData(args)
 	// get package data
-	const pkgData = extractPackageData(args)
+	const pkgData = extractPackageJson(args)
 
 	const headers = { ...pkgData, ...metadata, ...args.headers }
 

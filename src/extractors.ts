@@ -47,9 +47,11 @@ export function yieldParsedData(
  * @return {Promise<TranslationStrings>}
  */
 export async function parseFile(
-	file: string
+	file: string,
+	filePath: string = ''
 ): Promise<TranslationStrings | null> {
 	const ext = path.extname(file).replace(/^./, '')
+	const fileRealPath = path.resolve(filePath, file)
 
 	// check if the language is supported
 	if (ext === 'json') {
@@ -58,9 +60,12 @@ export async function parseFile(
 		if (filename === 'theme.json' || filename === 'block.json') {
 			// read the file and parse it
 			return parseJsonFile({
-				sourceCode: fs.readFileSync(file, 'utf8'),
+				sourceCode: fs.readFileSync(
+					path.resolve(filePath, file),
+					'utf8'
+				),
 				filename: filename as 'block.json' | 'theme.json',
-				filepath: file,
+				filepath: path.join(filePath, file),
 			})
 		}
 	}
@@ -83,7 +88,7 @@ export async function parseFile(
  * @param {Record<string, string>} fields - The fields to extract from the package.json file. Default is pkgJsonHeaders.
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
-export function extractPackageData(
+export function extractPackageJson(
 	args: Args,
 	fields = pkgJsonHeaders
 ): Record<string, string> {
@@ -93,7 +98,9 @@ export function extractPackageData(
 	const packageJsonPath = args.paths.cwd
 		? path.join(args.paths.cwd, 'package.json')
 		: 'package.json'
-	// check if the package.json extract the fields
+	/**
+	 *  check if the package.json extract the fields from the package.json file
+	 */
 	if (fs.existsSync(packageJsonPath)) {
 		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
 		// extract the fields from the package.json file
@@ -106,6 +113,43 @@ export function extractPackageData(
 	return pkgJsonMeta
 }
 
+export function extractPhpPluginData(args: Args) {
+	let fileData: Record<string, string> = {}
+	const folderPhpFile = path.join(args.paths.cwd, `${args.slug}.php`)
+
+	if (fs.existsSync(folderPhpFile)) {
+		const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
+		fileData = parsePHPFile(fileContent)
+
+		if ('Plugin Name' in fileData) {
+			console.log('Plugin file detected.')
+			console.log(`Plugin file: ${folderPhpFile}`)
+			args.domain = 'plugin'
+		}
+	} else {
+		console.log('Plugin file not found.')
+		console.log(`Missing Plugin filename: ${folderPhpFile}`)
+	}
+}
+
+export function extractCssThemeData(args: Args) {
+	let fileData: Record<string, string> = {}
+	const styleCssFile = path.join(args.paths.cwd, 'style.css')
+
+	if (fs.existsSync(styleCssFile)) {
+		const fileContent = fs.readFileSync(styleCssFile, 'utf8')
+		const commentBlock = getCommentBlock(fileContent)
+		fileData = extractFileData(commentBlock)
+
+		console.log('Theme stylesheet detected.')
+		console.log(`Theme stylesheet: ${styleCssFile}`)
+		args.domain = 'theme'
+		return fileData
+	} else {
+		console.log(`Theme stylesheet not found in ${styleCssFile}`)
+	}
+}
+
 /**
  * Extracts main file data based on the given arguments.
  *
@@ -113,39 +157,11 @@ export function extractPackageData(
  * @return {Record<string, string>} The extracted main file data.
  */
 export function extractMainFileData(args: Args) {
-	let fileData: Record<string, string> = {}
-
 	if (['plugin', 'block', 'generic'].includes(args.domain)) {
-		const folderPhpFile = path.join(args.paths.cwd, `${args.slug}.php`)
-
-		if (fs.existsSync(folderPhpFile)) {
-			const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
-			fileData = parsePHPFile(fileContent)
-
-			if ('Plugin Name' in fileData) {
-				console.log('Plugin file detected.')
-				console.log(`Plugin file: ${folderPhpFile}`)
-				args.domain = 'plugin'
-			}
-		} else {
-			console.log('Plugin file not found.')
-			console.log(`Missing Plugin filename: ${folderPhpFile}`)
-		}
+		return extractPhpPluginData(args)
 	} else if (['theme', 'theme-block'].includes(args.domain)) {
-		const styleCssFile = path.join(args.paths.cwd, 'style.css')
-
-		if (fs.existsSync(styleCssFile)) {
-			const fileContent = fs.readFileSync(styleCssFile, 'utf8')
-			const commentBlock = getCommentBlock(fileContent)
-			fileData = extractFileData(commentBlock)
-
-			console.log('Theme stylesheet detected.')
-			console.log(`Theme stylesheet: ${styleCssFile}`)
-			args.domain = 'theme'
-		} else {
-			console.log(`Theme stylesheet not found in ${styleCssFile}`)
-		}
+		return extractCssThemeData(args)
 	}
 
-	return fileData
+	return console.log('No main file detected.')
 }

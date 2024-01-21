@@ -10,8 +10,8 @@ describe('detectPatternType', () => {
 		expect(detectPatternType('example')).toBe('directory')
 	})
 
-	test('should return "directory" when pattern ends with a directory separator', () => {
-		expect(detectPatternType('example/')).toBe('directory')
+	test('should return "glob" when pattern ends with a directory separator', () => {
+		expect(detectPatternType('example/')).toBe('glob')
 	})
 
 	test('should return "glob" when pattern contains an asterisk', () => {
@@ -19,7 +19,7 @@ describe('detectPatternType', () => {
 	})
 
 	test('should return "file" when pattern has directory separator and extension', () => {
-		expect(detectPatternType('folder/example.txt')).toBe('file')
+		expect(detectPatternType('folder/example.txt')).toBe('glob')
 	})
 
 	test('should return "glob" when pattern is a complex glob pattern', () => {

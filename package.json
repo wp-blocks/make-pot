@@ -8,7 +8,7 @@
 		"watch": "tsc --watch",
 		"clean": "tsc --build --clean",
 		"lint": "eslint ./src ./tests --fix",
-		"test": "jest --detectOpenHandles",
+		"test": "jest",
 		"update-snapshots": "jest -u",
 		"run": "node ./lib/index.js"
 	},

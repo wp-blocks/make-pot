@@ -22,3 +22,26 @@ exports[`doTree Should build pot file js 1`] = `
   },
 }
 `;
+
+exports[`doTree js Should build pot file js 1`] = `
+{
+  "": {
+    "Hello World": {
+      "comments": {
+        "reference": "block/javascript.js:19",
+      },
+      "msgid": "Hello World",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+    "Simple Block": {
+      "comments": {
+        "reference": "block/javascript.js:7",
+      },
+      "msgid": "Simple Block",
+      "msgid_plural": undefined,
+      "msgstr": [],
+    },
+  },
+}
+`;

@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "Node16",
-		"target": "es2021",
-		"lib": [ "es2021", "Es6" ],
+		"module": "commonjs",
+		"target": "ES2015",
+		"lib": [ "Es6" ],
 		"noImplicitAny": true,
 		"removeComments": true,
 		"preserveConstEnums": true,

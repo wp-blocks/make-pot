@@ -5,11 +5,11 @@ import { Glob, Path } from 'glob'
 import { minimatch } from 'minimatch'
 
 // @ts-ignore
-import Javascript from 'tree-sitter-javascript'
+import * as Javascript from 'tree-sitter-javascript'
 // @ts-ignore
-import Ts from 'tree-sitter-typescript'
+import * as Ts from 'tree-sitter-typescript'
 // @ts-ignore
-import Php from 'tree-sitter-php'
+import * as Php from 'tree-sitter-php'
 import { detectPatternType } from './utils'
 
 /**
@@ -22,16 +22,16 @@ export function getParser(file: string): string | Parser {
 	const ext = file.split('.').pop()
 	switch (ext) {
 		case 'ts':
-			return Ts.typescript
+			return Ts.default.typescript
 		case 'tsx':
-			return Ts.tsx
+			return Ts.default.tsx
 		case 'js':
 		case 'jsx':
 		case 'mjs':
 		case 'cjs':
-			return Javascript
+			return Javascript.default
 		case 'php':
-			return Php
+			return Php.default
 		default:
 			return ext!
 	}

@@ -2,6 +2,61 @@ import { describe, expect } from '@jest/globals'
 import { doTree } from '../src/tree'
 
 describe('getStrings', () => {
+	it('should extract translations from js', () => {
+		const content = `var foo = __('Hello World', 'greeting');`
+		const filename = 'filename.js'
+
+		const result = doTree(content, filename)
+
+		expect(result).toMatchObject({
+			'': {
+				'Hello World': {
+					comments: {
+						reference: 'filename.js:1',
+					},
+					msgid: 'Hello World',
+					msgstr: [],
+				},
+			},
+		})
+	})
+	it('should extract translations from ts', () => {
+		const content = `__('Hello World', 'greeting');`
+		const filename = 'filename.ts'
+
+		const result = doTree(content, filename)
+
+		expect(result).toMatchObject({
+			'': {
+				'Hello World': {
+					comments: {
+						reference: 'filename.ts:1',
+					},
+					msgid: 'Hello World',
+					msgstr: [],
+				},
+			},
+		})
+	})
+	it('should extract translations from tsx', () => {
+		const content = `const element = <h1>{ __('Hello World', 'greeting')}</h1>;`
+
+		const filename = 'filename.tsx'
+
+		const result = doTree(content, filename)
+
+		expect(result).toMatchObject({
+			'': {
+				'Hello World': {
+					comments: {
+						reference: 'filename.tsx:1',
+					},
+					msgid: 'Hello World',
+					msgstr: [],
+				},
+			},
+		})
+	})
 	it('should extract translations with context', () => {
 		const content = `<?php __('Hello World', 'greeting'); ?>`
 		const filename = 'filename.php'
@@ -12,10 +67,6 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
-						comment: '',
-						extracted: '',
-						flag: '',
-						previous: '',
 						reference: 'filename.php:1',
 					},
 					msgid: 'Hello World',
@@ -30,10 +81,6 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
-						comment: '',
-						extracted: '',
-						flag: '',
-						previous: '',
 						reference: 'filename.php:1',
 					},
 					msgid: 'Hello World',
@@ -56,10 +103,6 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
-						comment: '',
-						extracted: '',
-						flag: '',
-						previous: '',
 						reference: 'filename.php:2',
 						translator: 'ciao!',
 					},
@@ -91,10 +134,6 @@ describe('getStrings', () => {
 			'': {
 				'Hello World': {
 					comments: {
-						comment: '',
-						extracted: '',
-						flag: '',
-						previous: '',
 						reference: 'filename.php:10',
 					},
 					msgid: 'Hello World',
@@ -120,14 +159,9 @@ echo $link;`
 				'Check out this link to my <a href="%s">website</a> made with WordPress.':
 					{
 						comments: {
-							comment: '',
-							extracted: '',
-							flag: '',
-							previous: '',
 							reference: 'filename.php:3',
 						},
 						msgid: 'Check out this link to my <a href="%s">website</a> made with WordPress.',
-						msgid_plural: 'my-text-domain',
 						msgstr: [],
 					},
 			},

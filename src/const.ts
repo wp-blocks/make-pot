@@ -35,30 +35,30 @@ export const allowedFiles = [
  * The default functions to use for i18n.
  */
 export const i18nFunctions = {
-	__: 'text_domain',
-	esc_attr__: 'text_domain',
-	esc_html__: 'text_domain',
-	esc_xml__: 'text_domain',
-	_e: 'text_domain',
-	esc_attr_e: 'text_domain',
-	esc_html_e: 'text_domain',
-	esc_xml_e: 'text_domain',
-	_x: 'text_context_domain',
-	_ex: 'text_context_domain',
-	esc_attr_x: 'text_context_domain',
-	esc_html_x: 'text_context_domain',
-	esc_xml_x: 'text_context_domain',
-	_n: 'single_plural_number_domain',
-	_nx: 'single_plural_number_context_domain',
-	_n_noop: 'single_plural_domain',
-	_nx_noop: 'single_plural_context_domain',
+	__: ['msgid', 'text_domain'],
+	esc_attr__: ['msgid', 'text_domain'],
+	esc_html__: ['msgid', 'text_domain'],
+	esc_xml__: ['msgid', 'text_domain'],
+	_e: ['msgid', 'text_domain'],
+	esc_attr_e: ['msgid', 'text_domain'],
+	esc_html_e: ['msgid', 'text_domain'],
+	esc_xml_e: ['msgid', 'text_domain'],
+	_x: ['text', 'msgctxt', 'text_domain'],
+	_ex: ['text', 'msgctxt', 'text_domain'],
+	esc_attr_x: ['msgid', 'msgctxt', 'text_domain'],
+	esc_html_x: ['msgid', 'msgctxt', 'text_domain'],
+	esc_xml_x: ['msgid', 'msgctxt', 'text_domain'],
+	_n: ['msgid', 'msgid_plural', 'number', 'text_domain'],
+	_nx: ['msgid', 'msgid_plural', 'number', 'msgctxt', 'text_domain'],
+	_n_noop: ['msgid', 'msgid_plural', 'text_domain'],
+	_nx_noop: ['msgid', 'msgid_plural', 'msgctxt', 'text_domain'],
 
 	// Compat.
-	_: 'gettext', // Same as 'text_domain'.
+	_: ['msgid', 'text_domain'],
 
 	// Deprecated.
-	_c: 'text_domain',
-	_nc: 'single_plural_number_domain',
-	__ngettext: 'single_plural_number_domain',
-	__ngettext_noop: 'single_plural_domain',
+	_c: ['msgid', 'text_domain'],
+	_nc: ['msgid', 'msgid_plural', 'number', 'text_domain'],
+	__ngettext: ['msgid', 'msgid_plural', 'number', 'text_domain'],
+	__ngettext_noop: ['msgid', 'msgid_plural', 'text_domain'],
 }

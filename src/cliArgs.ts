@@ -103,7 +103,11 @@ export function getArgs() {
 				type: 'boolean',
 			},
 			json: {
-				describe: 'output the json gettext data',
+				describe: 'Output the json gettext data',
+				type: 'boolean',
+			},
+			output: {
+				describe: 'Output the gettext data',
 				type: 'boolean',
 			},
 		})
@@ -139,6 +143,7 @@ export function parseCliArgs(
 			silent: !!args.silent,
 			json: !!args.json,
 			location: !!args?.location,
+			output: !!args?.output,
 
 			// Config: skip, comment and package name
 			skip: {

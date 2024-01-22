@@ -60,12 +60,9 @@ export async function parseFile(
 		if (filename === 'theme.json' || filename === 'block.json') {
 			// read the file and parse it
 			return parseJsonFile({
-				sourceCode: fs.readFileSync(
-					path.resolve(filePath, file),
-					'utf8'
-				),
+				sourceCode: fs.readFileSync(fileRealPath, 'utf8'),
 				filename: filename as 'block.json' | 'theme.json',
-				filepath: path.join(filePath, file),
+				filepath: filePath,
 			})
 		}
 	}

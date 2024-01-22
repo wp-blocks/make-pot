@@ -5,28 +5,22 @@ exports[`doTree js Should build pot file js 1`] = `
   "": {
     "Hello World": {
       "comments": {
-        "comment": "",
-        "extracted": "",
-        "flag": "",
-        "previous": "",
         "reference": "block/javascript.js:19",
         "translator": undefined,
       },
+      "msgctxt": "",
       "msgid": "Hello World",
-      "msgid_plural": "myguten",
+      "msgid_plural": "",
       "msgstr": [],
     },
     "Simple Block": {
       "comments": {
-        "comment": "",
-        "extracted": "",
-        "flag": "",
-        "previous": "",
         "reference": "block/javascript.js:7",
         "translator": undefined,
       },
+      "msgctxt": "",
       "msgid": "Simple Block",
-      "msgid_plural": "myguten",
+      "msgid_plural": "",
       "msgstr": [],
     },
   },

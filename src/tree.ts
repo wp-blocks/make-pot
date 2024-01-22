@@ -87,29 +87,32 @@ export function doTree(
 				return
 			}
 
-			const rawI18nStrnig = node.text
+			// Get the whole gettext translation string
+			// const rawI18nStrnig = node.text
 			const [fn, raw] = node.children
-			const translation: string[] = []
+			const translation: Partial<GetTextTranslation> = {}
+
+			const translationKeys =
+				i18nFunctions[functionName as keyof typeof i18nFunctions]
 
 			// Get the translation from the arguments (the quoted strings)
 			// Todo: parse the translations string by type of function "fn"
-			raw.children.slice(1, -1).forEach((child) => {
+			raw.children.slice(1, -1).forEach((child, index) => {
+				const currentKey = translationKeys[index]
 				if (/^["|']/.exec(child.text[0]))
-					translation.push(child.text.slice(1, -1))
+					translation[currentKey as keyof typeof translation] =
+						child.text.slice(1, -1)
 			})
 
-			// Get the msgid from the translation data
+			// Get the translation data
 			const gettext: GetTextTranslation = {
-				msgid: translation[0],
-				msgid_plural: translation[1],
-				msgstr: [],
+				msgctxt: translation.msgctxt ?? '',
+				msgid: translation.msgid ?? '',
+				msgid_plural: translation.msgid_plural ?? '',
+				msgstr: [], // msgstr is the translation n your language - for this pot don't need it
 				comments: {
-					previous: '',
 					reference: `${filepath}:${node.startPosition.row + 1}`,
-					comment: '',
 					translator: collectComments(node, typeToMatch),
-					extracted: '',
-					flag: '',
 				} as GetTextComment,
 			}
 

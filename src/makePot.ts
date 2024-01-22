@@ -5,6 +5,7 @@ import { runExtract } from './parser'
 import { cpus, totalmem } from 'node:os'
 import gettextParser, { GetTextTranslations } from 'gettext-parser'
 import { generateHeaderComments } from './utils'
+import path from 'path'
 
 /**
  * Runs the parser and generates the pot file or the json file based on the command line arguments
@@ -95,8 +96,11 @@ export async function makePot(args: Args) {
 	const jsonTranslations = await exec(args)
 
 	return await writeFile(
-		args,
 		jsonTranslations,
-		`${args?.slug}.${args.options?.json ? 'json' : 'pot'}`
+		path.join(
+			process.cwd(),
+			args.paths.out,
+			`${args?.slug}.${args.options?.json ? 'json' : 'pot'}`
+		)
 	)
 }

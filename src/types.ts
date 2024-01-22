@@ -97,6 +97,7 @@ export interface Args {
 		json?: boolean
 		location?: boolean
 		packageName?: string
+		output?: boolean
 		skip: {
 			js?: boolean
 			php?: boolean

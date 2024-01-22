@@ -35,12 +35,8 @@ function ensureFolderExists(folderPath: string | undefined): string {
  * @param fileContent
  * @param filename
  */
-export async function writeFile(
-	args: Args,
-	fileContent: string,
-	filename: string
-) {
-	if (ensureFolderExists(args.paths.out)) {
-		fs.writeFileSync(path.join(args.paths.out, filename), fileContent)
+export async function writeFile(fileContent: string, dest: string) {
+	if (ensureFolderExists(path.dirname(dest))) {
+		fs.writeFileSync(dest, fileContent)
 	}
 }

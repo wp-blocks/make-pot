@@ -11,8 +11,8 @@
 		"clean": "tsc --build --clean",
 		"lint": "eslint ./src ./tests --fix",
 		"test": "jest",
-		"update-snapshots": "jest -u",
-		"run": "node ./lib/index.js"
+		"update-snapshots": "jest -- -u",
+		"run": "node ./lib/index.js tests/fixtures/"
 	},
 	"bin": {
 		"make-pot": "lib/index.js"

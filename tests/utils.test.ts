@@ -19,7 +19,7 @@ describe('detectPatternType', () => {
 	})
 
 	test('should return "file" when pattern has directory separator and extension', () => {
-		expect(detectPatternType('folder/example.txt')).toBe('glob')
+		expect(detectPatternType('folder/example.txt')).toBe('file')
 	})
 
 	test('should return "glob" when pattern is a complex glob pattern', () => {

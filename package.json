@@ -1,14 +1,11 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "0.0.3",
+	"version": "0.0.6",
 	"description": "A Node.js script for generating a POT file from source code",
 	"author": "Erik Golinelli <https://github.com/erikyo>",
 	"main": "lib/index.js",
 	"scripts": {
-		"install": "node-gyp rebuild",
-		"preinstall": "node-gyp configure",
-		"postinstall": "npm run build",
-		"rebuild": "node-gyp build",
+		"postinstall": "npm rebuild tree-sitter tree-sitter-typescript tree-sitter-php tree-sitter-javascript --force",
 		"build": "tsc --build",
 		"watch": "tsc --watch",
 		"clean": "tsc --build --clean",
@@ -48,7 +45,6 @@
 		"husky": "^8.0.3",
 		"jest": "^29.7.0",
 		"lint-staged": "^15.2.0",
-		"node-gyp": "^10.0.1",
 		"prettier": "3.2.2",
 		"ts-jest": "^29.1.1",
 		"typescript": "^5.3.3"

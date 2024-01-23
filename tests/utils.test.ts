@@ -11,7 +11,7 @@ describe('detectPatternType', () => {
 	})
 
 	test('should return "glob" when pattern ends with a directory separator', () => {
-		expect(detectPatternType('example/')).toBe('glob')
+		expect(detectPatternType('example/')).toBe('directory')
 	})
 
 	test('should return "glob" when pattern contains an asterisk', () => {

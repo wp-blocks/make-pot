@@ -56,7 +56,7 @@ export function removeCommentMarkup(input: string): string {
  */
 export function stripTranslationMarkup(comment: string): string {
 	const commentPattern =
-		/\/\*\*?\s*translators:\s*([\s\S]*?)\s*\*\/|\/\/\s*translators:\s*(.*)$/i
+		/\/\*\*?\s*(?:translators:)\s*([\s\S]*?)\s*\*\/|\/\/\s*(?:translators:)\s*(.*)$/i
 	const matches = comment.match(commentPattern)
 	return matches ? matches[1] : comment
 }

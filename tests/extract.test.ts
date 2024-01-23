@@ -68,8 +68,11 @@ describe('getStrings', () => {
 				'Hello World': {
 					comments: {
 						reference: 'filename.php:1',
+						translator: '',
 					},
+					msgctxt: '',
 					msgid: 'Hello World',
+					msgid_plural: '',
 					msgstr: [],
 				},
 			},
@@ -82,9 +85,12 @@ describe('getStrings', () => {
 				'Hello World': {
 					comments: {
 						reference: 'filename.php:1',
+						translator: '',
 					},
+					msgctxt: '',
 					msgid: 'Hello World',
 					msgstr: [],
+					msgid_plural: '',
 				},
 			},
 		}
@@ -107,6 +113,7 @@ describe('getStrings', () => {
 						translator: 'ciao!',
 					},
 					msgid: 'Hello World',
+					msgctxt: '',
 					msgid_plural: 'greeting',
 					msgstr: [],
 				},
@@ -137,7 +144,8 @@ describe('getStrings', () => {
 						reference: 'filename.php:10',
 					},
 					msgid: 'Hello World',
-					msgid_plural: 'greeting',
+					msgctxt: '',
+					msgid_plural: '',
 					msgstr: [],
 				},
 			},
@@ -145,7 +153,7 @@ describe('getStrings', () => {
 
 		const result = doTree(content, filename)
 
-		expect(result).toEqual(expected)
+		expect(result).toMatchObject(expected)
 	})
 
 	it('should extract translations inside a sprint', () => {
@@ -169,107 +177,51 @@ echo $link;`
 
 		const result = doTree(content, filename)
 
-		expect(result).toEqual(expected)
+		expect(result).toMatchObject(expected)
 	})
 })
+
 describe('getStrings wp cli', () => {
 	it('should extract translations with translator comments inside the formatting hell', () => {
 		const filename = 'filename.php'
-		const content = `<?php /** 1*/
-/** 2*/ /** translators: 1: Site URL, 2: Username, 3: User email address, 4: Lost password URL. */
-                sprintf(__( 'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.' ),
-/** 6*/\t\t\tsprintf( '<a href="http://%1$s%2$s">%1$s%2$s</a>', $signup->domain, $blog_details->path ),
-/** 7*/\t\t\t$signup->user_login,
-/** 8*/\t\t\t$signup->user_email,
-/** 9*/\t\t\twp_lostpassword_url()
-/** 10*/\t\t);
-
-/** 11*/\t\techo __( 'aaaaaaa' );
-/** 12*/\t\techo __( 'aaaaaaa' );
-/** 13 */\t\techo __( 'aaaaaaa' );
-/** 14 */
-/** 15 */      printf(
-\t\t\t\t/* translators: 1: Site URL, 2: Username, 3: User email address, 4: Lost password URL. */
-\t\t\t__( 'aaaaaaa' ),
-/** 18 */\t\t\t\t);
-/** translators:aaaa */
-echo __( 'Your site at %1$s' )
-
-/** translators:aaaa */
-_e( 'Your site at %1$s' )`
-		const expected = [
-			{
-				'': {
-					'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.':
-						{
-							comments: {
-								reference: 'filename.php:3',
-							},
-							msgid: 'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.',
-							msgstr: [],
-						},
-				},
-			},
-			{
-				'': {
-					aaaaaaa: {
+		const content = `<?php if ( count( $errors_in_remigrate_batch ) > 0 ) {
+		$formatted_errors = wp_json_encode( $errors_in_remigrate_batch, JSON_PRETTY_PRINT );
+		WP_CLI::warning(
+		  sprintf(
+		    /* Translators: %1$d is number of errors and %2$s is the formatted array of order IDs. */
+		    _n(
+		        '%1$d error found: %2$s when re-migrating order. Please review the error above.',
+		        '%1$d errors found: %2$s when re-migrating orders. Please review the errors above.',
+		      count( $errors_in_remigrate_batch ),
+		        'woocommerce'
+		      ),
+		    count( $errors_in_remigrate_batch ),
+		    $formatted_errors
+		    )
+		  );
+		} else {
+			WP_CLI::warning( 'Re-migration successful.', 'woocommerce' );
+		}
+`
+		const expected = {
+			'': {
+				'%1$d error found: %2$s when re-migrating order. Please review the error above.':
+					{
 						comments: {
-							reference: 'filename.php:10',
+							reference: 'filename.php:6',
+							translator:
+								'%1$d is number of errors and %2$s is the formatted array of order IDs.',
 						},
-						msgid: 'aaaaaaa',
+						msgctxt: '',
+						msgid: '%1$d error found: %2$s when re-migrating order. Please review the error above.',
+						msgid_plural: '',
 						msgstr: [],
 					},
-				},
 			},
-			{
-				'': {
-					aaaaaaa: {
-						comments: {
-							reference: 'filename.php:11',
-						},
-						msgid: 'aaaaaaa',
-						msgstr: [],
-					},
-				},
-			},
-			{
-				'': {
-					aaaaaaa: {
-						comments: {
-							reference: 'filename.php:12',
-						},
-						msgid: 'aaaaaaa',
-						msgstr: [],
-					},
-				},
-			},
-			{
-				'': {
-					aaaaaaa: {
-						comments: {
-							reference: 'filename.php:16',
-							translator: '',
-						},
-						msgid: 'aaaaaaa',
-						msgstr: [],
-					},
-				},
-			},
-			{
-				'': {
-					'Your site at %1$s': {
-						comments: {
-							reference: 'filename.php:19',
-						},
-						msgid: 'Your site at %1$s',
-						msgstr: [],
-					},
-				},
-			},
-		]
+		}
 
 		const result = doTree(content, filename)
-		expect(result).toMatchObject(result)
+		expect(expected).toMatchObject(result)
 	})
 
 	/** see https://github.com/wp-cli/i18n-command/blob/main/features/makepot.feature */

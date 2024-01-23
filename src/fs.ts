@@ -31,9 +31,7 @@ function ensureFolderExists(folderPath: string | undefined): string {
 
 /**
  * Writes the .pot file to disk
- * @param args
  * @param fileContent
- * @param filename
  */
 export async function writeFile(fileContent: string, dest: string) {
 	if (ensureFolderExists(path.dirname(dest))) {

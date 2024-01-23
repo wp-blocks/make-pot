@@ -1,10 +1,11 @@
 import Parser, { type SyntaxNode } from 'tree-sitter'
 import { type TranslationStrings } from './types'
 import { i18nFunctions } from './const'
+import strip from 'strip-comments'
 
-import { stripTranslationMarkup } from './utils'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 import { getParser } from './glob'
+import { stripTranslationMarkup } from './utils'
 
 /**
  * Collect comments from the AST node and its preceding siblings.
@@ -13,17 +14,22 @@ import { getParser } from './glob'
  * @param typeToMatch
  * @return {string[]} An array of collected comments.
  */
-function collectComments(
-	node: SyntaxNode,
-	typeToMatch: string
-): string | undefined {
+function collectComments(node: SyntaxNode): string | undefined {
 	let currentNode = node
 	let depth = 0
 
 	// Check the node's preceding siblings for comments
-	while (currentNode && depth < 10) {
-		if (currentNode?.previousSibling?.type === 'comment') {
-			return stripTranslationMarkup(currentNode?.previousSibling.text)
+	while (currentNode && depth < 6) {
+		if (
+			currentNode?.previousSibling?.type === 'comment' &&
+			currentNode?.previousSibling?.text
+				.toLowerCase()
+				.includes('translators')
+		) {
+			const comment = stripTranslationMarkup(
+				currentNode?.previousSibling.text
+			)
+			return comment
 		}
 		depth++
 		currentNode = currentNode.parent as SyntaxNode
@@ -112,7 +118,7 @@ export function doTree(
 				msgstr: [], // msgstr is the translation n your language - for this pot don't need it
 				comments: {
 					reference: `${filepath}:${node.startPosition.row + 1}`,
-					translator: collectComments(node, typeToMatch),
+					translator: collectComments(node) ?? '',
 				} as GetTextComment,
 			}
 

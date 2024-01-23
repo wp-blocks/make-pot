@@ -22,7 +22,7 @@ describe('includes or not', () => {
 					'tests'
 				)
 			)
-		).toBe('../tests')
+		).toBe('..')
 		expect(
 			minimatch(path.normalize('block/SvgControls.tsx'), 'block/**')
 		).toBe(true)

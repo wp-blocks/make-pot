@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "0.0.8",
+	"version": "0.1.0",
 	"description": "A Node.js script for generating a POT file from source code",
 	"author": "Erik Golinelli <https://github.com/erikyo>",
 	"main": "lib/index.js",
@@ -16,6 +16,13 @@
 	},
 	"bin": {
 		"make-pot": "lib/index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wp-blocks/makePot.git"
+	},
+	"bugs": {
+		"url": "https://github.com/wp-blocks/makePot/issues"
 	},
 	"dependencies": {
 		"cli-progress": "^3.12.0",

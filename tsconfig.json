@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "ES2015",
-		"lib": [ "es2015", "Es6" ],
+		"lib": [ "Es6" ],
 		"noImplicitAny": true,
 		"removeComments": true,
 		"preserveConstEnums": true,

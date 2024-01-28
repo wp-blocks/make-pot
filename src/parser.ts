@@ -3,13 +3,9 @@ import cliProgress, { type SingleBar } from 'cli-progress'
 import { parseFile } from './extractors'
 import { allowedFiles } from './const'
 import { Glob } from 'glob'
-
-import * as path from 'path'
-import gettextParser, { GetTextTranslations } from 'gettext-parser'
-import { generateHeaderComments } from './utils'
+import { getFiles } from './glob'
 import { consolidate } from './consolidate'
-import { getFiles, getParser } from './glob'
-import { writeFile } from './fs'
+import path from 'path'
 
 /**
  * Initializes a progress bar and returns the progress bar element.
@@ -19,7 +15,7 @@ import { writeFile } from './fs'
  * @return {cliProgress.SingleBar} The progress bar element.
  */
 function initProgress(args: Args, filesCount: number): SingleBar | null {
-	if (args.silent) return null
+	if (args.options?.silent) return null
 	// Set up the progress bar
 	const progressBar = new cliProgress.SingleBar(
 		{
@@ -46,21 +42,19 @@ function initProgress(args: Args, filesCount: number): SingleBar | null {
  */
 export async function getStrings(
 	args: Args,
-	files: Glob<Object>
+	files: Glob<{ cwd: string }>
 ): Promise<TranslationStrings> {
 	const tasks: Promise<TranslationStrings>[] = []
 
-	const progressBar = initProgress(
-		args,
-		Array.from(files.iterateSync()).length
-	)
+	let progressBar: SingleBar | null = null
+	progressBar = initProgress(args, Array.from(files.iterateSync()).length)
 
 	// loop through the files and parse them
 	for (const file of files) {
 		// get the file extension
-		const ext = file.split('.').pop() || 'undefined'
+		const ext = file.split('.').pop() || undefined
 		// check if the extension is allowed
-		if (!allowedFiles.includes(ext)) {
+		if (!ext || !allowedFiles.includes(ext)) {
 			// log the filepath
 			if (progressBar) {
 				progressBar.increment(1, {
@@ -70,10 +64,7 @@ export async function getStrings(
 			continue
 		}
 
-		const task = parseFile({
-			filepath: path.join(process.cwd(), args.sourceDirectory, file),
-			language: getParser(file),
-		}) as Promise<TranslationStrings>
+		const task = parseFile(file, args.paths.cwd)
 
 		// log the filepath
 		if (progressBar) {
@@ -83,19 +74,19 @@ export async function getStrings(
 		}
 
 		// add the task to the array if it's not null
-		if (task !== null) tasks.push(task as Promise<TranslationStrings>)
+		if (task !== null) {
+			tasks.push(task as Promise<TranslationStrings>)
+		}
 	}
 
-	const results = await Promise.all(tasks)
+	const results = await Promise.all(tasks).finally(() => {
+		// stop the progress bar if it's not silent
+		if (progressBar) progressBar.stop()
+	})
 
-	// stop the progress bar if it's not silent
-	if (progressBar) progressBar.stop()
+	const mergedResult = consolidate(results.filter((r) => r !== null))
 
-	const mergedResult = consolidate(results.filter((r) => r !== null).flat())
-
-	console.log('Strings grouped')
-
-	if (!args.silent) {
+	if (!args.options?.silent) {
 		console.log(
 			'📝 Found',
 			Object.values(mergedResult).length,
@@ -121,17 +112,20 @@ export async function getStrings(
  */
 export async function runExtract(args: Args) {
 	const pattern = {
-		include: args.include || [],
-		exclude: args.exclude || [],
-		mergePaths: args.mergePaths,
-		subtractPaths: args.subtractPaths,
-		subtractAndMerge: args.subtractAndMerge,
+		include: args.patterns.include || [],
+		exclude: args.patterns.exclude || [],
+		mergePaths: args.patterns.mergePaths,
+		subtractPaths: args.patterns.subtractPaths,
+		subtractAndMerge: args.patterns.subtractAndMerge,
 	} as Patterns
 
 	// Additional logic to handle different file types and formats
 	// Exclude blade.php files if --skip-blade is set
-	if (args.skipPhp !== undefined || args.skipBlade !== undefined) {
-		if (args.skipBlade !== undefined) {
+	if (
+		args.options?.skip.php !== undefined ||
+		args.options?.skip.blade !== undefined
+	) {
+		if (args.options?.skip.blade !== undefined) {
 			// php files but not blade.php
 			pattern.include.push('**/*.php')
 		} else {
@@ -140,45 +134,18 @@ export async function runExtract(args: Args) {
 	}
 
 	// js typescript mjs cjs etc
-	if (args.skipJs !== undefined) {
+	if (args.options?.skip.js !== undefined) {
 		pattern.include.push('**/*.{js,jsx,ts,tsx,mjs,cjs}')
 	}
 
-	if (args.skipBlockJson !== undefined) {
+	if (args.options?.skip.blockJson !== undefined) {
 		pattern.include.push('block.json')
 	}
 
-	if (args.skipThemeJson !== undefined) {
+	if (args.options?.skip.themeJson !== undefined) {
 		pattern.include.push('theme.json')
 	}
 
 	const files = await getFiles(args, pattern)
-	const stringsJson = await getStrings(args, files)
-
-	// if --json is true output and die
-	if (!args.json) {
-		writeFile(args, JSON.stringify(stringsJson), 'json') // write
-		process.exit(0)
-	}
-
-	// otherwise return gettext po string
-	const additionalHeaders = {
-		'content-type': 'text/plain; charset=iso-8859-1',
-		...args.headers,
-		'plural-forms': 'nplurals=2; plural=(n != 1);',
-	}
-
-	const buffer = gettextParser.po.compile(
-		{
-			headers: additionalHeaders,
-			comments: generateHeaderComments(args),
-			translations: stringsJson,
-			charset: 'iso-8859-1',
-		} as unknown as GetTextTranslations,
-		{
-			sort: true,
-		}
-	)
-
-	return buffer.toString('utf-8') as string
+	return await getStrings(args, files)
 }

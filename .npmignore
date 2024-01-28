@@ -1,0 +1,8 @@
+node_modules
+tests/fixtures
+tests/__snapshots__
+src
+.prettierrc
+ .prettierignore
+.idea
+.github

@@ -1,21 +1,62 @@
-import { type SyntaxNode } from 'tree-sitter'
+import Parser, { type SyntaxNode } from 'tree-sitter'
 import { type TranslationStrings } from './types'
 import { i18nFunctions } from './const'
+import strip from 'strip-comments'
 
-import { stripTranslationMarkup } from './utils'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
+import { getParser } from './glob'
+import { stripTranslationMarkup } from './utils'
 
 /**
- * Extract strings from a file
+ * Collect comments from the AST node and its preceding siblings.
  *
- * @param {Tree} node
- * @param {string} filename
- * @return {{}}
+ * @param {SyntaxNode} node - The AST node.
+ * @param typeToMatch
+ * @return {string[]} An array of collected comments.
  */
-export function extractStrings(node: SyntaxNode, filename: string) {
+function collectComments(node: SyntaxNode): string | undefined {
+	let currentNode = node
+	let depth = 0
+
+	// Check the node's preceding siblings for comments
+	while (currentNode && depth < 6) {
+		if (
+			currentNode?.previousSibling?.type === 'comment' &&
+			currentNode?.previousSibling?.text
+				.toLowerCase()
+				.includes('translators')
+		) {
+			const comment = stripTranslationMarkup(
+				currentNode?.previousSibling.text
+			)
+			return comment
+		}
+		depth++
+		currentNode = currentNode.parent as SyntaxNode
+	}
+}
+
+/**
+ * Parses the source code using the specified language parser and extracts the strings from the file.
+ *
+ * @param {string} sourceCode - The source code to be parsed.
+ * @param {string} filepath - The path to the file being parsed.
+ * @return {TranslationStrings[]} An array of translation strings.
+ */
+export function doTree(
+	sourceCode: string,
+	filepath: string
+): TranslationStrings {
+	// set up the parser
+	const parser = new Parser()
+	parser.setLanguage(getParser(filepath))
+
+	// parse the file
+	const tree = parser.parse(sourceCode)
+
 	const gettextTranslations: TranslationStrings = {}
 	const typeToMatch =
-		filename.split('.').pop()?.toLowerCase() !== 'php'
+		filepath.split('.').pop()?.toLowerCase() !== 'php'
 			? 'call_expression'
 			: 'function_call_expression'
 
@@ -52,51 +93,33 @@ export function extractStrings(node: SyntaxNode, filename: string) {
 				return
 			}
 
+			// Get the whole gettext translation string
+			// const rawI18nStrnig = node.text
 			const [fn, raw] = node.children
-			const translation: string[] = []
+			const translation: Partial<GetTextTranslation> = {}
+
+			const translationKeys =
+				i18nFunctions[functionName as keyof typeof i18nFunctions]
 
 			// Get the translation from the arguments (the quoted strings)
 			// Todo: parse the translations string by type of function "fn"
-			raw.children.slice(1, -1).forEach((child) => {
+			raw.children.slice(1, -1).forEach((child, index) => {
+				const currentKey = translationKeys[index]
 				if (/^["|']/.exec(child.text[0]))
-					translation.push(child.text.slice(1, -1))
+					translation[currentKey as keyof typeof translation] =
+						child.text.slice(1, -1)
 			})
 
-			// Get the msgid from the translation data
+			// Get the translation data
 			const gettext: GetTextTranslation = {
-				msgid: translation[0],
-				msgid_plural: undefined,
-				msgstr: [],
+				msgctxt: translation.msgctxt ?? '',
+				msgid: translation.msgid ?? '',
+				msgid_plural: translation.msgid_plural ?? '',
+				msgstr: [], // msgstr is the translation n your language - for this pot don't need it
 				comments: {
-					reference: `${filename}:${node.startPosition.row + 1}`,
+					reference: `${filepath}:${node.startPosition.row + 1}`,
+					translator: collectComments(node) ?? '',
 				} as GetTextComment,
-			}
-
-			if (node.parent?.previousSibling?.type === 'comment') {
-				if (
-					node.parent?.previousSibling.text
-						.toLowerCase()
-						.includes('translators:')
-				)
-					(gettext.comments as GetTextComment).translator =
-						stripTranslationMarkup(
-							node.parent?.previousSibling.text
-						)
-			} else {
-				const el = node.closest([
-					'comment',
-					'block_comment',
-					'echo',
-					typeToMatch,
-				])?.previousSibling
-				// todo: regex to match insensitive "translators" and ":"
-				if (
-					el &&
-					(el.type === 'comment' || el.type === 'block_comment') &&
-					el.text.toLowerCase().includes('translators:')
-				)
-					(gettext.comments as GetTextComment).translator =
-						stripTranslationMarkup(el.text)
 			}
 
 			gettextTranslations[gettext.msgctxt ?? ''] = {
@@ -106,7 +129,7 @@ export function extractStrings(node: SyntaxNode, filename: string) {
 		}
 	}
 
-	traverse(node)
+	traverse(tree.rootNode)
 
 	// Return both matches and entries
 	return gettextTranslations

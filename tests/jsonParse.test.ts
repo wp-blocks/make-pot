@@ -1,14 +1,14 @@
 import { describe, expect } from '@jest/globals'
 import { parseJsonFile } from '../src/extractors-json'
-const fs = require('fs')
+import fs from 'fs'
 
-describe('consolidateTranslations', () => {
-	it('Should output translation strings with comments', async () => {
+describe('should parse json', () => {
+	it('theme.json', async () => {
 		const expected = {
 			'block style label': {
 				label: {
 					comments: {
-						reference: 'tests/fixtures/block/block.json',
+						reference: 'block/block.json',
 					},
 					msgctxt: 'block style label',
 					msgid: 'label',
@@ -18,7 +18,7 @@ describe('consolidateTranslations', () => {
 			'block variation description': {
 				description: {
 					comments: {
-						reference: 'tests/fixtures/block/block.json',
+						reference: 'block/block.json',
 					},
 					msgctxt: 'block variation description',
 					msgid: 'description',
@@ -28,7 +28,7 @@ describe('consolidateTranslations', () => {
 			'block variation keyword': {
 				undefined: {
 					comments: {
-						reference: 'tests/fixtures/block/block.json',
+						reference: 'block/block.json',
 					},
 					msgctxt: 'block variation keyword',
 					msgstr: [],
@@ -37,7 +37,7 @@ describe('consolidateTranslations', () => {
 			'block variation title': {
 				title: {
 					comments: {
-						reference: 'tests/fixtures/block/block.json',
+						reference: 'block/block.json',
 					},
 					msgctxt: 'block variation title',
 					msgid: 'title',
@@ -46,13 +46,13 @@ describe('consolidateTranslations', () => {
 			},
 		}
 
-		const result = await parseJsonFile({
-			filepath: 'tests/fixtures/block/block.json',
-			filename: 'block.json',
+		const result = parseJsonFile({
 			sourceCode: fs.readFileSync(
 				'tests/fixtures/block/block.json',
 				'utf8'
 			),
+			filename: 'block.json',
+			filepath: 'block/block.json',
 		})
 
 		expect(result).toEqual(expected)

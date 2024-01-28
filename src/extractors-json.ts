@@ -19,11 +19,12 @@ function findValuesInJson<T extends BlockJson>(
 	// Helper function to recursively search for values in JSON
 	const searchValues = (block: T, json: JsonData) => {
 		for (const key in block) {
-			if (typeof block[key] === 'object') {
-				if (typeof json[key] === 'object') {
-					// @ts-ignore
-					searchValues(block[key], json[key])
-				}
+			if (
+				typeof block[key] === 'object' &&
+				typeof json[key] === 'object' &&
+				key in block
+			) {
+				searchValues(block[key] as T, json[key])
 			} else if (json[key] !== undefined) {
 				result[key] = json[key]
 			}
@@ -41,7 +42,6 @@ function findValuesInJson<T extends BlockJson>(
  * @param {Object} opts - The arguments for parsing the JSON file.
  * @param {string} opts.filepath - The filepath of the JSON file to parse.
  * @param {Object} [opts.stats] - Optional statistics object.
- * @param {SingleBar} opts.stats.bar - The progress bar for tracking parsing progress.
  * @param {number} opts.stats.index - The index of the progress bar.
  * @return {Promise<TranslationStrings>} A promise that resolves to an object containing the parsed data.
  */
@@ -50,12 +50,11 @@ export function parseJsonFile(opts: {
 	filename: 'block.json' | 'theme.json'
 	filepath: string
 }): TranslationStrings {
-	const jsonData = JSON.parse(opts.sourceCode)
 	let parsed: Record<string, string> | null = null
-
+	const JsonData = JSON.parse(opts.sourceCode)
 	// parse the file based on the filename
 	parsed = findValuesInJson(
-		jsonData,
+		JsonData,
 		opts.filename === 'block.json' ? blockJson : themeJson
 	)
 

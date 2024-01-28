@@ -31,20 +31,10 @@ function ensureFolderExists(folderPath: string | undefined): string {
 
 /**
  * Writes the .pot file to disk
- * @param args
  * @param fileContent
- * @param ext
  */
-export async function writeFile(args: Args, fileContent: string, ext: string) {
-	// the path to the .pot file
-	const potFilePath = args.destination
-		? path.join(process.cwd(), args.destination)
-		: path.join(process.cwd())
-
-	if (ensureFolderExists(potFilePath)) {
-		fs.writeFileSync(
-			path.join(potFilePath, `${args.slug}.${ext}`),
-			fileContent
-		)
+export async function writeFile(fileContent: string, dest: string) {
+	if (ensureFolderExists(path.dirname(dest))) {
+		fs.writeFileSync(dest, fileContent)
 	}
 }

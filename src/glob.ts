@@ -5,11 +5,12 @@ import { Glob, Path } from 'glob'
 import { minimatch } from 'minimatch'
 
 // @ts-ignore
-import Javascript from 'tree-sitter-javascript'
+import * as Javascript from 'tree-sitter-javascript'
 // @ts-ignore
-import Ts from 'tree-sitter-typescript'
+import * as Ts from 'tree-sitter-typescript'
 // @ts-ignore
-import Php from 'tree-sitter-php'
+import * as Php from 'tree-sitter-php'
+import { detectPatternType } from './utils'
 
 /**
  * Return the parser based on the file extension
@@ -21,56 +22,39 @@ export function getParser(file: string): string | Parser {
 	const ext = file.split('.').pop()
 	switch (ext) {
 		case 'ts':
-			return Ts.typescript
+			return Ts.default.typescript
 		case 'tsx':
-			return Ts.tsx
+			return Ts.default.tsx
 		case 'js':
 		case 'jsx':
 		case 'mjs':
 		case 'cjs':
-			return Javascript
+			return Javascript.default
 		case 'php':
-			return Php
+			return Php.default
 		default:
 			return ext!
 	}
 }
 
-/**
- * Determines if a pattern represents a file, a directory, or a glob pattern.
- * @param pattern - The pattern string to evaluate.
- * @returns 'file', 'directory', or 'glob'.
- */
-export function detectPatternType(
-	pattern: string
-): 'file' | 'directory' | 'glob' {
-	const containsFileExtension = pattern.includes('.')
-	const containsDirectorySeparator =
-		pattern.includes(path.sep) || pattern.endsWith(path.sep)
-
-	if (pattern.includes('*')) {
-		return 'glob'
-	} else if (!containsFileExtension && !containsDirectorySeparator) {
-		return 'directory'
-	} else if (containsFileExtension && !containsDirectorySeparator) {
-		return 'file'
-	} else {
-		return 'glob'
-	}
-}
-
-export function includeFunction(includePath: string[]) {
-	return includePath.map((path) => {
-		const type = detectPatternType(path)
+// Build the ignore function for Glob
+export const ignoreFunc = (
+	filePath: Path,
+	excludedPatterns: string[]
+): boolean => {
+	return excludedPatterns.some((exclude) => {
+		const type = detectPatternType(exclude)
+		// return true to ignore
 		switch (type) {
-			case 'directory':
-				return '**/' + path + '/**'
 			case 'file':
-				return '**/' + path
+				return filePath.isNamed(exclude)
+			case 'directory':
+				return filePath.relative().includes(exclude)
 			default:
-				return path
+				// Handle glob patterns using minimatch
+				return minimatch(filePath.relative(), exclude)
 		}
-	})
+	}) as boolean
 }
 
 /**
@@ -81,45 +65,21 @@ export function includeFunction(includePath: string[]) {
  * @return A promise that resolves to an array of file paths.
  */
 export async function getFiles(args: Args, pattern: Patterns) {
-	const includedPatterns = includeFunction(
-		pattern.include.map((p) => p.trim()).filter((p) => p)
-	) ?? ['**']
-
-	// Process excludePaths
-	const excludedPatterns = pattern.exclude ?? []
-
-	// Build the ignore function for Glob
-	const ignoreFunc = (filePath: Path): boolean => {
-		return excludedPatterns.some((exclude) => {
-			const type = detectPatternType(exclude)
-			switch (type) {
-				case 'file':
-					return filePath.name === exclude
-				case 'directory':
-					return filePath.path.includes(exclude)
-				default:
-					// Handle glob patterns using minimatch or a similar library
-					return minimatch(filePath.path, exclude)
-			}
-		}) as boolean
-	}
-
-	if (!args.silent)
+	if (!args.options?.silent)
 		console.log(
 			'Searching in :',
-			path.resolve(args.sourceDirectory),
-			'for ' + includeFunction(includedPatterns).join(),
-			'\nExcluding : ' + excludedPatterns.join()
+			path.resolve(args.paths.cwd),
+			'for ' + pattern.include.join(),
+			'\nignoring patterns: ' + pattern.exclude.join()
 		)
 
 	// Execute the glob search with the built patterns
-	return new Glob(includedPatterns, {
+	return new Glob(pattern.include, {
 		ignore: {
-			ignored: (p) => {
-				return ignoreFunc(p)
-			},
+			ignored: (p: Path) => ignoreFunc(p, pattern.exclude),
 		},
 		nodir: true,
-		cwd: args.sourceDirectory,
+		cwd: args.paths.cwd,
+		root: args.paths.root ? path.resolve(args.paths.root) : undefined,
 	})
 }

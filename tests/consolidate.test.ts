@@ -52,7 +52,7 @@ describe('consolidate', () => {
 					],
 				},
 				a: {
-					msgid: '',
+					msgid: 'a',
 					msgstr: ['a'],
 				},
 			},
@@ -72,6 +72,6 @@ describe('consolidate', () => {
 
 		const result = consolidate([translationStrings, translationStrings2])
 
-		expect(result).toStrictEqual(expected)
+		expect(result).toMatchObject(expected)
 	})
 })

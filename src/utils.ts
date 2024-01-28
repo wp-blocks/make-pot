@@ -1,4 +1,5 @@
-import { type Args, PotHeaders } from './types'
+import { type Args } from './types'
+import path from 'path'
 
 /**
  * Generates a POT header for a given set of arguments.
@@ -17,7 +18,6 @@ import { type Args, PotHeaders } from './types'
  */
 export function generateHeaderComments(args: Args): string {
 	const { author, email, license } = {
-		...args.headers,
 		author: args.headers?.author ?? 'AUTHOR',
 		email: args.headers?.email ?? 'EMAIL',
 		license: args.headers?.license ?? 'gpl-2.0 or later',
@@ -55,10 +55,69 @@ export function removeCommentMarkup(input: string): string {
  * @return {string} The comment text without the markers.
  */
 export function stripTranslationMarkup(comment: string): string {
-	// Match anything between the comment start `/**` and end `*/`, including `translators:`
-	const commentPattern = /\/\*\*[\s]*translators:[\s]*(.*)[\s]*\*\//
+	const commentPattern =
+		/\/\*\*?\s*(?:translators:)\s*([\s\S]*?)\s*\*\/|\/\/\s*(?:translators:)\s*(.*)$/i
 	const matches = comment.match(commentPattern)
+	return matches ? matches[1] : comment
+}
 
-	// Return the first capture group, which is the comment text without the markers
-	return matches ? matches[1].trim() : ''
+/**
+ * Splits a string into an array of strings based on the presence of a comma.
+ *
+ * @param {string} string - The string to be split.
+ * @return {string[]} An array of strings after splitting the input string.
+ */
+export function stringstring(
+	string: string | string[] | undefined
+): string[] | null {
+	if (typeof string === 'string') {
+		if (string.includes(',')) {
+			return string.split(',')
+		}
+		return [string]
+	}
+	return null
+}
+
+/**
+ * Determines if a pattern represents a file, a directory, or a glob pattern.
+ * @param pattern - The pattern string to evaluate.
+ * @returns 'file', 'directory', or 'glob'.
+ */
+export function detectPatternType(
+	pattern: string
+): 'file' | 'directory' | 'glob' {
+	const containsFileExtension = pattern.includes('.')
+	const containsDirectorySeparator =
+		pattern.includes(path.sep) || pattern.endsWith(path.sep)
+
+	if (pattern.includes('*')) {
+		return 'glob'
+	} else if (!containsFileExtension && !containsDirectorySeparator) {
+		return 'directory'
+	} else if (containsFileExtension && !containsDirectorySeparator) {
+		return 'file'
+	} else {
+		return 'glob'
+	}
+}
+
+/**
+ * Maps each path in the includePath array based on its type.
+ *
+ * @param {string[]} includePath - array of paths to be mapped
+ * @return {string[]} mapped array of paths
+ */
+export function includeFunction(includePath: string[]) {
+	return includePath.map((path) => {
+		const type = detectPatternType(path)
+		switch (type) {
+			case 'directory':
+				return path + '/**'
+			case 'file':
+				return '**/' + path
+			default:
+				return path
+		}
+	})
 }

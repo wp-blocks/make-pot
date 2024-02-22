@@ -1,11 +1,65 @@
-import { type Args } from './types'
+import { type Args, DomainType, TranslationStrings } from './types'
 import { extractMainFileData, extractPackageJson } from './extractors'
 import { writeFile } from './fs'
 import { runExtract } from './parser'
 import { cpus, totalmem } from 'node:os'
-import gettextParser, { GetTextTranslations } from 'gettext-parser'
+import gettextParser, {
+	GetTextTranslation,
+	GetTextTranslations,
+} from 'gettext-parser'
 import { generateHeaderComments } from './utils'
 import path from 'path'
+
+const gentranslation = (
+	label: string,
+	string: string = ''
+): GetTextTranslation => {
+	return {
+		msgid: string,
+		msgstr: [''],
+		comments: {
+			extracted: label,
+		} as GetTextTranslation['comments'],
+	}
+}
+
+export function translationsHeaders(
+	type: DomainType,
+	headers: Args['headers']
+): TranslationStrings {
+	/** the block case */
+	if (type === 'block') {
+		const { name, description, keyword } = headers as {
+			name: string
+			description: string
+			keyword: string
+		}
+		return {
+			'': {
+				name: gentranslation('block title', name),
+				description: gentranslation('block description', description),
+				keyword: gentranslation('block keyword', keyword),
+			},
+		}
+	}
+
+	const { name, description, author } = headers as {
+		name: string
+		description: string
+		author: string
+	}
+	/** the theme and plugin case, the rest is not supported yet */
+	return {
+		'': {
+			name: gentranslation('Name of the ' + type, name),
+			description: gentranslation(
+				'Description of the ' + type,
+				description
+			),
+			author: gentranslation('Author of the ' + type, author),
+		},
+	}
+}
 
 /**
  * Runs the parser and generates the pot file or the json file based on the command line arguments
@@ -41,9 +95,10 @@ async function exec(args: Args): Promise<string> {
 	// audit
 	if (args.options?.skip.audit) {
 		console.log('Audit strings...')
-		// TODO: --
 		console.log('✅ Done')
 	}
+
+	const headersTranslations = translationsHeaders(args.domain, args.headers)
 
 	// otherwise return gettext po string
 	const getTextTranslations: GetTextTranslations = {
@@ -51,30 +106,17 @@ async function exec(args: Args): Promise<string> {
 		headers: {
 			'': args.headers?.fileComment ?? generateHeaderComments(args),
 		},
-		translations: stringsJson,
-	}
-
-	// push the rest of the headers to the header object
-	if (args.headers && Object.values(args.headers).length)
-		Object.entries(args.headers).map(
-			(header) =>
-				(getTextTranslations.headers[header[0]] =
-					typeof header[1] === 'string'
-						? header[1]
-						: JSON.stringify(header[1]))
-		)
-
-	// if --json is true output and die
-	if (args.options?.json) {
-		return JSON.stringify(getTextTranslations)
+		translations: { ...headersTranslations, ...stringsJson },
 	}
 
 	// otherwise return the pot file
-	return gettextParser.po
+	const pluginTranslations = gettextParser.po
 		.compile(getTextTranslations, {
-			sort: true,
+			sort: false,
 		})
 		.toString('utf-8')
+
+	return pluginTranslations
 }
 
 /**

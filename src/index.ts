@@ -5,9 +5,12 @@ import { getArgs } from './cliArgs'
 
 import yargs from 'yargs'
 
+import { name, version } from '../package.json'
+
 /** Main execution */
 const args = getArgs()
 if (Object.keys(args).length > 0) {
+	console.log(name + ' version: ' + version)
 	const timeStart = new Date()
 	makePot(args)
 		.then(() => {

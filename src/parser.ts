@@ -4,8 +4,8 @@ import { parseFile } from './extractors'
 import { allowedFiles } from './const'
 import { Glob } from 'glob'
 import { getFiles } from './glob'
+import { mergePotObject } from 'gettext-merger'
 import { consolidate } from './consolidate'
-import path from 'path'
 
 /**
  * Initializes a progress bar and returns the progress bar element.

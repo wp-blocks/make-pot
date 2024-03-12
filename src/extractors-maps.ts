@@ -115,7 +115,7 @@ export const pkgJsonHeaders = {
 	description: 'description',
 	author: 'author',
 	version: 'version',
-	bugs: 'bugs',
+	bugs: 'bugs', // this can be an object
 	license: 'license',
 	repository: 'repository',
 }
@@ -127,7 +127,7 @@ export const pluginHeaders = {
 	author: 'Author',
 	authorUrl: 'Author URI',
 	version: 'Version',
-	license: 'License',
+	license: 'License URI',
 	domainPath: 'Domain Path',
 	textDomain: 'Text Domain',
 } as const

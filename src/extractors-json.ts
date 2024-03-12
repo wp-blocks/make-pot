@@ -16,6 +16,12 @@ function findValuesInJson<T extends BlockJson>(
 ): Record<string, any> {
 	const result: Record<string, any> = {}
 
+	/**
+	 * Recursively searches for values in JSON
+	 *
+	 * @param block the block to search in
+	 * @param json the JSON object to search in
+	 */
 	// Helper function to recursively search for values in JSON
 	const searchValues = (block: T, json: JsonData) => {
 		for (const key in block) {
@@ -58,6 +64,7 @@ export function parseJsonFile(opts: {
 		opts.filename === 'block.json' ? blockJson : themeJson
 	)
 
+	// todo: yeldParsedData should be moved to extractors
 	if (parsed) {
 		// extract the strings from the file and return them as an array of objects
 		return yieldParsedData(parsed, opts.filename, opts.filepath)
@@ -90,6 +97,7 @@ export function getJsonComment(
  * @param {string} data - The data for the translation string.
  * @param {string} path - The path of the translation string.
  * @param {'block.json' | 'theme.json'} [type] - The optional type of the translation string.
+ *
  * @return {TranslationStrings} The generated translation string.
  */
 export function jsonString(

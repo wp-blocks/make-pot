@@ -67,6 +67,26 @@ export async function parseFile(
 		}
 	}
 
+	if (ext === 'txt') {
+		// the filename
+		const filename = path.basename(file)
+
+		if (filename === 'readme.txt') {
+			// read the readme file and parse it
+			const fileContent = fs.readFileSync(file, 'utf8')
+			const commentBlock = getCommentBlock(fileContent)
+			const parsed = extractFileData(commentBlock)
+
+			// todo: yeldParsedData should be moved to extractors
+			if (parsed) {
+				// extract the strings from the file and return them as an array of objects
+				return yieldParsedData(parsed, filename, filePath)
+			} else {
+				return {}
+			}
+		}
+	}
+
 	if (['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'php'].includes(ext)) {
 		// read the file
 		const sourceCode = fs.readFileSync(fileRealPath, 'utf8')

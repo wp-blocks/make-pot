@@ -127,17 +127,20 @@ export function parseCliArgs(
 	// Get the input and output paths
 	const inputPath: string = typeof args._[0] === 'string' ? args._[0] : '.'
 	const outputPath: string = typeof args._[1] === 'string' ? args._[1] : '.'
-	const cwd = path.relative(process.cwd(), inputPath)
-	const out = path.relative(process.cwd(), outputPath)
+	const currentWorkingDirectory = process.cwd()
+	const cwd = path.relative(currentWorkingDirectory, inputPath)
+	const out = path.relative(currentWorkingDirectory, outputPath)
 
-	// get the domain to look for (plugin, theme, etc)
+	/** get the domain to look for (plugin, theme, etc) */
 	const domain = (args?.domain as DomainType) ?? 'generic'
 
 	const parsedArgs: Args = {
 		slug:
 			args.slug && typeof args.slug === 'string'
 				? args.slug
-				: path.basename(cwd),
+				: path.basename(
+						path.resolve(currentWorkingDirectory, inputPath)
+					),
 		domain: domain,
 		paths: { cwd: cwd, out: out },
 		options: {

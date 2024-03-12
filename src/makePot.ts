@@ -137,11 +137,13 @@ async function exec(args: Args): Promise<string> {
  * @return {Promise<void>} - a promise that resolves when the pot file is generated
  */
 export async function makePot(args: Args) {
+	/** collect metadata from the get package json */
+	const pkgData = extractPackageJson(args)
+
 	/** get metadata from the main file (theme and plugin) */
 	const metadata = extractMainFileData(args)
 
-	/** collect metadata from the get package json */
-	const pkgData = extractPackageJson(args)
+	console.log('metadata', metadata)
 
 	/** Merge the metadata to get a single object with all the headers */
 	args.headers = {

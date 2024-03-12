@@ -14,6 +14,7 @@ export type PotHeaders =
 	| (typeof themeHeaders)[ThemeHeadersType]
 	| 'fileComment'
 	| 'packageName'
+	| 'packageVersion'
 
 // type is the value of the themeHeader Object
 export type DomainType =
@@ -107,7 +108,7 @@ export interface Args {
 			audit?: boolean
 		}
 	}
-	headers?: Record<PotHeaders, string>
+	headers?: Record<PotHeaders, unknown>
 	patterns: Patterns
 }
 

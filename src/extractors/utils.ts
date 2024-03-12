@@ -61,11 +61,12 @@ export function extractPackageJson(args: Args): Record<string, string> {
  *
  * @param label the label of the translation
  * @param string the string of the translation
- *
+ * @param filePath the file path of the translation
  */
 export const gentranslation = (
 	label: string,
-	string: string
+	string: string,
+	filePath: string | undefined
 ): GetTextTranslation => {
 	return {
 		msgctxt: undefined,
@@ -74,6 +75,7 @@ export const gentranslation = (
 		msgstr: [],
 		comments: {
 			extracted: label,
+			reference: filePath,
 		} as GetTextTranslation['comments'],
 	}
 }

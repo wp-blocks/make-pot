@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import { type TranslationStrings } from '../types'
 import { getCommentBlock } from '../utils'
 import Parser from 'tree-sitter'
-import { jsonString, parseJsonFile } from './json'
+import { getJsonComment, jsonString, parseJsonFile } from './json'
 import { extractFileData } from './text'
 import { doTree } from '../tree'
 
@@ -24,10 +24,9 @@ export function yieldParsedData(
 
 	Object.entries(parsed).map(([k, v]) => {
 		const entry = jsonString(
-			k,
+			getJsonComment(k, filename as 'block.json' | 'theme.json'),
 			v,
-			filepath,
-			filename as 'block.json' | 'theme.json'
+			filepath
 		)
 
 		gettextTranslations[entry.msgctxt ?? ''] = {

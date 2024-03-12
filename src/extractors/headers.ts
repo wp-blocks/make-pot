@@ -21,12 +21,16 @@ import { extractCssThemeData } from './css'
  * @return {string} The generated POT header.
  */
 export function generateHeaderComments(args: Args): string {
+	/** @type {Record<string, string>} */
 	const headerData = {
+		...args.headers,
 		author: args.headers?.author || 'AUTHOR',
 		slug: args.headers?.slug || 'PLUGIN NAME',
 		email: args.headers?.email || 'EMAIL',
 		license: args.headers?.license || 'gpl-2.0 or later',
 		version: args.headers?.version || 'VERSION',
+		language: args.headers?.language || 'LANGUAGE',
+		domain: args.headers?.domain || args.headers?.slug || undefined,
 		bugs: {
 			url:
 				// @ts-ignore
@@ -35,38 +39,38 @@ export function generateHeaderComments(args: Args): string {
 			// @ts-ignore
 			email: args.headers?.bugs?.email || 'AUTHOR EMAIL',
 		},
-
-		...args.headers,
 	} as const
 
-	return `# Copyright (C) ${new Date().getFullYear()} ${headerData.author}
-# ${headerData.email}
-msgid ""
-msgstr ""
-"Project-Id-Version: ${headerData.slug} ${headerData.version}\\n"
-"Report-Msgid-Bugs-To: ${headerData.bugs.email}\\n"
-"${headerData.bugs.url}\\n"
-"POT-Creation-Date: ${new Date().toISOString()}\\n"
-"MIME-Version: 1.0\\n"
-"Content-Type: text/plain; charset=utf-8\\n"
-"Content-Transfer-Encoding: 8bit\\n"
-"PO-Revision-Date: ${new Date().getFullYear()}-MO-DA HO:MI+ZONE\\n"
-"Last-Translator: ${headerData.author} <${headerData.email}>\\n"
-"Language-Team: ${headerData.author} <${headerData.email}>\\n"
-"X-Generator: ${packageJson.name} ${packageJson.version}\\n"
-"X-Poedit-KeywordsList: "
-"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
-"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\\n"
-"Language: en\\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\\n"
-"X-Poedit-SourceCharset: UTF-8\\n"
-"X-Poedit-Basepath: ../\\n"
-"X-Poedit-SearchPath-0: .\\n"
-"X-Poedit-Bookmarks: \\n"
-"X-Textdomain-Support: yes\\n"
-# This file is distributed under the ${headerData.license}.
-
-`
+	const header = {
+		'': {
+			'': {
+				msgid: '',
+				msgstr: [
+					`# Copyright (C) ${new Date().getFullYear()} ${headerData.slug}`,
+					`# ${headerData.email}`,
+					`msgid ""`,
+					`msgstr ""`,
+					`"Project-Id-Version: ${headerData.slug} ${headerData.version}\\n"`,
+					`"Report-Msgid-Bugs-To: ${headerData.bugs.email}\\n"`,
+					`"${headerData.bugs.url}\\n"`,
+					`"MIME-Version: 1.0\\n"`,
+					`"Content-Type: text/plain; charset=UTF-8\\n"`,
+					`"Content-Transfer-Encoding: 8bit\\n"`,
+					`"POT-Creation-Date: ${new Date().toISOString()}\\n"`,
+					`"PO-Revision-Date: ${new Date().getFullYear()}-MO-DA HO:MI+ZONE\\n"`,
+					`"Last-Translator: ${headerData.author} <${headerData.email}>\\n"`,
+					`"Language-Team: ${headerData.author} <${headerData.email}>\\n"`,
+					`"X-Generator: ${packageJson.name} ${packageJson.version}\\n"`,
+					`"Language: ${headerData.language}\\n"`,
+					`"Plural-Forms: nplurals=2; plural=(n != 1);\\n"`,
+					// add domain if specified
+					headerData.domain
+						? `"X-Domain: ${headerData.domain}\\n"`
+						: '',
+				],
+			},
+		},
+	}
 }
 
 /**

@@ -1,19 +1,5 @@
-import { pluginHeaders } from './extractors-maps'
-
-/**
- * Returns the key of an object based on its value
- *
- * @param object the object that contains the key
- * @param value the key that we want to get
- */
-function getKeyByValue(
-	object: {
-		[x: string]: unknown
-	},
-	value: string
-) {
-	return Object.keys(object).find((key) => object[key] === value) ?? value
-}
+import { pluginHeaders } from './maps'
+import { getKeyByValue } from './extractors-utils'
 
 /**
  * Parses a PHP file and extracts the plugin information from the comment block.

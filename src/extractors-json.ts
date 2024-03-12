@@ -1,7 +1,14 @@
 import type { JsonData, TranslationStrings } from './types'
 import { yieldParsedData } from './extractors'
-import { BlockJson, blockJson, ThemeJson, themeJson } from './extractors-maps'
+import {
+	BlockJson,
+	blockJson,
+	pluginHeaders,
+	ThemeJson,
+	themeJson,
+} from './maps'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
+import { getKeyByValue } from './extractors-utils'
 
 /**
  * Finds values in a JSON object based on a given block.
@@ -13,8 +20,8 @@ import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 function findValuesInJson<T extends BlockJson>(
 	block: T,
 	jsonData: JsonData | ThemeJson
-): Record<string, any> {
-	const result: Record<string, any> = {}
+): Record<string, unknown> {
+	const result: Record<string, unknown> = {}
 
 	/**
 	 * Recursively searches for values in JSON
@@ -56,7 +63,7 @@ export function parseJsonFile(opts: {
 	filename: 'block.json' | 'theme.json'
 	filepath: string
 }): TranslationStrings {
-	let parsed: Record<string, string> | null = null
+	let parsed: Record<string, unknown>
 	const JsonData = JSON.parse(opts.sourceCode)
 	// parse the file based on the filename
 	parsed = findValuesInJson(
@@ -64,13 +71,25 @@ export function parseJsonFile(opts: {
 		opts.filename === 'block.json' ? blockJson : themeJson
 	)
 
-	// todo: yeldParsedData should be moved to extractors
-	if (parsed) {
-		// extract the strings from the file and return them as an array of objects
-		return yieldParsedData(parsed, opts.filename, opts.filepath)
-	} else {
-		return {}
+	let parsedDefined: Record<string, string> = {}
+	for (const key in parsed) {
+		const value = parsed[key] as string
+		const header = getKeyByValue(pluginHeaders, value)
+
+		if (header) {
+			parsedDefined = {
+				...parsedDefined,
+				[header]: value,
+			}
+		}
 	}
+
+	// todo: yeldParsedData should be moved to extractors
+	if (parsedDefined) {
+		// extract the strings from the file and return them as an array of objects
+		return yieldParsedData(parsedDefined, opts.filename, opts.filepath)
+	}
+	return {}
 }
 
 /**

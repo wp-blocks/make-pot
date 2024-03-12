@@ -1,4 +1,4 @@
-import { removeCommentMarkup } from './utils'
+import { removeCommentMarkup } from '../utils'
 
 /**
  * Extracts file data from the given file content.

@@ -1,7 +1,6 @@
 import Parser, { type SyntaxNode } from 'tree-sitter'
 import { type TranslationStrings } from './types'
 import { i18nFunctions } from './const'
-import strip from 'strip-comments'
 
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 import { getParser } from './glob'

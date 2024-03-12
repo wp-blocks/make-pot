@@ -1,11 +1,11 @@
 import * as path from 'path'
 import * as fs from 'fs'
-import { type TranslationStrings } from './types'
-import { getCommentBlock } from './utils'
+import { type TranslationStrings } from '../types'
+import { getCommentBlock } from '../utils'
 import Parser from 'tree-sitter'
-import { jsonString, parseJsonFile } from './extractors-json'
-import { extractFileData } from './extractors-text'
-import { doTree } from './tree'
+import { jsonString, parseJsonFile } from './json'
+import { extractFileData } from './text'
+import { doTree } from '../tree'
 
 /**
  * Extracts strings from parsed JSON data.

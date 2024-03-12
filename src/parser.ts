@@ -4,7 +4,6 @@ import { parseFile } from './extractors'
 import { allowedFiles } from './const'
 import { Glob } from 'glob'
 import { getFiles } from './glob'
-import { mergePotObject } from 'gettext-merger'
 import { consolidate } from './consolidate'
 
 /**

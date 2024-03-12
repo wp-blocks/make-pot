@@ -1,14 +1,14 @@
-import type { JsonData, TranslationStrings } from './types'
-import { yieldParsedData } from './extractors'
+import type { JsonData, TranslationStrings } from '../types'
+import { yieldParsedData } from './'
 import {
 	BlockJson,
 	blockJson,
 	pluginHeaders,
 	ThemeJson,
 	themeJson,
-} from './maps'
+} from '../maps'
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
-import { getKeyByValue } from './extractors-utils'
+import { getKeyByValue } from './utils'
 
 /**
  * Finds values in a JSON object based on a given block.

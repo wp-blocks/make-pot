@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "A Node.js script for generating a POT file from source code",
 	"author": "Erik Golinelli <https://github.com/erikyo>",
 	"main": "lib/index.js",
@@ -12,7 +12,7 @@
 		"lint": "eslint ./src ./tests --fix",
 		"test": "jest",
 		"update-snapshots": "jest -- -u",
-		"run": "node ./lib/index.js tests/fixtures/plugin/"
+		"run": "node ./lib/index.js tests/fixtures/sourcedir/"
 	},
 	"bin": {
 		"make-pot": "lib/index.js"

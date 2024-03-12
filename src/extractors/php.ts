@@ -1,5 +1,5 @@
-import { pluginHeaders } from './maps'
-import { getKeyByValue } from './extractors-utils'
+import { pluginHeaders } from '../maps'
+import { getKeyByValue } from './utils'
 
 /**
  * Parses a PHP file and extracts the plugin information from the comment block.

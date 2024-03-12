@@ -1,5 +1,5 @@
-import type { Args } from './types'
-import { pkgJsonHeaders } from './maps'
+import type { Args } from '../types'
+import { pkgJsonHeaders } from '../maps'
 import path from 'path'
 import fs from 'fs'
 
@@ -23,6 +23,7 @@ export function getKeyByValue(
  *
  * @param {Args} args - The arguments for extracting package data.
  * @param {Record<string, string>} fields - The fields to extract from the package.json file. Default is pkgJsonHeaders.
+ *
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
 export function extractPackageJson(

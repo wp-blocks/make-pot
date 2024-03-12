@@ -38,7 +38,7 @@ export function generateHeaderComments(args: Args): string {
 		...args.headers,
 	} as const
 
-	return `# Copyright (C) ${headerData.author}
+	return `# Copyright (C) ${new Date().getFullYear()} ${headerData.author}
 # ${headerData.email}
 msgid ""
 msgstr ""

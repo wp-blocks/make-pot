@@ -1,9 +1,9 @@
-import type { Args } from './types'
+import type { Args } from '../types'
 import path from 'path'
 import fs from 'fs'
-import { parsePHPFile } from './extractors-php'
-import { getCommentBlock } from './utils'
-import { extractFileData } from './extractors-text'
+import { parsePHPFile } from './php'
+import { getCommentBlock } from '../utils'
+import { extractFileData } from './text'
 
 export function extractPhpPluginData(args: Args): Record<string, string> {
 	let fileData: Record<string, string> = {}

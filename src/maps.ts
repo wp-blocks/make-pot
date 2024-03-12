@@ -90,13 +90,19 @@ export type ThemeJsonKeys = keyof typeof themeJson
 
 export const blockJson = {
 	title: 'block title',
+	name: 'block/name',
 	description: 'block description',
-	keywords: ['block keyword'],
+	keywords: [],
 	styles: [
 		{
 			label: 'block style label',
 		},
 	],
+	examples: {
+		attributes: {
+			message: 'Hello 👋\n\nHello, $name!',
+		},
+	},
 	variations: [
 		{
 			title: 'block variation title',

@@ -1,5 +1,5 @@
 import { type Args, DomainType, TranslationStrings } from './types'
-import { extractMainFileData, extractPackageJson } from './extractors'
+import { extractMainFileData } from './extractors-headers'
 import { writeFile } from './fs'
 import { runExtract } from './parser'
 import { cpus, totalmem } from 'node:os'
@@ -9,6 +9,7 @@ import gettextParser, {
 } from 'gettext-parser'
 import { generateHeaderComments } from './utils'
 import path from 'path'
+import { extractPackageJson } from './extractors-utils'
 
 const gentranslation = (label: string, string: string): GetTextTranslation => {
 	return {

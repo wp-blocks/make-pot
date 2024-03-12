@@ -1,129 +1,24 @@
-export const themeJson = {
-	title: 'Style variation name',
-	settings: {
-		typography: {
-			fontSizes: [
-				{
-					name: 'Font size name',
-				},
-			],
-			fontFamilies: [
-				{
-					name: 'Font family name',
-				},
-			],
-		},
-		color: {
-			palette: [
-				{
-					name: 'Color name',
-				},
-			],
-			gradients: [
-				{
-					name: 'Gradient name',
-				},
-			],
-			duotone: [
-				{
-					name: 'Duotone name',
-				},
-			],
-		},
-		spacing: {
-			spacingSizes: [
-				{
-					name: 'Space size name',
-				},
-			],
-		},
-		blocks: {
-			'*': {
-				typography: {
-					fontSizes: [
-						{
-							name: 'Font size name',
-						},
-					],
-					fontFamilies: [
-						{
-							name: 'Font family name',
-						},
-					],
-				},
-				color: {
-					palette: [
-						{
-							name: 'Color name',
-						},
-					],
-					gradients: [
-						{
-							name: 'Gradient name',
-						},
-					],
-				},
-				spacing: {
-					spacingSizes: [
-						{
-							name: 'Space size name',
-						},
-					],
-				},
-			},
-		},
-	},
-	customTemplates: [
-		{
-			title: 'Custom template name',
-		},
-	],
-	templateParts: [
-		{
-			title: 'Template part name',
-		},
-	],
-} as const
+import * as blocki18n from './assets/block-i18n.json'
+import * as themei18n from './assets/theme-i18n.json'
+export const themeJson = themei18n
 
 export type ThemeJson = typeof themeJson
 export type ThemeJsonKeys = keyof typeof themeJson
 
-export const blockJson = {
-	title: 'block title',
-	name: 'block/name',
-	description: 'block description',
-	keywords: [],
-	styles: [
-		{
-			label: 'block style label',
-		},
-	],
-	examples: {
-		attributes: {
-			message: 'Hello 👋\n\nHello, $name!',
-		},
-	},
-	variations: [
-		{
-			title: 'block variation title',
-			description: 'block variation description',
-			keywords: ['block variation keyword'],
-		},
-	],
-} as const
+export const blockJson = blocki18n
 
 export type BlockJson = typeof blockJson
 export type BlockJsonKeys = keyof typeof blockJson
 
-export const pkgJsonHeaders = {
-	name: 'name',
-	url: 'homepage',
-	description: 'description',
-	author: 'author',
-	version: 'version',
-	bugs: 'bugs', // this can be an object
-	license: 'license',
-	repository: 'repository',
+export interface pkgJsonHeaders {
+	name: string
+	url: string
+	description: string
+	author: string
+	version: string
+	bugs: string | { url: string; email: string } // this can be an object
+	license: string
+	repository: string
 }
 
 export const pluginHeaders = {

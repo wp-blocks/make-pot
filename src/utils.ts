@@ -1,6 +1,9 @@
 import { type Args } from './types'
 import path from 'path'
 
+// Todo maybe i have already written this
+import packageJson from '../package.json'
+
 /**
  * Generates a POT header for a given set of arguments.
  * https://developer.wordpress.org/cli/commands/i18n/make-pot/ ->
@@ -17,14 +20,52 @@ import path from 'path'
  * @return {string} The generated POT header.
  */
 export function generateHeaderComments(args: Args): string {
-	const { author, email, license } = {
-		author: args.headers?.author ?? 'AUTHOR',
-		email: args.headers?.email ?? 'EMAIL',
-		license: args.headers?.license ?? 'gpl-2.0 or later',
-	}
+	const headerData = {
+		author: args.headers?.author || 'AUTHOR',
+		slug: args.headers?.slug || 'PLUGIN NAME',
+		email: args.headers?.email || 'EMAIL',
+		license: args.headers?.license || 'gpl-2.0 or later',
+		version: args.headers?.version || 'VERSION',
+		bugs: {
+			url:
+				// @ts-ignore
+				args.headers?.bugs?.url ||
+				'https://wordpress.org/support/plugin/' + args.slug,
+			// @ts-ignore
+			email: args.headers?.bugs?.email || 'AUTHOR EMAIL',
+		},
 
-	return `# Copyright (C) ${new Date().getFullYear()} ${author} (${email})
-# This file is distributed under the ${license}.`
+		...args.headers,
+	} as const
+
+	return `# Copyright (C) ${headerData.author}
+# ${headerData.email}
+msgid ""
+msgstr ""
+"Project-Id-Version: ${headerData.slug} ${headerData.version}\\n"
+"Report-Msgid-Bugs-To: ${headerData.bugs.email}\\n"
+"${headerData.bugs.url}\\n"
+"POT-Creation-Date: ${new Date().toISOString()}\\n"
+"MIME-Version: 1.0\\n"
+"Content-Type: text/plain; charset=utf-8\\n"
+"Content-Transfer-Encoding: 8bit\\n"
+"PO-Revision-Date: ${new Date().getFullYear()}-MO-DA HO:MI+ZONE\\n"
+"Last-Translator: ${headerData.author} <${headerData.email}>\\n"
+"Language-Team: ${headerData.author} <${headerData.email}>\\n"
+"X-Generator: ${packageJson.name} ${packageJson.version}\\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
+"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\\n"
+"Language: en\\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\\n"
+"X-Poedit-SourceCharset: UTF-8\\n"
+"X-Poedit-Basepath: ../\\n"
+"X-Poedit-SearchPath-0: .\\n"
+"X-Poedit-Bookmarks: \\n"
+"X-Textdomain-Support: yes\\n"
+# This file is distributed under the ${headerData.license}.
+
+`
 }
 
 /**

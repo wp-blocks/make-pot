@@ -1,27 +1,14 @@
 import { type Args, DomainType, TranslationStrings } from './types'
-import { extractMainFileData } from './extractors/headers'
+import {
+	extractMainFileData,
+	generateHeaderComments,
+} from './extractors/headers'
 import { writeFile } from './fs'
 import { runExtract } from './parser'
 import { cpus, totalmem } from 'node:os'
-import gettextParser, {
-	GetTextTranslation,
-	GetTextTranslations,
-} from 'gettext-parser'
-import { generateHeaderComments } from './utils'
+import gettextParser, { GetTextTranslations } from 'gettext-parser'
 import path from 'path'
-import { extractPackageJson } from './extractors/utils'
-
-const gentranslation = (label: string, string: string): GetTextTranslation => {
-	return {
-		msgctxt: undefined,
-		msgid: string,
-		msgid_plural: '',
-		msgstr: [],
-		comments: {
-			extracted: label,
-		} as GetTextTranslation['comments'],
-	}
-}
+import { extractPackageJson, gentranslation } from './extractors/utils'
 
 export function translationsHeaders(
 	type: DomainType,

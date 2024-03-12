@@ -1,7 +1,7 @@
 import type { Args } from '../types'
-import { pkgJsonHeaders } from '../maps'
 import path from 'path'
 import fs from 'fs'
+import { GetTextTranslation } from 'gettext-parser'
 
 /**
  * Returns the key of an object based on its value
@@ -22,15 +22,20 @@ export function getKeyByValue(
  * containing the specified fields from the package.json file.
  *
  * @param {Args} args - The arguments for extracting package data.
- * @param {Record<string, string>} fields - The fields to extract from the package.json file. Default is pkgJsonHeaders.
  *
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
-export function extractPackageJson(
-	args: Args,
-	fields = pkgJsonHeaders
-): Record<string, string> {
-	// TODO: package.json "files" could be used to get the file list
+export function extractPackageJson(args: Args): Record<string, string> {
+	const fields = [
+		'name',
+		'url',
+		'description',
+		'author',
+		'version',
+		'bugs',
+		'license',
+		'repository',
+	]
 	const pkgJsonMeta: Record<string, string> = {}
 	// read the package.json file
 	const packageJsonPath = args.paths.cwd
@@ -49,4 +54,26 @@ export function extractPackageJson(
 		}
 	}
 	return pkgJsonMeta
+}
+
+/**
+ * returns a gettext translation object
+ *
+ * @param label the label of the translation
+ * @param string the string of the translation
+ *
+ */
+export const gentranslation = (
+	label: string,
+	string: string
+): GetTextTranslation => {
+	return {
+		msgctxt: undefined,
+		msgid: string,
+		msgid_plural: '',
+		msgstr: [],
+		comments: {
+			extracted: label,
+		} as GetTextTranslation['comments'],
+	}
 }

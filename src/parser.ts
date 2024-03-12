@@ -57,7 +57,7 @@ export async function getStrings(
 			// log the filepath
 			if (progressBar) {
 				progressBar.increment(1, {
-					filename: `Skipping ${ext} (not a valid file extension)`,
+					filename: `Skipping ${ext} file: ${file}`,
 				})
 			}
 			continue

@@ -110,7 +110,7 @@ export function extractPackageJson(
 	return pkgJsonMeta
 }
 
-export function extractPhpPluginData(args: Args) {
+export function extractPhpPluginData(args: Args): Record<string, string> {
 	let fileData: Record<string, string> = {}
 	const folderPhpFile = path.join(args.paths.cwd, `${args.slug}.php`)
 
@@ -118,15 +118,19 @@ export function extractPhpPluginData(args: Args) {
 		const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
 		fileData = parsePHPFile(fileContent)
 
-		if ('Plugin Name' in fileData) {
+		if ('name' in fileData) {
 			console.log('Plugin file detected.')
 			console.log(`Plugin file: ${folderPhpFile}`)
 			args.domain = 'plugin'
+
+			return fileData
 		}
 	} else {
 		console.log('Plugin file not found.')
 		console.log(`Missing Plugin filename: ${folderPhpFile}`)
 	}
+
+	return {}
 }
 
 export function extractCssThemeData(args: Args) {
@@ -138,13 +142,17 @@ export function extractCssThemeData(args: Args) {
 		const commentBlock = getCommentBlock(fileContent)
 		fileData = extractFileData(commentBlock)
 
-		console.log('Theme stylesheet detected.')
-		console.log(`Theme stylesheet: ${styleCssFile}`)
-		args.domain = 'theme'
-		return fileData
+		if ('Name' in fileData) {
+			console.log('Theme stylesheet detected.')
+			console.log(`Theme stylesheet: ${styleCssFile}`)
+			args.domain = 'theme'
+
+			return fileData
+		}
 	} else {
 		console.log(`Theme stylesheet not found in ${styleCssFile}`)
 	}
+	return {}
 }
 
 /**
@@ -153,12 +161,13 @@ export function extractCssThemeData(args: Args) {
  * @param {Args} args - The arguments for extracting the main file data.
  * @return {Record<string, string>} The extracted main file data.
  */
-export function extractMainFileData(args: Args) {
+export function extractMainFileData(args: Args): Record<string, string> {
 	if (['plugin', 'block', 'generic'].includes(args.domain)) {
 		return extractPhpPluginData(args)
 	} else if (['theme', 'theme-block'].includes(args.domain)) {
 		return extractCssThemeData(args)
 	}
 
-	return console.log('No main file detected.')
+	console.log('No main file detected.')
+	return {}
 }

@@ -1,5 +1,5 @@
 import { describe, expect } from '@jest/globals'
-import { parseJsonFile } from '../src/extractors-json'
+import { parseJsonFile } from '../src/extractors/json'
 import fs from 'fs'
 
 describe('should parse json', () => {
@@ -15,31 +15,32 @@ describe('should parse json', () => {
 					msgstr: [],
 				},
 			},
-			'block variation description': {
+			'block description': {
 				description: {
 					comments: {
 						reference: 'block/block.json',
 					},
-					msgctxt: 'block variation description',
+					msgctxt: 'block description',
 					msgid: 'description',
 					msgstr: [],
 				},
 			},
-			'block variation keyword': {
+			'block keyword': {
 				undefined: {
 					comments: {
 						reference: 'block/block.json',
 					},
-					msgctxt: 'block variation keyword',
+					msgctxt: 'block keyword',
+					msgid: undefined,
 					msgstr: [],
 				},
 			},
-			'block variation title': {
+			'block title': {
 				title: {
 					comments: {
 						reference: 'block/block.json',
 					},
-					msgctxt: 'block variation title',
+					msgctxt: 'block title',
 					msgid: 'title',
 					msgstr: [],
 				},

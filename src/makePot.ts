@@ -126,15 +126,20 @@ async function exec(args: Args): Promise<string> {
  * @return {Promise<void>} - a promise that resolves when the pot file is generated
  */
 export async function makePot(args: Args) {
-	// get metadata from the main file (theme and plugin)
+	/** get metadata from the main file (theme and plugin) */
 	const metadata = extractMainFileData(args)
-	// get package data
+
+	/** collect metadata from the get package json */
 	const pkgData = extractPackageJson(args)
 
-	const headers = { ...pkgData, ...metadata, ...args.headers }
+	/** Merge the metadata to get a single object with all the headers */
+	args.headers = {
+		...args.headers,
+		...pkgData,
+		...metadata,
+	} as Args['headers']
 
-	args = { ...args, headers } as Args
-
+	// generate the pot file
 	const jsonTranslations = await exec(args)
 
 	return await writeFile(

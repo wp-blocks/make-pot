@@ -1,5 +1,31 @@
 import { pluginHeaders } from '../maps'
 import { getKeyByValue } from './utils'
+import type { Args } from '../types'
+import path from 'path'
+import fs from 'fs'
+
+export function extractPhpPluginData(args: Args): Record<string, string> {
+	let fileData: Record<string, string> = {}
+	const folderPhpFile = path.join(args.paths.cwd, `${args.slug}.php`)
+
+	if (fs.existsSync(folderPhpFile)) {
+		const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
+		fileData = parsePHPFile(fileContent)
+
+		if ('name' in fileData) {
+			console.log('Plugin file detected.')
+			console.log(`Plugin file: ${folderPhpFile}`)
+			args.domain = 'plugin'
+
+			return fileData
+		}
+	} else {
+		console.log('Plugin file not found.')
+		console.log(`Missing Plugin filename: ${folderPhpFile}`)
+	}
+
+	return {}
+}
 
 /**
  * Parses a PHP file and extracts the plugin information from the comment block.

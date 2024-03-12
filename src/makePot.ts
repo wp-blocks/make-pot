@@ -10,13 +10,12 @@ import gettextParser, {
 import { generateHeaderComments } from './utils'
 import path from 'path'
 
-const gentranslation = (
-	label: string,
-	string: string = ''
-): GetTextTranslation => {
+const gentranslation = (label: string, string: string): GetTextTranslation => {
 	return {
+		msgctxt: undefined,
 		msgid: string,
-		msgstr: [''],
+		msgid_plural: '',
+		msgstr: [],
 		comments: {
 			extracted: label,
 		} as GetTextTranslation['comments'],
@@ -27,7 +26,9 @@ export function translationsHeaders(
 	type: DomainType,
 	headers: Args['headers']
 ): TranslationStrings {
-	/** the block case */
+	/**
+	 * The Block
+	 */
 	if (type === 'block') {
 		const { name, description, keyword } = headers as {
 			name: string
@@ -48,6 +49,7 @@ export function translationsHeaders(
 		description: string
 		author: string
 	}
+
 	/** the theme and plugin case, the rest is not supported yet */
 	return {
 		'': {
@@ -71,6 +73,7 @@ async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
 		console.log('📝 Making a pot file...')
 		console.log('🔍 Extracting strings...', args?.slug, args)
+		console.log('💢 With args...', args?.headers, args)
 	}
 
 	const stringsJson = await runExtract(args)
@@ -79,7 +82,7 @@ async function exec(args: Args): Promise<string> {
 		console.log(
 			'Memory usage:',
 			(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
-			'MB (Total:',
+			'MB (Free:',
 			(totalmem() / 1024 / 1024 / 1024).toFixed(2),
 			'GB)\n',
 			'Cpu User:',
@@ -95,28 +98,36 @@ async function exec(args: Args): Promise<string> {
 	// audit
 	if (args.options?.skip.audit) {
 		console.log('Audit strings...')
+		/** TODO audit strings */
 		console.log('✅ Done')
 	}
 
-	const headersTranslations = translationsHeaders(args.domain, args.headers)
+	/** The pot file header contains the data about the plugin or theme */
+	const potHeader = generateHeaderComments(args)
 
-	// otherwise return gettext po string
+	/* Pot definitions are extracted from the plugin or theme files */
+	const potDefinitions = translationsHeaders(args.domain, args.headers)
+
+	const translationsUnion = Object.assign(
+		{},
+		potDefinitions[''],
+		stringsJson['']
+	)
+
+	// generate the pot file json
 	const getTextTranslations: GetTextTranslations = {
 		charset: 'iso-8859-1',
-		headers: {
-			'': args.headers?.fileComment ?? generateHeaderComments(args),
-		},
-		translations: { ...headersTranslations, ...stringsJson },
+		headers: {},
+		translations: { ...stringsJson, '': translationsUnion },
 	}
 
-	// otherwise return the pot file
+	// And then compile the pot file
 	const pluginTranslations = gettextParser.po
-		.compile(getTextTranslations, {
-			sort: false,
-		})
+		.compile(getTextTranslations)
 		.toString('utf-8')
 
-	return pluginTranslations
+	// return the pot file as a string with the header
+	return potHeader + '\n' + pluginTranslations
 }
 
 /**
@@ -126,15 +137,20 @@ async function exec(args: Args): Promise<string> {
  * @return {Promise<void>} - a promise that resolves when the pot file is generated
  */
 export async function makePot(args: Args) {
-	// get metadata from the main file (theme and plugin)
+	/** get metadata from the main file (theme and plugin) */
 	const metadata = extractMainFileData(args)
-	// get package data
+
+	/** collect metadata from the get package json */
 	const pkgData = extractPackageJson(args)
 
-	const headers = { ...pkgData, ...metadata, ...args.headers }
+	/** Merge the metadata to get a single object with all the headers */
+	args.headers = {
+		...args.headers,
+		...pkgData,
+		...metadata,
+	} as Args['headers']
 
-	args = { ...args, headers } as Args
-
+	// generate the pot file
 	const jsonTranslations = await exec(args)
 
 	return await writeFile(

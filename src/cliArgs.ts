@@ -124,19 +124,22 @@ export function getArgs() {
 export function parseCliArgs(
 	args: yargs.PositionalOptions & yargs.Options & yargs.Arguments
 ): Args {
+	// Get the input and output paths
 	const inputPath: string = typeof args._[0] === 'string' ? args._[0] : '.'
 	const outputPath: string = typeof args._[1] === 'string' ? args._[1] : '.'
+	const cwd = path.relative(process.cwd(), inputPath)
+	const out = path.relative(process.cwd(), outputPath)
+
+	// get the domain to look for (plugin, theme, etc)
+	const domain = (args?.domain as DomainType) ?? 'generic'
 
 	const parsedArgs: Args = {
 		slug:
 			args.slug && typeof args.slug === 'string'
 				? args.slug
-				: path.basename(process.cwd()),
-		domain: (args?.domain as DomainType) ?? 'generic',
-		paths: {
-			cwd: path.relative(process.cwd(), inputPath),
-			out: path.relative(process.cwd(), outputPath),
-		},
+				: path.basename(cwd),
+		domain: domain,
+		paths: { cwd: cwd, out: out },
 		options: {
 			ignoreDomain: !!args?.ignoreDomain,
 			packageName: String(args.packageName ?? ''),
@@ -144,7 +147,6 @@ export function parseCliArgs(
 			json: !!args.json,
 			location: !!args?.location,
 			output: !!args?.output,
-
 			// Config: skip, comment and package name
 			skip: {
 				js: !!args.skipJs,
@@ -169,6 +171,7 @@ export function parseCliArgs(
 				stringstring(args.exclude as string) ?? DEFAULT_EXCLUDED_PATH,
 		},
 	}
+
 	parsedArgs.paths.root = args.root ? String(args.root) : undefined
 
 	return parsedArgs

@@ -47,7 +47,7 @@ describe('should parse json', () => {
 			},
 		}
 
-		const result = parseJsonFile({
+		const result = await parseJsonFile({
 			sourceCode: fs.readFileSync(
 				'tests/fixtures/block/block.json',
 				'utf8'

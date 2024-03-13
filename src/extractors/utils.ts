@@ -2,6 +2,7 @@ import type { Args } from '../types'
 import path from 'path'
 import fs from 'fs'
 import { GetTextTranslation } from 'gettext-parser'
+import { pluginHeaders } from '../maps'
 
 /**
  * Returns the key of an object based on its value
@@ -26,21 +27,13 @@ export function getKeyByValue(
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
 export function extractPackageJson(args: Args): Record<string, string> {
-	const fields = [
-		'name',
-		'url',
-		'description',
-		'author',
-		'version',
-		'bugs',
-		'license',
-		'repository',
-	]
+	const fields = pluginHeaders
 	const pkgJsonMeta: Record<string, string> = {}
 	// read the package.json file
 	const packageJsonPath = args.paths.cwd
 		? path.join(args.paths.cwd, 'package.json')
 		: 'package.json'
+
 	/**
 	 *  check if the package.json extract the fields from the package.json file
 	 */
@@ -66,7 +59,7 @@ export function extractPackageJson(args: Args): Record<string, string> {
 export const gentranslation = (
 	label: string,
 	string: string,
-	filePath: string | undefined
+	filePath?: string | undefined
 ): GetTextTranslation => {
 	return {
 		msgctxt: undefined,

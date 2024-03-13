@@ -1,4 +1,6 @@
+import { GetTextTranslation } from 'gettext-parser'
 import path from 'path'
+import { TranslationStrings } from './types'
 
 /**
  * A function that removes comment markup from a given string.
@@ -52,6 +54,30 @@ export function stringstring(
 	return null
 }
 
+/**
+ * Merges two objects deeply.
+ *
+ * @param {TranslationStrings} obj1 - The first object to merge
+ * @param {TranslationStrings} obj2 - The second object to merge
+ * @return {TranslationStrings} The merged object
+ */
+export function advancedObjectMerge(
+	obj1: TranslationStrings,
+	obj2: TranslationStrings
+) {
+	const merged = { ...obj1 }
+	for (const key in obj2) {
+		if (Object.prototype.hasOwnProperty.call(obj2, key)) {
+			// @ts-ignore
+			merged[key] =
+				obj1[key] && obj1[key].toString() === '[object Object]'
+					? // @ts-ignore
+						advancedObjectMerge(obj1[key], obj2[key])
+					: obj2[key]
+		}
+	}
+	return merged as TranslationStrings
+}
 /**
  * Determines if a pattern represents a file, a directory, or a glob pattern.
  * @param pattern - The pattern string to evaluate.

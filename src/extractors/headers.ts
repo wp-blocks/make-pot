@@ -1,9 +1,8 @@
-import type { Args } from '../types'
+import { Args, DomainType } from '../types'
 import { extractPhpPluginData } from './php'
-
-// Todo maybe i have already written this
-import packageJson from '../../package.json'
 import { extractCssThemeData } from './css'
+import { gentranslation } from './utils'
+import { pkgJson } from '../maps'
 
 /**
  * Generates a POT header for a given set of arguments.
@@ -20,7 +19,7 @@ import { extractCssThemeData } from './css'
  * @param {Args} args - The arguments object containing the headers and their values.
  * @return {string} The generated POT header.
  */
-export function generateHeaderComments(args: Args): string {
+export function generateHeader(args: Args): Record<string, string> {
 	/** @type {Record<string, string>} */
 	const headerData = {
 		...args.headers,
@@ -33,43 +32,27 @@ export function generateHeaderComments(args: Args): string {
 		domain: args.headers?.domain || args.headers?.slug || undefined,
 		bugs: {
 			url:
-				// @ts-ignore
-				args.headers?.bugs?.url ||
+				args.headers?.bugs ||
 				'https://wordpress.org/support/plugin/' + args.slug,
-			// @ts-ignore
-			email: args.headers?.bugs?.email || 'AUTHOR EMAIL',
+			email: args.headers?.authoremail || 'AUTHOR EMAIL',
 		},
 	} as const
 
-	const header = {
-		'': {
-			'': {
-				msgid: '',
-				msgstr: [
-					`# Copyright (C) ${new Date().getFullYear()} ${headerData.slug}`,
-					`# ${headerData.email}`,
-					`msgid ""`,
-					`msgstr ""`,
-					`"Project-Id-Version: ${headerData.slug} ${headerData.version}\\n"`,
-					`"Report-Msgid-Bugs-To: ${headerData.bugs.email}\\n"`,
-					`"${headerData.bugs.url}\\n"`,
-					`"MIME-Version: 1.0\\n"`,
-					`"Content-Type: text/plain; charset=UTF-8\\n"`,
-					`"Content-Transfer-Encoding: 8bit\\n"`,
-					`"POT-Creation-Date: ${new Date().toISOString()}\\n"`,
-					`"PO-Revision-Date: ${new Date().getFullYear()}-MO-DA HO:MI+ZONE\\n"`,
-					`"Last-Translator: ${headerData.author} <${headerData.email}>\\n"`,
-					`"Language-Team: ${headerData.author} <${headerData.email}>\\n"`,
-					`"X-Generator: ${packageJson.name} ${packageJson.version}\\n"`,
-					`"Language: ${headerData.language}\\n"`,
-					`"Plural-Forms: nplurals=2; plural=(n != 1);\\n"`,
-					// add domain if specified
-					headerData.domain
-						? `"X-Domain: ${headerData.domain}\\n"`
-						: '',
-				],
-			},
-		},
+	return {
+		'Project-Id-Version': `${headerData.slug} ${headerData.version}`,
+		'Report-Msgid-Bugs-To': `${headerData.bugs.email} ${headerData.bugs.url}`,
+		'MIME-Version': `1.0`,
+		'Content-Transfer-Encoding': `8bit`,
+		'content-type': 'text/plain; charset=iso-8859-1',
+		'plural-forms': 'nplurals=2; plural=(n!=1);',
+		'POT-Creation-Date': `${new Date().toISOString()}`,
+		'PO-Revision-Date': `${new Date().getFullYear()}-MO-DA HO:MI+ZONE`,
+		'Last-Translator': `${headerData.author} <${headerData.email}>`,
+		'Language-Team': `${headerData.author} <${headerData.email}>`,
+		'X-Generator': `${pkgJson.name} ${pkgJson.version}`,
+		Language: `${headerData.language}`,
+		// add domain if specified
+		'X-Domain': headerData.domain ? `${headerData.domain}` : '',
 	}
 }
 
@@ -80,12 +63,43 @@ export function generateHeaderComments(args: Args): string {
  * @return {Record<string, string>} The extracted main file data.
  */
 export function extractMainFileData(args: Args): Record<string, string> {
+	let extractedData = {}
 	if (['plugin', 'block', 'generic'].includes(args.domain)) {
-		return extractPhpPluginData(args)
+		extractedData = extractPhpPluginData(args)
 	} else if (['theme', 'theme-block'].includes(args.domain)) {
-		return extractCssThemeData(args)
+		extractedData = extractCssThemeData(args)
+	} else {
+		console.log('No main file detected.')
 	}
 
-	console.log('No main file detected.')
-	return {}
+	return extractedData
+}
+
+/**
+ * Generate translation strings based on the given type and headers.
+ *
+ * @return {Record<string, string>} the generated translation strings
+ * @param args
+ */
+export function translationsHeaders(args: Args) {
+	const { domain, headers } = args as Args
+	const { name, description, author } = headers as {
+		name: string
+		description: string
+		author: string
+	}
+
+	// the main file is the plugin main php file or the css file
+	const fakePath = domain === 'plugin' ? args.slug + '.php' : 'style.css'
+
+	/** the theme and plugin case, the rest is not supported yet */
+	return {
+		name: gentranslation('Name of the ' + domain, name, fakePath),
+		description: gentranslation(
+			'Description of the ' + domain,
+			description,
+			fakePath
+		),
+		author: gentranslation('Author of the ' + domain, author, fakePath),
+	}
 }

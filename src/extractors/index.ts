@@ -3,9 +3,10 @@ import * as fs from 'fs'
 import { type TranslationStrings } from '../types'
 import { getCommentBlock } from '../utils'
 import Parser from 'tree-sitter'
-import { getJsonComment, jsonString, parseJsonFile } from './json'
+import { getJsonComment, parseJsonFile } from './json'
 import { extractFileData } from './text'
 import { doTree } from '../tree'
+import { gentranslation } from './utils'
 
 /**
  * Extracts strings from parsed JSON data.
@@ -17,15 +18,15 @@ import { doTree } from '../tree'
  */
 export function yieldParsedData(
 	parsed: Record<string, string>,
-	filename: string | Parser,
+	filename: 'block.json' | 'theme.json' | 'readme.txt',
 	filepath: string
 ): TranslationStrings {
 	const gettextTranslations: TranslationStrings = {}
 
-	Object.entries(parsed).map(([k, v]) => {
-		const entry = jsonString(
-			getJsonComment(k, filename as 'block.json' | 'theme.json'),
-			v,
+	Object.entries(parsed).forEach(([term, string]) => {
+		const entry = gentranslation(
+			getJsonComment(term, filename),
+			string,
 			filepath
 		)
 
@@ -56,11 +57,24 @@ export async function parseFile(
 
 		if (filename === 'theme.json' || filename === 'block.json') {
 			// read the file and parse it
-			return parseJsonFile({
+
+			const res = await parseJsonFile({
 				sourceCode: fs.readFileSync(fileRealPath, 'utf8'),
 				filename: filename as 'block.json' | 'theme.json',
 				filepath: filePath,
 			})
+
+			// todo: yieldParsedData should be moved to extractors
+			if (res) {
+				// extract the strings from the file and return them as an array of objects
+				return yieldParsedData(
+					res as Record<string, string>,
+					filename,
+					path.resolve(filePath, filename)
+				)
+			} else {
+				return {}
+			}
 		}
 	}
 
@@ -74,7 +88,7 @@ export async function parseFile(
 			const commentBlock = getCommentBlock(fileContent)
 			const parsed = extractFileData(commentBlock)
 
-			// todo: yeldParsedData should be moved to extractors
+			// todo: yieldParsedData should be moved to extractors
 			if (parsed) {
 				// extract the strings from the file and return them as an array of objects
 				return yieldParsedData(parsed, filename, filePath)

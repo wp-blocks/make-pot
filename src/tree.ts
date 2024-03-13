@@ -1,7 +1,6 @@
 import Parser, { type SyntaxNode } from 'tree-sitter'
 import { type TranslationStrings } from './types'
 import { i18nFunctions } from './const'
-import strip from 'strip-comments'
 
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
 import { getParser } from './glob'
@@ -11,7 +10,6 @@ import { stripTranslationMarkup } from './utils'
  * Collect comments from the AST node and its preceding siblings.
  *
  * @param {SyntaxNode} node - The AST node.
- * @param typeToMatch
  * @return {string[]} An array of collected comments.
  */
 function collectComments(node: SyntaxNode): string | undefined {
@@ -26,10 +24,7 @@ function collectComments(node: SyntaxNode): string | undefined {
 				.toLowerCase()
 				.includes('translators')
 		) {
-			const comment = stripTranslationMarkup(
-				currentNode?.previousSibling.text
-			)
-			return comment
+			return stripTranslationMarkup(currentNode?.previousSibling.text)
 		}
 		depth++
 		currentNode = currentNode.parent as SyntaxNode
@@ -95,7 +90,7 @@ export function doTree(
 
 			// Get the whole gettext translation string
 			// const rawI18nStrnig = node.text
-			const [fn, raw] = node.children
+			const [_fn, raw] = node.children
 			const translation: Partial<GetTextTranslation> = {}
 
 			const translationKeys =
@@ -104,10 +99,12 @@ export function doTree(
 			// Get the translation from the arguments (the quoted strings)
 			// Todo: parse the translations string by type of function "fn"
 			raw.children.slice(1, -1).forEach((child, index) => {
+				if (!child.text) return
+				// the translation key (eg. msgid)
 				const currentKey = translationKeys[index]
-				if (/^["|']/.exec(child.text[0]))
-					translation[currentKey as keyof typeof translation] =
-						child.text.slice(1, -1)
+				// the value of that key
+				translation[currentKey as keyof typeof translation] =
+					child.text.slice(1, -1)
 			})
 
 			// Get the translation data

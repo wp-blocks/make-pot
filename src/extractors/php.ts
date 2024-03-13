@@ -1,18 +1,34 @@
-import { pluginHeaders } from './extractors-maps'
+import { pluginHeaders } from '../maps'
+import { getKeyByValue } from './utils'
+import type { Args } from '../types'
+import path from 'path'
+import fs from 'fs'
 
-/**
- * Returns the key of an object based on its value
- *
- * @param object the object that contains the key
- * @param value the key that we want to get
- */
-function getKeyByValue(
-	object: {
-		[x: string]: unknown
-	},
-	value: string
-) {
-	return Object.keys(object).find((key) => object[key] === value) ?? value
+export function extractPhpPluginData(args: Args): Record<string, string> {
+	let fileData: Record<string, string> = {}
+	const folderPhpFile = path.join(args.paths.cwd, `${args.slug}.php`)
+
+	if (fs.existsSync(folderPhpFile)) {
+		const fileContent = fs.readFileSync(folderPhpFile, 'utf8')
+		fileData = parsePHPFile(fileContent)
+
+		if ('name' in fileData) {
+			console.log('Plugin file detected.')
+			console.log(`Plugin file: ${folderPhpFile}`)
+			args.domain = 'plugin'
+
+			return fileData
+		} else {
+			console.log(
+				'Plugin file detected, but no plugin information found.'
+			)
+		}
+	} else {
+		console.log('Plugin file not found.')
+		console.log(`Missing Plugin filename: ${folderPhpFile}`)
+	}
+
+	return {}
 }
 
 /**

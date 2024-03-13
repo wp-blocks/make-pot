@@ -1,17 +1,20 @@
 {
-  "title": "block title",
-  "description": "block description",
-  "keywords": ["block keyword"],
-  "styles": [
-    {
-      "label": "block style label"
-    }
-  ],
-  "variations": [
-    {
-      "title": "block variation title",
-      "description": "block variation description",
-      "keywords": ["block variation keyword"]
-    }
-  ]
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "block/name",
+	"title": "block title",
+	"description": "block description",
+	"keywords": [
+		"block keyword",
+		"block keyword 2",
+		"block keyword 3"
+	],
+	"supports": {
+		"anchor": true,
+		"align": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	}
 }

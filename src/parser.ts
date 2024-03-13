@@ -4,7 +4,6 @@ import { parseFile } from './extractors'
 import { allowedFiles } from './const'
 import { Glob } from 'glob'
 import { getFiles } from './glob'
-import { mergePotObject } from 'gettext-merger'
 import { consolidate } from './consolidate'
 
 /**
@@ -53,12 +52,13 @@ export async function getStrings(
 	for (const file of files) {
 		// get the file extension
 		const ext = file.split('.').pop() || undefined
+
 		// check if the extension is allowed
 		if (!ext || !allowedFiles.includes(ext)) {
 			// log the filepath
 			if (progressBar) {
 				progressBar.increment(1, {
-					filename: `Skipping ${ext} (not a valid file extension)`,
+					filename: `Skipping ${ext} file: ${file}`,
 				})
 			}
 			continue

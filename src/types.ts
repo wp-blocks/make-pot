@@ -1,15 +1,15 @@
-import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './extractors-maps'
+import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './maps'
 import { GetTextTranslation } from 'gettext-parser'
 
 export type ThemeHeadersType = keyof typeof themeHeaders
 export type PluginHeadersType = keyof typeof pluginHeaders
-export type PkgHeadersType = keyof typeof pkgJsonHeaders
+export type PkgHeadersType = keyof pkgJsonHeaders
 
 /**
  * The args headers Object types
  */
 export type PotHeaders =
-	| (typeof pkgJsonHeaders)[PkgHeadersType]
+	| pkgJsonHeaders[PkgHeadersType]
 	| (typeof pluginHeaders)[PluginHeadersType]
 	| (typeof themeHeaders)[ThemeHeadersType]
 	| 'fileComment'
@@ -112,6 +112,10 @@ export interface Args {
 	patterns: Patterns
 }
 
+export interface I18nSchema {
+	[key: string]: string | string[] | I18nSchema | I18nSchema[]
+}
+
 /**
  * Translation string metadata.
  * Gettext format: https://www.gnu.org/savannah-checkouts/gnu/gettext/FAQ.html
@@ -125,6 +129,3 @@ export interface Args {
 export interface TranslationStrings {
 	[msgctxt: string]: { [msgId: string]: GetTextTranslation }
 }
-
-/** a json */
-export type JsonData = Record<string, any>

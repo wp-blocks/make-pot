@@ -18,6 +18,10 @@ export function extractPhpPluginData(args: Args): Record<string, string> {
 			args.domain = 'plugin'
 
 			return fileData
+		} else {
+			console.log(
+				'Plugin file detected, but no plugin information found.'
+			)
 		}
 	} else {
 		console.log('Plugin file not found.')

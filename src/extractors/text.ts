@@ -25,7 +25,7 @@ export function extractFileData(
 			/* Check if the parser has already collected the data from the previous line
 			 and the current line is empty.
 			 If so, skip this line */
-			if (Object.values(data).length > 0 && parts[1] === undefined) {
+			if (parts.length !== 2 && Object.values(data).length > 0) {
 				return
 			}
 			data[parts[0]?.trim()] = parts[1]?.trim()

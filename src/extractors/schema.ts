@@ -40,8 +40,8 @@ export class JsonSchemaExtractor {
 			console.error(`Failed to load schema from ${url}. Using fallback.`)
 			try {
 				const fallbackData = await import(fallback)
-				this.schemaCache[url] = fallbackData
-				return fallbackData
+				this.schemaCache[url] = fallbackData.default
+				return fallbackData.default
 			} catch (fallbackError) {
 				console.error(
 					`Failed to load fallback schema from ${fallback}.`
@@ -95,11 +95,11 @@ export class JsonSchemaExtractor {
 			return {}
 		}
 
-		if (Array.isArray(i18nSchema) && Array.isArray(settings)) {
+		if (Array.isArray(i18nSchema) && typeof settings === 'object') {
 			const result: I18nSchema = {}
-			for (const value of settings) {
+			for (const value in settings) {
 				const extracted = this.extractStringsUsingI18nSchema(
-					i18nSchema[0],
+					i18nSchema[value] as I18nSchema,
 					value
 				)
 				Object.assign(result, extracted)
@@ -107,19 +107,15 @@ export class JsonSchemaExtractor {
 			return result
 		}
 
-		if (typeof i18nSchema === 'object' && Array.isArray(settings)) {
+		if (typeof i18nSchema === 'object' && typeof settings === 'object') {
 			const groupKey = '*'
 			const result: I18nSchema = {}
 			for (const [key, value] of Object.entries(settings)) {
-				if (i18nSchema.hasOwnProperty(key)) {
-					const extracted = this.extractStringsUsingI18nSchema(
-						i18nSchema[key] as I18nSchema,
-						value
-					)
-					if (extracted) {
-						Object.assign(result, extracted)
-					}
-				} else if (i18nSchema.hasOwnProperty(groupKey)) {
+				if (i18nSchema[key]) {
+					result[key] = i18nSchema[key]
+				} else if (
+					Object.prototype.hasOwnProperty.call(i18nSchema, groupKey)
+				) {
 					const extracted = this.extractStringsUsingI18nSchema(
 						i18nSchema[groupKey] as I18nSchema,
 						value

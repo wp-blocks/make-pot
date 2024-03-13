@@ -70,7 +70,7 @@ export async function parseFile(
 				return yieldParsedData(
 					res as Record<string, string>,
 					filename,
-					path.resolve(filePath, filename)
+					path.join(filePath, filename)
 				)
 			} else {
 				return {}

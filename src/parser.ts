@@ -52,6 +52,7 @@ export async function getStrings(
 	for (const file of files) {
 		// get the file extension
 		const ext = file.split('.').pop() || undefined
+
 		// check if the extension is allowed
 		if (!ext || !allowedFiles.includes(ext)) {
 			// log the filepath

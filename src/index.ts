@@ -4,16 +4,14 @@ import { makePot } from './makePot'
 import { getArgs } from './cliArgs'
 
 import yargs from 'yargs'
-
-// TODO: store the package.json data in a variable
-import { name, version } from '../package.json'
+import { pkgJson } from './maps'
 
 /** Main execution */
 const args = getArgs()
 
 if (Object.keys(args).length > 0) {
 	/* print the version */
-	console.log(name + ' version: ' + version)
+	console.log(pkgJson.name + ' version: ' + pkgJson.version)
 	/* capture the start time */
 	const timeStart = new Date()
 	/** make the pot file */

@@ -1,4 +1,4 @@
-import { Args, DomainType } from '../types'
+import { Args } from '../types'
 import { extractPhpPluginData } from './php'
 import { extractCssThemeData } from './css'
 import { gentranslation } from './utils'

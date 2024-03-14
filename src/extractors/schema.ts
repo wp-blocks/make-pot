@@ -33,7 +33,14 @@ export class JsonSchemaExtractor {
 		}
 
 		try {
-			const response = await axios.get(url)
+			const response = await axios.get(url, {
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+					'Cache-Control': 'no-cache',
+					Pragma: 'no-cache',
+				},
+			})
 			this.schemaCache[url] = response.data
 			return response.data
 		} catch (error) {

@@ -5,7 +5,7 @@ import { getCommentBlock } from '../utils'
 import { getJsonComment, parseJsonFile } from './json'
 import { extractFileData } from './text'
 import { doTree } from '../tree'
-import { extractCommaSeparatedStrings, gentranslation } from './utils'
+import { gentranslation } from './utils'
 
 /**
  * Extracts strings from parsed JSON data.
@@ -22,11 +22,17 @@ export function yieldParsedData(
 ): TranslationStrings {
 	const gettextTranslations: TranslationStrings = {}
 
-	Object.entries(parsed).forEach(([term, string]) => {
-		function storeTranslation(value: string) {
+	Object.entries(parsed).forEach(([term, item]) => {
+		/**
+		 * Stores a translation in the gettextTranslations object
+		 *
+		 * @param value The translation string to store
+		 * @param valueKey The key of the translation
+		 */
+		function storeTranslation(value: string, valueKey: string = term) {
 			const entry = gentranslation(
 				getJsonComment(term, filename),
-				value,
+				valueKey,
 				filepath
 			)
 
@@ -36,10 +42,18 @@ export function yieldParsedData(
 			}
 		}
 
-		if (typeof string === 'string') {
-			storeTranslation(string)
+		if (!item) {
+			return
+		} else if (typeof item === 'string') {
+			storeTranslation(item)
+		} else if (Array.isArray(item)) {
+			item.forEach((value) => storeTranslation(value))
 		} else {
-			string.forEach((value) => storeTranslation(value))
+			Object.entries(item).forEach(([key, value]) => {
+				if (typeof value === 'string') {
+					storeTranslation(value, key)
+				}
+			})
 		}
 	})
 
@@ -78,9 +92,8 @@ export async function parseFile(
 					filename,
 					path.join(filePath, filename)
 				)
-			} else {
-				return {}
 			}
+			return {}
 		}
 	}
 
@@ -94,13 +107,15 @@ export async function parseFile(
 			const commentBlock = getCommentBlock(fileContent)
 			const parsed = extractFileData(commentBlock)
 
-			// todo: yieldParsedData should be moved to extractors
 			if (parsed) {
 				// extract the strings from the file and return them as an array of objects
-				return yieldParsedData(parsed, filename, filePath)
-			} else {
-				return {}
+				return yieldParsedData(
+					parsed,
+					filename,
+					path.join(filePath, filename)
+				)
 			}
+			return {}
 		}
 	}
 

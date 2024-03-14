@@ -72,3 +72,25 @@ export const gentranslation = (
 		} as GetTextTranslation['comments'],
 	}
 }
+
+/**
+ * Extracts strings from a comma-separated string
+ *
+ * @param string - The comma-separated string to be extracted
+ */
+export function extractCommaSeparatedStrings(
+	string: string
+): Record<string, string> {
+	const extracted: Record<string, string> = {}
+	const explodedStrings = string.split(',')
+	if (explodedStrings.length > 1) {
+		/** extract the strings from the file and return them as an array of objects */
+		for (const keyword of explodedStrings) {
+			if (keyword[0] && keyword[1]) {
+				extracted[keyword[0]] = keyword[1]
+			}
+		}
+	}
+
+	return extracted
+}

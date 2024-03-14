@@ -16,22 +16,30 @@ import { extractCommaSeparatedStrings, gentranslation } from './utils'
  * @return {TranslationStrings[]} An array of translation strings.
  */
 export function yieldParsedData(
-	parsed: Record<string, string>,
+	parsed: Record<string, string | string[]>,
 	filename: 'block.json' | 'theme.json' | 'readme.txt',
 	filepath: string
 ): TranslationStrings {
 	const gettextTranslations: TranslationStrings = {}
 
 	Object.entries(parsed).forEach(([term, string]) => {
-		const entry = gentranslation(
-			getJsonComment(term, filename),
-			string,
-			filepath
-		)
+		function storeTranslation(value: string) {
+			const entry = gentranslation(
+				getJsonComment(term, filename),
+				value,
+				filepath
+			)
 
-		gettextTranslations[entry.msgctxt ?? ''] = {
-			...(gettextTranslations[entry.msgctxt ?? ''] || {}),
-			[entry.msgid]: entry,
+			gettextTranslations[entry.msgctxt ?? ''] = {
+				...(gettextTranslations[entry.msgctxt ?? ''] || {}),
+				[entry.msgid]: entry,
+			}
+		}
+
+		if (typeof string === 'string') {
+			storeTranslation(string)
+		} else {
+			string.forEach((value) => storeTranslation(value))
 		}
 	})
 
@@ -57,26 +65,16 @@ export async function parseFile(
 		if (filename === 'theme.json' || filename === 'block.json') {
 			// read the file and parse it
 
-			let res = await parseJsonFile({
+			const res = await parseJsonFile({
 				sourceCode: fs.readFileSync(fileRealPath, 'utf8'),
 				filename: filename as 'block.json' | 'theme.json',
 				filepath: filePath,
 			})
 
 			if (res) {
-				if (
-					typeof res.keywords === 'string' &&
-					res.keywords.includes(',')
-				) {
-					res = {
-						...res,
-						...extractCommaSeparatedStrings(res.keywords as string),
-					}
-					delete res.keywords
-				}
 				// extract the strings from the file and return them as an array of objects
 				return yieldParsedData(
-					res as Record<string, string>,
+					res as Record<string, string | string[]>,
 					filename,
 					path.join(filePath, filename)
 				)

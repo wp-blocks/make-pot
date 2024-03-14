@@ -2,7 +2,7 @@ import type { Args } from '../types'
 import path from 'path'
 import fs from 'fs'
 import { GetTextTranslation } from 'gettext-parser'
-import { pluginHeaders } from '../maps'
+import { pkgJsonHeaders } from '../maps'
 
 /**
  * Returns the key of an object based on its value
@@ -14,8 +14,8 @@ import { pluginHeaders } from '../maps'
 export function getKeyByValue(
 	object: Record<string, unknown>,
 	value: string
-): string {
-	return Object.keys(object).find((key) => object[key] === value) ?? value
+): string | undefined {
+	return Object.keys(object).find((key) => object[key] === value) ?? undefined
 }
 
 /**
@@ -27,7 +27,7 @@ export function getKeyByValue(
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
 export function extractPackageJson(args: Args): Record<string, string> {
-	const fields = pluginHeaders
+	const fields = pkgJsonHeaders
 	const pkgJsonMeta: Record<string, string> = {}
 	// read the package.json file
 	const packageJsonPath = args.paths.cwd
@@ -39,10 +39,10 @@ export function extractPackageJson(args: Args): Record<string, string> {
 	 */
 	if (fs.existsSync(packageJsonPath)) {
 		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
-		// extract the fields from the package.json file
 		for (const field of Object.keys(fields)) {
-			if (packageJson[field] !== undefined) {
-				pkgJsonMeta[field] = packageJson[field]
+			// if the field exists in the package.json
+			if (field in packageJson) {
+				pkgJsonMeta[field] = packageJson[field] as string
 			}
 		}
 	}
@@ -71,4 +71,26 @@ export const gentranslation = (
 			reference: filePath,
 		} as GetTextTranslation['comments'],
 	}
+}
+
+/**
+ * Extracts strings from a comma-separated string
+ *
+ * @param string - The comma-separated string to be extracted
+ */
+export function extractCommaSeparatedStrings(
+	string: string
+): Record<string, string> {
+	const extracted: Record<string, string> = {}
+	const explodedStrings = string.split(',')
+	if (explodedStrings.length > 1) {
+		/** extract the strings from the file and return them as an array of objects */
+		for (const keyword of explodedStrings) {
+			if (keyword[0] && keyword[1]) {
+				extracted[keyword[0]] = keyword[1]
+			}
+		}
+	}
+
+	return extracted
 }

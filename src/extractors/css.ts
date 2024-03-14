@@ -3,6 +3,8 @@ import path from 'path'
 import fs from 'fs'
 import { getCommentBlock } from '../utils'
 import { extractFileData } from './text'
+import { pluginHeaders, themeHeaders } from '../maps'
+import { getKeyByValue } from './utils'
 
 /**
  * Extracts the theme data from the style.css file.
@@ -17,12 +19,28 @@ export function extractCssThemeData(args: Args) {
 		const commentBlock = getCommentBlock(fileContent)
 		fileData = extractFileData(commentBlock)
 
-		if ('Name' in fileData) {
+		if ('Theme Name' in fileData) {
 			console.log('Theme stylesheet detected.')
 			console.log(`Theme stylesheet: ${styleCssFile}`)
 			args.domain = 'theme'
 
-			return fileData
+			const themeInfo: Record<string, string> = {}
+
+			// Loop through the theme headers and extract the values with the required format
+			for (const keyValueMatch of Object.entries(fileData)) {
+				// Check if the line matches the expected format
+				if (keyValueMatch && keyValueMatch[0] && keyValueMatch[1]) {
+					// filter the retrieved headers
+					const header = getKeyByValue(
+						themeHeaders,
+						keyValueMatch[0].trim()
+					)
+					if (header === undefined) continue
+					themeInfo[header] = keyValueMatch[1].trim()
+				}
+			}
+
+			return themeInfo
 		}
 	} else {
 		console.log(`Theme stylesheet not found in ${styleCssFile}`)

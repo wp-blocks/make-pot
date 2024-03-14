@@ -1,4 +1,5 @@
 import { removeCommentMarkup } from '../utils'
+import { themeHeaders } from '../maps'
 
 /**
  * Extracts file data from the given file content.
@@ -9,18 +10,14 @@ import { removeCommentMarkup } from '../utils'
  */
 export function extractFileData(
 	fileContent: string,
-	separator = ':'
+	separator: string = ':'
 ): Record<string, string> {
 	const data: Record<string, string> = {}
 
 	// split by lines and trim every line
-	fileContent
-		.trimStart()
-		.split('\n')
-		.map((line) => line.trim())
-		.map((line) => removeCommentMarkup(line))
+	removeCommentMarkup(fileContent)
 		// split each line by break line and trim each part and add to data
-		.forEach((line) => {
+		?.forEach((line) => {
 			const parts = line.split(separator)
 			/* Check if the parser has already collected the data from the previous line
 			 and the current line is empty.

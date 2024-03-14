@@ -34,7 +34,7 @@ function ensureFolderExists(folderPath: string | undefined): string {
  * @param fileContent the content of the .pot file
  * @param dest the path of the .pot file to write
  */
-export async function writeFile(fileContent: string, dest: string) {
+export function writeFile(fileContent: string, dest: string) {
 	if (ensureFolderExists(path.dirname(dest))) {
 		fs.writeFileSync(dest, fileContent)
 	}

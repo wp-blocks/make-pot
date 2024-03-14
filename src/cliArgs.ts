@@ -5,6 +5,50 @@ import * as path from 'path'
 import * as process from 'process'
 import { DEFAULT_EXCLUDED_PATH } from './const'
 import { Args, DomainType } from './types'
+import fs, { accessSync } from 'node:fs'
+
+function isThemeOrPlugin(currentPath: string = '/', slug: string) {
+	const currentWorkingDirectory = currentPath
+
+	try {
+		accessSync(
+			path.join(currentWorkingDirectory, slug + '.php'),
+			fs.constants.R_OK
+		)
+		return 'plugin'
+	} catch (err) {
+		// do nothing
+		console.log(
+			'the current working directory ' +
+				currentWorkingDirectory +
+				' does not contain a ' +
+				slug +
+				'.php file'
+		)
+	}
+
+	try {
+		accessSync(
+			path.join(currentWorkingDirectory, 'style.css'),
+			fs.constants.R_OK
+		)
+		return 'theme'
+	} catch (err) {
+		// do nothing
+		console.log(
+			'the current working directory ' +
+				currentWorkingDirectory +
+				' does not contain a style.css file'
+		)
+	}
+
+	if (currentWorkingDirectory.includes('themes')) {
+		return 'theme'
+	} else if (currentWorkingDirectory.includes('plugins')) {
+		return 'plugin'
+	}
+	return 'generic'
+}
 
 /**
  * Retrieves and returns the command line arguments and options.
@@ -128,19 +172,19 @@ export function parseCliArgs(
 	const inputPath: string = typeof args._[0] === 'string' ? args._[0] : '.'
 	const outputPath: string = typeof args._[1] === 'string' ? args._[1] : '.'
 	const currentWorkingDirectory = process.cwd()
+	const slug =
+		args.slug && typeof args.slug === 'string'
+			? args.slug
+			: path.basename(path.resolve(currentWorkingDirectory, inputPath))
 	const cwd = path.relative(currentWorkingDirectory, inputPath)
 	const out = path.relative(currentWorkingDirectory, outputPath)
 
 	/** get the domain to look for (plugin, theme, etc) */
-	const domain = (args?.domain as DomainType) ?? 'generic'
+	const domain =
+		(args?.domain as DomainType) ?? isThemeOrPlugin(path.resolve(cwd), slug)
 
 	const parsedArgs: Args = {
-		slug:
-			args.slug && typeof args.slug === 'string'
-				? args.slug
-				: path.basename(
-						path.resolve(currentWorkingDirectory, inputPath)
-					),
+		slug: slug,
 		domain: domain,
 		paths: { cwd: cwd, out: out },
 		options: {

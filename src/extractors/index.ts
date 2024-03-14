@@ -2,11 +2,10 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { type TranslationStrings } from '../types'
 import { getCommentBlock } from '../utils'
-import Parser from 'tree-sitter'
 import { getJsonComment, parseJsonFile } from './json'
 import { extractFileData } from './text'
 import { doTree } from '../tree'
-import { gentranslation } from './utils'
+import { extractCommaSeparatedStrings, gentranslation } from './utils'
 
 /**
  * Extracts strings from parsed JSON data.
@@ -17,22 +16,30 @@ import { gentranslation } from './utils'
  * @return {TranslationStrings[]} An array of translation strings.
  */
 export function yieldParsedData(
-	parsed: Record<string, string>,
+	parsed: Record<string, string | string[]>,
 	filename: 'block.json' | 'theme.json' | 'readme.txt',
 	filepath: string
 ): TranslationStrings {
 	const gettextTranslations: TranslationStrings = {}
 
 	Object.entries(parsed).forEach(([term, string]) => {
-		const entry = gentranslation(
-			getJsonComment(term, filename),
-			string,
-			filepath
-		)
+		function storeTranslation(value: string) {
+			const entry = gentranslation(
+				getJsonComment(term, filename),
+				value,
+				filepath
+			)
 
-		gettextTranslations[entry.msgctxt ?? ''] = {
-			...(gettextTranslations[entry.msgctxt ?? ''] || {}),
-			[entry.msgid]: entry,
+			gettextTranslations[entry.msgctxt ?? ''] = {
+				...(gettextTranslations[entry.msgctxt ?? ''] || {}),
+				[entry.msgid]: entry,
+			}
+		}
+
+		if (typeof string === 'string') {
+			storeTranslation(string)
+		} else {
+			string.forEach((value) => storeTranslation(value))
 		}
 	})
 
@@ -64,11 +71,10 @@ export async function parseFile(
 				filepath: filePath,
 			})
 
-			// todo: yieldParsedData should be moved to extractors
 			if (res) {
 				// extract the strings from the file and return them as an array of objects
 				return yieldParsedData(
-					res as Record<string, string>,
+					res as Record<string, string | string[]>,
 					filename,
 					path.join(filePath, filename)
 				)

@@ -3,13 +3,13 @@ import { GetTextTranslation } from 'gettext-parser'
 
 export type ThemeHeadersType = keyof typeof themeHeaders
 export type PluginHeadersType = keyof typeof pluginHeaders
-export type PkgHeadersType = keyof pkgJsonHeaders
+export type PkgHeadersType = keyof typeof pkgJsonHeaders
 
 /**
  * The args headers Object types
  */
 export type PotHeaders =
-	| pkgJsonHeaders[PkgHeadersType]
+	| (typeof pkgJsonHeaders)[PkgHeadersType]
 	| (typeof pluginHeaders)[PluginHeadersType]
 	| (typeof themeHeaders)[ThemeHeadersType]
 	| 'fileComment'

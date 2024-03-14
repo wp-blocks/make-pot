@@ -84,24 +84,7 @@ export async function getStrings(
 		if (progressBar) progressBar.stop()
 	})
 
-	const mergedResult = consolidate(results.filter((r) => r !== null))
-
-	if (!args.options?.silent) {
-		console.log(
-			'📝 Found',
-			Object.values(mergedResult).length,
-			'group of strings in',
-			results.length,
-			'files.\n',
-			'In total ' +
-				Object.values(mergedResult)
-					.map((v) => Object.keys(v).length)
-					.reduce((acc, val) => acc + val, 0) +
-				' strings were found'
-		)
-	}
-
-	return mergedResult
+	return consolidate(results.filter((r) => r !== null))
 }
 
 /**

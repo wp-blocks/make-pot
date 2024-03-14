@@ -24,14 +24,14 @@ async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
 		console.log('📝 Starting makePot for ', args?.slug)
 		console.log('🔍 Extracting strings from', args.paths)
-		console.log('💢 With args', args.options)
+		console.log('💢 With options', args.options)
 	}
 
 	/** extract the strings from the files */
 	const stringsJson = await runExtract(args)
 
 	if (!args.options?.silent) {
-		console.log('✅ Done!')
+		console.log('🎉 Done!')
 
 		console.log(
 			'Memory usage:',
@@ -71,6 +71,21 @@ async function exec(args: Args): Promise<string> {
 		{ '': potDefinitions } as TranslationStrings,
 		stringsJson
 	)
+
+	if (!args.options?.silent) {
+		console.log(
+			'📝 Found',
+			Object.values(translationsUnion).length,
+			'group of strings in',
+			translationsUnion.length,
+			'files.\n',
+			'In total ' +
+				Object.values(translationsUnion)
+					.map((v) => Object.keys(v).length)
+					.reduce((acc, val) => acc + val, 0) +
+				' strings were found'
+		)
+	}
 
 	// generate the pot file json
 	const getTextTranslations: GetTextTranslations = {

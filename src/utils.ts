@@ -1,4 +1,3 @@
-import { GetTextTranslation } from 'gettext-parser'
 import path from 'path'
 import { TranslationStrings } from './types'
 
@@ -14,13 +13,13 @@ export function getCommentBlock(input: string): string {
 }
 
 /**
- * A function that removes comment markup from a given string.
+ * A function that starts to capture the text after the first letter.
  *
  * @param {string} input - The input string with comment markup.
  * @return {string} - The input string without comment markup.
  */
-export function removeCommentMarkup(input: string): string {
-	return input.replace(/\/\*[\s\S]*?\*\/|\/\/.*/gm, '')
+export function removeCommentMarkup(input: string): string[] | null {
+	return input.match(/[a-zA-Z].*/gm)
 }
 
 /**

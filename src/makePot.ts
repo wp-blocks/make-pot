@@ -123,8 +123,6 @@ export async function makePot(args: Args) {
 			`${args?.slug}.${args.options?.json ? 'json' : 'pot'}`
 		)
 	)
-		.catch((err) => {
-			console.log(err)
-		})
-		.finally(() => jsonTranslations)
+
+	return jsonTranslations
 }

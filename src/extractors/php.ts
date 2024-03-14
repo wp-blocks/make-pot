@@ -51,12 +51,12 @@ export function parsePHPFile(phpContent: string): Record<string, string> {
 
 			// Check if the line matches the expected format
 			if (keyValueMatch && keyValueMatch[1] && keyValueMatch[2]) {
-				let header = keyValueMatch[1].trim()
 				// filter the retrieved headers
-				header =
-					pluginHeaders[header as keyof typeof pluginHeaders] ??
-					header
-				header = getKeyByValue(pluginHeaders, header)
+				const header = getKeyByValue(
+					pluginHeaders,
+					keyValueMatch[1].trim()
+				)
+				if (header === undefined) continue
 				pluginInfo[header] = keyValueMatch[2].trim()
 			}
 		}

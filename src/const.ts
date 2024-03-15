@@ -1,3 +1,30 @@
+import * as blocki18n from './assets/block-i18n.json'
+import * as themei18n from './assets/theme-i18n.json'
+import * as packagei18n from './assets/package-i18n.json'
+import * as wpThemei18n from './assets/wp-theme-i18n.json'
+import * as wpPlugini18n from './assets/wp-plugin-i18n.json'
+import { name, version, description } from '../package.json'
+
+/**
+ *  The makepot package.json file data
+ *  @return {
+ *      name: string,
+ *      version: string,
+ *      description: string
+ *  } - The package.json data
+ */
+export const pkgJson: Record<string, unknown> = {
+	name,
+	version,
+	description,
+}
+
+export const themeJson = themei18n
+export const blockJson = blocki18n
+export const pkgJsonHeaders = packagei18n
+export const pluginHeaders = wpThemei18n
+export const themeHeaders = wpPlugini18n
+
 /**
  * The default list of paths to exclude from the pot file.
  * @link https://www.npmjs.com/package/glob#glob-primer
@@ -26,10 +53,8 @@ export const allowedFiles = [
 	'mjs',
 	'cjs',
 	'txt',
-	'css',
 	'html',
 	'json',
-	'md',
 ]
 /**
  * The default functions to use for i18n.

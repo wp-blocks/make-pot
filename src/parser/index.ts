@@ -12,10 +12,5 @@ import { getStrings } from './process'
 export async function runExtract(args: Args): Promise<TranslationStrings[]> {
 	const pattern = getPatterns(args)
 	const files = await getFiles(args, pattern)
-	console.log(
-		'Found ',
-		Object.values(files).length,
-		'files that match the pattern'
-	)
 	return await getStrings(args, files)
 }

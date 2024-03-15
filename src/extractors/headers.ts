@@ -2,7 +2,7 @@ import { Args } from '../types'
 import { extractPhpPluginData } from './php'
 import { extractCssThemeData } from './css'
 import { gentranslation } from './utils'
-import { pkgJson } from '../maps'
+import { pkgJson } from '../const'
 
 /**
  * Generates a POT header for a given set of arguments.

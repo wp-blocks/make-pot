@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import { getCommentBlock } from '../utils'
 import { extractFileData } from './text'
-import { pluginHeaders, themeHeaders } from '../maps'
+import { themeHeaders } from '../const'
 import { getKeyByValue } from './utils'
 
 /**

@@ -114,8 +114,8 @@ export function doTree(
 				msgid_plural: translation.msgid_plural ?? '',
 				msgstr: [], // msgstr is the translation n your language - for this pot don't need it
 				comments: {
-					reference: `${filepath}:${node.startPosition.row + 1}`,
 					translator: collectComments(node) ?? '',
+					reference: `${filepath}:${node.startPosition.row + 1}`,
 				} as GetTextComment,
 			}
 

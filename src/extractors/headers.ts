@@ -83,10 +83,12 @@ export function extractMainFileData(args: Args): Record<string, string> {
  */
 export function translationsHeaders(args: Args) {
 	const { domain, headers } = args as Args
-	const { name, description, author } = headers as {
+	const { name, description, author, authorUri, url } = headers as {
 		name: string
 		description: string
 		author: string
+		authorUri: string
+		url: string
 	}
 
 	// the main file is the plugin main php file or the css file
@@ -94,12 +96,18 @@ export function translationsHeaders(args: Args) {
 
 	/** the theme and plugin case, the rest is not supported yet */
 	return {
-		name: gentranslation('Name of the ' + domain, name, fakePath),
-		description: gentranslation(
+		[name]: gentranslation('Name of the ' + domain, name, fakePath),
+		[url]: gentranslation('Url of the ' + domain, url, fakePath),
+		[description]: gentranslation(
 			'Description of the ' + domain,
 			description,
 			fakePath
 		),
-		author: gentranslation('Author of the ' + domain, author, fakePath),
+		[author]: gentranslation(domain + ' author', author, fakePath),
+		[authorUri]: gentranslation(
+			'Author of the ' + domain,
+			authorUri,
+			fakePath
+		),
 	}
 }

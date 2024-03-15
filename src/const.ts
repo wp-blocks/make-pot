@@ -22,8 +22,8 @@ export const pkgJson: Record<string, unknown> = {
 export const themeJson = themei18n
 export const blockJson = blocki18n
 export const pkgJsonHeaders = packagei18n
-export const pluginHeaders = wpThemei18n
-export const themeHeaders = wpPlugini18n
+export const pluginHeaders = wpPlugini18n
+export const themeHeaders = wpThemei18n
 
 /**
  * The default list of paths to exclude from the pot file.

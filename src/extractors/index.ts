@@ -1,6 +1,5 @@
 import * as path from 'path'
 import { type TranslationStrings } from '../types'
-import { parseReadmeCallback } from './text'
 import { readFileAsync } from '../fs'
 import { parseJsonCallback } from './json'
 import { doTree } from '../parser/tree'
@@ -24,12 +23,6 @@ export async function parseFile(
 				return parseJsonCallback(sourceCode, filePath, filename)
 			})
 		}
-	}
-
-	if (filename === 'readme.txt') {
-		return readFileAsync(fileRealPath).then((sourceCode) => {
-			return parseReadmeCallback(sourceCode, filePath)
-		})
 	}
 
 	if (['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'php'].includes(ext)) {

@@ -24,8 +24,10 @@ export async function makePot(args: Args): Promise<string> {
 		...pkgData,
 		...{
 			name: metadata.name,
+			url: metadata.url,
 			description: metadata.description,
 			author: metadata.author,
+			authorUri: metadata.authorUri,
 		},
 	} as Args['headers']
 

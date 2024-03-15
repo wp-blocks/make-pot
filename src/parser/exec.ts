@@ -1,6 +1,5 @@
-import { Args, TranslationStrings } from '../types'
+import { Args, type TranslationStrings } from '../types'
 import { runExtract } from './index'
-import { consolidate } from './consolidate'
 import { cpus, totalmem } from 'node:os'
 import { generateHeader, translationsHeaders } from '../extractors/headers'
 import gettextParser, {
@@ -8,6 +7,7 @@ import gettextParser, {
 	GetTextTranslations,
 } from 'gettext-parser'
 import { advancedObjectMerge } from '../utils'
+import { consolidate } from './consolidate'
 
 /**
  * Generates a copyright comment for the specified slug and license.
@@ -48,11 +48,6 @@ export async function exec(args: Args): Promise<string> {
 		(value) => value && Object.values(value).length
 	)
 
-	/**
-	 * Consolidate the strings to a single object so that the final pot file can be generated
-	 */
-	const consolidatedStrings = consolidate(stringsJson as TranslationStrings[])
-
 	if (!args.options?.silent) {
 		console.log(
 			'Memory usage:',
@@ -79,22 +74,24 @@ export async function exec(args: Args): Promise<string> {
 
 	/** The pot file header contains the data about the plugin or theme */
 	const potHeader = generateHeader(args)
+
 	const copyrightComment =
-		args.options?.fileComment ??
+		args.options?.fileComment ||
 		getCopyright(
 			args.slug,
 			(args.headers?.license as string) ?? 'GPL v2 or later'
 		)
 
 	/** We need to find the main file data so that the definitions are extracted from the plugin or theme files */
-	const potDefinitions = translationsHeaders(args)
+	const potDefinitions: TranslationStrings = { '': translationsHeaders(args) }
 
-	const translationsUnion: {
-		[msgctxt: string]: { [msgId: string]: GetTextTranslation }
-	} = advancedObjectMerge(
-		{ '': potDefinitions } as TranslationStrings,
-		consolidatedStrings
-	)
+	/**
+	 * Consolidate the strings to a single object so that the final pot file can be generated
+	 */
+	const translationsUnion: GetTextTranslations['translations'] = consolidate([
+		potDefinitions,
+		...stringsJson,
+	])
 
 	if (!args.options?.silent) {
 		console.log(

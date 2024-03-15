@@ -1,4 +1,4 @@
-import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './maps'
+import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './const'
 import { GetTextTranslation } from 'gettext-parser'
 
 export type ThemeHeadersType = keyof typeof themeHeaders

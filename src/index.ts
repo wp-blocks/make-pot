@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { makePot } from './makePot'
+import { makePot } from './parser/makePot'
 
 import { getArgs } from './cliArgs'
 
 import yargs from 'yargs'
-import { pkgJson } from './maps'
+import { pkgJson } from './const'
 
 /** Main execution */
 const args = getArgs()

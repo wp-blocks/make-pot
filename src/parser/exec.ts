@@ -10,6 +10,23 @@ import gettextParser, {
 import { advancedObjectMerge } from '../utils'
 
 /**
+ * Generates a copyright comment for the specified slug and license.
+ *
+ * @param {string} slug - The slug to include in the copyright comment
+ * @param {string} [license='GPL v2 or later'] - The license to use in the copyright comment
+ * @return {string} The generated copyright comment
+ */
+export function getCopyright(
+	slug: string,
+	license: string = 'GPL v2 or later'
+): string {
+	const copyrightComment =
+		`# Copyright (C) ${new Date().getFullYear()} ${slug}\n` +
+		`# This file is distributed under the ${license} license.`
+	return copyrightComment
+}
+
+/**
  * Runs the parser and generates the pot file or the json file based on the command line arguments
  *
  * @param {Args} args - The command line arguments
@@ -63,8 +80,11 @@ export async function exec(args: Args): Promise<string> {
 	/** The pot file header contains the data about the plugin or theme */
 	const potHeader = generateHeader(args)
 	const copyrightComment =
-		`# Copyright (C) ${new Date().getFullYear()} ${args.slug}\n` +
-		`# This file is distributed under the ${args.headers?.license ?? 'GPL v2 or later'} license.`
+		args.options?.fileComment ??
+		getCopyright(
+			args.slug,
+			(args.headers?.license as string) ?? 'GPL v2 or later'
+		)
 
 	/** We need to find the main file data so that the definitions are extracted from the plugin or theme files */
 	const potDefinitions = translationsHeaders(args)

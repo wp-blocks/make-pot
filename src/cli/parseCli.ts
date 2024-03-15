@@ -5,6 +5,7 @@ import * as process from 'process'
 import { DEFAULT_EXCLUDED_PATH } from '../const'
 import { Args, DomainType } from '../types'
 import fs, { accessSync } from 'node:fs'
+import { getCopyright } from '../parser/exec'
 
 function isThemeOrPlugin(currentPath: string = '/', slug: string) {
 	const currentWorkingDirectory = currentPath
@@ -79,11 +80,12 @@ export function parseCliArgs(
 		paths: { cwd: cwd, out: out },
 		options: {
 			ignoreDomain: !!args?.ignoreDomain,
-			packageName: String(args.packageName ?? ''),
+			packageName: String(args.packageName),
 			silent: !!args.silent,
 			json: !!args.json,
 			location: !!args?.location,
 			output: !!args?.output,
+			fileComment: String(args?.fileComment),
 			// Config: skip, comment and package name
 			skip: {
 				js: !!args.skipJs,

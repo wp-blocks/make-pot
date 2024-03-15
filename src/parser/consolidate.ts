@@ -1,5 +1,5 @@
 // flatten the results merging results into one array of strings
-import type { TranslationStrings } from './types'
+import type { TranslationStrings } from '../types'
 import { GetTextComment } from 'gettext-parser'
 
 /**

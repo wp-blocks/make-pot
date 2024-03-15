@@ -1,6 +1,6 @@
 import Parser from 'tree-sitter'
 import path from 'path'
-import type { Args, Patterns } from './types'
+import type { Args, Patterns } from '../types'
 import { Glob, Path } from 'glob'
 import { minimatch } from 'minimatch'
 
@@ -10,7 +10,7 @@ import * as Javascript from 'tree-sitter-javascript'
 import * as Ts from 'tree-sitter-typescript'
 // @ts-ignore
 import * as Php from 'tree-sitter-php'
-import { detectPatternType } from './utils'
+import { detectPatternType } from '../utils'
 
 /**
  * Return the parser based on the file extension

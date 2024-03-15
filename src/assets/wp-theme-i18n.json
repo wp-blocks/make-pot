@@ -1,0 +1,11 @@
+{
+	"name": "Theme Name",
+	"url": "Theme URI",
+	"description": "Description",
+	"author": "Author",
+	"authorUrl": "Author URI",
+	"version": "Version",
+	"license": "License",
+	"domainPath": "Domain Path",
+	"textDomain": "Text Domain"
+}

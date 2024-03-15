@@ -1,0 +1,13 @@
+{
+	"name": "Plugin Name",
+	"url": "Plugin URI",
+	"description": "Description",
+	"version": "Version",
+	"author": "Author",
+	"authorUrl": "Author URI",
+	"license": "License",
+	"licenseUri": "License URI",
+	"updateUri": "Update URI",
+	"domainPath": "Domain Path",
+	"textDomain": "Text Domain"
+}

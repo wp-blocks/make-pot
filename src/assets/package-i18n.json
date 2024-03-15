@@ -1,11 +1,11 @@
 {
-	"name": "string",
-	"url": "string",
-	"description": "string",
-	"author": "string",
-	"authorEmail": "string",
-	"version": "string",
-	"bugs": "string",
-	"license": "string",
-	"repository": "string"
+	"name": "name",
+	"url": "url",
+	"description": "description",
+	"author": "author",
+	"authorEmail": "authorEmail",
+	"version": "version",
+	"bugs": "bugs",
+	"license": "license",
+	"repository": "repository"
 }

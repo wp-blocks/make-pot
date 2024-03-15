@@ -1,5 +1,5 @@
 import path from 'path'
-import { TranslationStrings } from './types'
+import { TranslationStrings } from '../types'
 
 /**
  * A function that removes comment markup from a given string.

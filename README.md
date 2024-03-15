@@ -2,7 +2,7 @@
 
 `make-pot` is a Node.js module designed to generate the `.pot` file for your WordPress plugin or theme. This file serves as the basis for internationalization, allowing translators to localize your plugin or theme into different languages.
 
-Extract strings from your WordPress plugin or theme and generate a `.pot` file. Works with `js`, `jx`, `ts`, `tsx`, `php`, `blade`, `txt`, `json` with a custom schema for theme and block.json files.
+Extract strings from your WordPress plugin or theme and generate a `.pot` file. Works with `js`, `jx`, `ts`, `tsx`, `cjs`, `mjs`,  `php`, `blade`, `txt`, `json` with a custom schema for theme and block.json files.
 
 ### Installation
 

@@ -1,5 +1,6 @@
-import { removeCommentMarkup } from '../utils'
-import { themeHeaders } from '../maps'
+import { getCommentBlock, removeCommentMarkup } from '../utils'
+import { yieldParsedData } from './utils'
+import path from 'path'
 
 /**
  * Extracts file data from the given file content.
@@ -29,4 +30,27 @@ export function extractFileData(
 		})
 
 	return data
+}
+
+/**
+ * Parses the content of a readme file and extracts specific data.
+ *
+ * @param {string} fileContent - the content of the readme file
+ * @param {string} filePath - the path to the readme file
+ * @return {Promise<any>} an array of objects containing extracted data from the file
+ */
+export async function parseReadmeCallback(
+	fileContent: string,
+	filePath: string
+) {
+	// read the readme file and parse it
+	const commentBlock = getCommentBlock(fileContent)
+	const parsed = extractFileData(commentBlock)
+
+	// extract the strings from the file and return them as an array of objects
+	return yieldParsedData(
+		parsed,
+		'readme.txt',
+		path.join(filePath, 'readme.txt')
+	)
 }

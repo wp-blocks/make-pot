@@ -1,38 +1,59 @@
-import { type Args, TranslationStrings } from './types'
-import {
-	extractMainFileData,
-	generateHeader,
-	translationsHeaders,
-} from './extractors/headers'
-import { writeFile } from './fs'
-import { runExtract } from './parser'
+import { Args, TranslationStrings } from '../types'
+import { runExtract } from './index'
+import { consolidate } from './consolidate'
 import { cpus, totalmem } from 'node:os'
+import { generateHeader, translationsHeaders } from '../extractors/headers'
 import gettextParser, {
 	GetTextTranslation,
 	GetTextTranslations,
 } from 'gettext-parser'
-import path from 'path'
-import { extractPackageJson } from './extractors/utils'
-import { advancedObjectMerge } from './utils'
+import { advancedObjectMerge } from '../utils'
+
+/**
+ * Generates a copyright comment for the specified slug and license.
+ *
+ * @param {string} slug - The slug to include in the copyright comment
+ * @param {string} [license='GPL v2 or later'] - The license to use in the copyright comment
+ * @return {string} The generated copyright comment
+ */
+export function getCopyright(
+	slug: string,
+	license: string = 'GPL v2 or later'
+): string {
+	const copyrightComment =
+		`# Copyright (C) ${new Date().getFullYear()} ${slug}\n` +
+		`# This file is distributed under the ${license} license.`
+	return copyrightComment
+}
+
 /**
  * Runs the parser and generates the pot file or the json file based on the command line arguments
  *
  * @param {Args} args - The command line arguments
  * @return {Promise<string>} - A promise that resolves with the generated pot file
  */
-async function exec(args: Args): Promise<string> {
+export async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
 		console.log('📝 Starting makePot for ', args?.slug)
 		console.log('🔍 Extracting strings from', args.paths)
 		console.log('💢 With options', args.options)
 	}
 
-	/** extract the strings from the files */
-	const stringsJson = await runExtract(args)
+	/**
+	 * Extract the strings from the files
+	 */
+	let stringsJson = await runExtract(args)
+	console.log('🎉 Done!')
+	stringsJson = stringsJson.filter(
+		(value) => value && Object.values(value).length
+	)
+
+	/**
+	 * Consolidate the strings to a single object so that the final pot file can be generated
+	 */
+	const consolidatedStrings = consolidate(stringsJson as TranslationStrings[])
 
 	if (!args.options?.silent) {
-		console.log('🎉 Done!')
-
 		console.log(
 			'Memory usage:',
 			(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
@@ -59,8 +80,11 @@ async function exec(args: Args): Promise<string> {
 	/** The pot file header contains the data about the plugin or theme */
 	const potHeader = generateHeader(args)
 	const copyrightComment =
-		`# Copyright (C) ${new Date().getFullYear()} ${args.slug}\n` +
-		`# This file is distributed under the ${args.headers?.license ?? 'GPL v2 or later'} license.`
+		args.options?.fileComment ??
+		getCopyright(
+			args.slug,
+			(args.headers?.license as string) ?? 'GPL v2 or later'
+		)
 
 	/** We need to find the main file data so that the definitions are extracted from the plugin or theme files */
 	const potDefinitions = translationsHeaders(args)
@@ -69,7 +93,7 @@ async function exec(args: Args): Promise<string> {
 		[msgctxt: string]: { [msgId: string]: GetTextTranslation }
 	} = advancedObjectMerge(
 		{ '': potDefinitions } as TranslationStrings,
-		stringsJson
+		consolidatedStrings
 	)
 
 	if (!args.options?.silent) {
@@ -77,7 +101,7 @@ async function exec(args: Args): Promise<string> {
 			'📝 Found',
 			Object.values(translationsUnion).length,
 			'group of strings in',
-			translationsUnion.length,
+			stringsJson.length,
 			'files.\n',
 			'In total ' +
 				Object.values(translationsUnion)
@@ -101,43 +125,4 @@ async function exec(args: Args): Promise<string> {
 
 	// return the pot file as a string with the header
 	return copyrightComment + '\n' + pluginTranslations
-}
-
-/**
- * Generates a pot file for localization.
- *
- * @param args - the command line arguments
- * @return {Promise<void>} - a promise that resolves when the pot file is generated
- */
-export async function makePot(args: Args) {
-	/** collect metadata from the get package json */
-	const pkgData = extractPackageJson(args)
-
-	/** get metadata from the main file (theme and plugin) */
-	const metadata = extractMainFileData(args)
-
-	/** Merge the metadata to get a single object with all the headers */
-	args.headers = {
-		...args.headers,
-		...pkgData,
-		...{
-			name: metadata.name,
-			description: metadata.description,
-			author: metadata.author,
-		},
-	} as Args['headers']
-
-	/** generate the pot file */
-	const jsonTranslations = await exec(args)
-
-	writeFile(
-		jsonTranslations,
-		path.join(
-			process.cwd(),
-			args.paths.out,
-			`${args?.slug}.${args.options?.json ? 'json' : 'pot'}`
-		)
-	)
-
-	return jsonTranslations
 }

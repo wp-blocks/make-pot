@@ -1,0 +1,11 @@
+{
+	"name": "name",
+	"url": "url",
+	"description": "description",
+	"author": "author",
+	"authorEmail": "authorEmail",
+	"version": "version",
+	"bugs": "bugs",
+	"license": "license",
+	"repository": "repository"
+}

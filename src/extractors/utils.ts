@@ -1,8 +1,6 @@
-import type { Args } from '../types'
-import path from 'path'
-import fs from 'fs'
 import { GetTextTranslation } from 'gettext-parser'
-import { pkgJsonHeaders } from '../maps'
+import type { TranslationStrings } from '../types'
+import { getJsonComment } from './json'
 
 /**
  * Returns the key of an object based on its value
@@ -16,37 +14,6 @@ export function getKeyByValue(
 	value: string
 ): string | undefined {
 	return Object.keys(object).find((key) => object[key] === value) ?? undefined
-}
-
-/**
- * Extracts package data from the given arguments and returns a record
- * containing the specified fields from the package.json file.
- *
- * @param {Args} args - The arguments for extracting package data.
- *
- * @return {Record<string, string>} - A record containing the extracted package data.
- */
-export function extractPackageJson(args: Args): Record<string, string> {
-	const fields = pkgJsonHeaders
-	const pkgJsonMeta: Record<string, string> = {}
-	// read the package.json file
-	const packageJsonPath = args.paths.cwd
-		? path.join(args.paths.cwd, 'package.json')
-		: 'package.json'
-
-	/**
-	 *  check if the package.json extract the fields from the package.json file
-	 */
-	if (fs.existsSync(packageJsonPath)) {
-		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
-		for (const field of Object.keys(fields)) {
-			// if the field exists in the package.json
-			if (field in packageJson) {
-				pkgJsonMeta[field] = packageJson[field] as string
-			}
-		}
-	}
-	return pkgJsonMeta
 }
 
 /**
@@ -74,23 +41,57 @@ export const gentranslation = (
 }
 
 /**
- * Extracts strings from a comma-separated string
+ * Extracts strings from parsed JSON data.
  *
- * @param string - The comma-separated string to be extracted
+ * @param {Record<string, any> | Parser.SyntaxNode} parsed - The parsed JSON data or syntax node.
+ * @param {string | Parser} filename - The filename or parser.
+ * @param filepath - the path to the file being parsed
+ * @return {TranslationStrings[]} An array of translation strings.
  */
-export function extractCommaSeparatedStrings(
-	string: string
-): Record<string, string> {
-	const extracted: Record<string, string> = {}
-	const explodedStrings = string.split(',')
-	if (explodedStrings.length > 1) {
-		/** extract the strings from the file and return them as an array of objects */
-		for (const keyword of explodedStrings) {
-			if (keyword[0] && keyword[1]) {
-				extracted[keyword[0]] = keyword[1]
+export function yieldParsedData(
+	parsed: Record<string, string | string[]>,
+	filename: 'block.json' | 'theme.json' | 'readme.txt',
+	filepath: string
+): TranslationStrings {
+	if (!parsed) {
+		return {}
+	}
+	const gettextTranslations: TranslationStrings = {}
+
+	Object.entries(parsed).forEach(([term, item]) => {
+		/**
+		 * Stores a translation in the gettextTranslations object
+		 *
+		 * @param value The translation string to store
+		 * @param valueKey The key of the translation
+		 */
+		function storeTranslation(value: string, valueKey: string = term) {
+			const entry = gentranslation(
+				getJsonComment(term, filename),
+				valueKey,
+				filepath
+			)
+
+			gettextTranslations[entry.msgctxt ?? ''] = {
+				...(gettextTranslations[entry.msgctxt ?? ''] || {}),
+				[entry.msgid]: entry,
 			}
 		}
-	}
 
-	return extracted
+		if (!item) {
+			return
+		} else if (typeof item === 'string') {
+			storeTranslation(item)
+		} else if (Array.isArray(item)) {
+			item.forEach((value) => storeTranslation(value))
+		} else {
+			Object.entries(item).forEach(([key, value]) => {
+				if (typeof value === 'string') {
+					storeTranslation(value, key)
+				}
+			})
+		}
+	})
+
+	return gettextTranslations
 }

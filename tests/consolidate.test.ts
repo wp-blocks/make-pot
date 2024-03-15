@@ -1,5 +1,5 @@
 import { describe, expect } from '@jest/globals'
-import { consolidate } from '../src/consolidate'
+import { consolidate } from '../src/parser/consolidate'
 import { GetTextComment } from 'gettext-parser'
 
 describe('consolidate', () => {

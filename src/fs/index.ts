@@ -1,5 +1,5 @@
 import * as path from 'path'
-import * as fs from 'fs'
+import fs from 'node:fs'
 
 /**
  * Ensures that a folder exists at the specified path.
@@ -38,4 +38,8 @@ export function writeFile(fileContent: string, dest: string) {
 	if (ensureFolderExists(path.dirname(dest))) {
 		fs.writeFileSync(dest, fileContent)
 	}
+}
+
+export async function readFileAsync(path: string): Promise<string> {
+	return fs.promises.readFile(path, 'utf-8')
 }

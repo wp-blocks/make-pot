@@ -1,4 +1,4 @@
-import { pluginHeaders } from '../maps'
+import { pluginHeaders } from '../const'
 import { getKeyByValue } from './utils'
 import type { Args } from '../types'
 import path from 'path'

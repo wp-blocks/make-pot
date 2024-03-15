@@ -1,4 +1,4 @@
-import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './maps'
+import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './const'
 import { GetTextTranslation } from 'gettext-parser'
 
 export type ThemeHeadersType = keyof typeof themeHeaders
@@ -12,9 +12,7 @@ export type PotHeaders =
 	| (typeof pkgJsonHeaders)[PkgHeadersType]
 	| (typeof pluginHeaders)[PluginHeadersType]
 	| (typeof themeHeaders)[ThemeHeadersType]
-	| 'fileComment'
-	| 'packageName'
-	| 'packageVersion'
+	| 'license'
 
 // type is the value of the themeHeader Object
 export type DomainType =
@@ -99,6 +97,7 @@ export interface Args {
 		location?: boolean
 		packageName?: string
 		output?: boolean
+		fileComment?: string
 		skip: {
 			js?: boolean
 			php?: boolean

@@ -1,10 +1,10 @@
 import Parser, { type SyntaxNode } from 'tree-sitter'
-import { type TranslationStrings } from './types'
-import { i18nFunctions } from './const'
+import { type TranslationStrings } from '../types'
+import { i18nFunctions } from '../const'
 
 import { GetTextComment, GetTextTranslation } from 'gettext-parser'
-import { getParser } from './glob'
-import { stripTranslationMarkup } from './utils'
+import { getParser } from '../fs/glob'
+import { stripTranslationMarkup } from '../utils'
 
 /**
  * Collect comments from the AST node and its preceding siblings.
@@ -89,7 +89,7 @@ export function doTree(
 			}
 
 			// Get the whole gettext translation string
-			// const rawI18nStrnig = node.text
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const [_fn, raw] = node.children
 			const translation: Partial<GetTextTranslation> = {}
 

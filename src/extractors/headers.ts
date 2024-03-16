@@ -24,7 +24,7 @@ export function generateHeader(args: Args): Record<string, string> {
 	const headerData = {
 		...args.headers,
 		author: args.headers?.author || 'AUTHOR',
-		slug: args.headers?.slug || 'PLUGIN NAME',
+		slug: args.slug || 'PLUGIN NAME',
 		email: args.headers?.email || 'EMAIL',
 		license: args.headers?.license || 'gpl-2.0 or later',
 		version: args.headers?.version || 'VERSION',

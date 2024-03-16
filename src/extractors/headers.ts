@@ -1,4 +1,4 @@
-import { Args } from '../types'
+import { Args, PotHeaders } from '../types'
 import { extractPhpPluginData } from './php'
 import { extractCssThemeData } from './css'
 import { gentranslation } from './utils'
@@ -19,7 +19,7 @@ import { pkgJson } from '../const'
  * @param {Args} args - The arguments object containing the headers and their values.
  * @return {string} The generated POT header.
  */
-export function generateHeader(args: Args): Record<string, string> {
+export function generateHeader(args: Args): Record<PotHeaders, string> {
 	/** @type {Record<string, string>} */
 	const headerData = {
 		...args.headers,
@@ -40,22 +40,24 @@ export function generateHeader(args: Args): Record<string, string> {
 				'AUTHOR EMAIL',
 		},
 	} as const
+	const authorString = `${headerData.author} <${headerData.email}>`
+	const domain = headerData.domain ? `X-Domain: ${headerData.domain}` : ''
 
 	return {
 		'Project-Id-Version': `${headerData.slug} ${headerData.version}`,
-		'Report-Msgid-Bugs-To': `${headerData.bugs.email} ${headerData.bugs.url}`,
+		'Report-Msgid-Bugs-To': authorString,
 		'MIME-Version': `1.0`,
 		'Content-Transfer-Encoding': `8bit`,
 		'content-type': 'text/plain; charset=iso-8859-1',
 		'plural-forms': 'nplurals=2; plural=(n!=1);',
 		'POT-Creation-Date': `${new Date().toISOString()}`,
 		'PO-Revision-Date': `${new Date().getFullYear()}-MO-DA HO:MI+ZONE`,
-		'Last-Translator': `${headerData.author} <${headerData.email}>`,
-		'Language-Team': `${headerData.author} <${headerData.email}>`,
+		'Last-Translator': authorString,
+		'Language-Team': authorString,
 		'X-Generator': `${pkgJson.name} ${pkgJson.version}`,
 		Language: `${headerData.language}`,
 		// add domain if specified
-		'X-Domain': headerData.domain ? `${headerData.domain}` : '',
+		domain,
 	}
 }
 

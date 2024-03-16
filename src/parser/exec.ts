@@ -2,11 +2,7 @@ import { Args, type TranslationStrings } from '../types'
 import { runExtract } from './index'
 import { cpus, totalmem } from 'node:os'
 import { generateHeader, translationsHeaders } from '../extractors/headers'
-import gettextParser, {
-	GetTextTranslation,
-	GetTextTranslations,
-} from 'gettext-parser'
-import { advancedObjectMerge } from '../utils'
+import gettextParser, { GetTextTranslations } from 'gettext-parser'
 import { consolidate } from './consolidate'
 
 /**

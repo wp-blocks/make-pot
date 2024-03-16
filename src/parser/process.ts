@@ -85,10 +85,7 @@ function processFiles(
  * @param {string[]} files - An array of file names to search and parse.
  * @return {Promise<TranslationStrings[]>} A promise that resolves to an array of translation strings found in the files.
  */
-export async function getStrings(
-	args: Args,
-	files: Glob<{ cwd: string }>
-): Promise<TranslationStrings[]> {
+export async function getStrings(args: Args, files: Glob<{ cwd: string }>) {
 	/**
 	 * The progress bar that is used to show the progress of the extraction process.
 	 */
@@ -96,11 +93,9 @@ export async function getStrings(
 	progressBar =
 		initProgress(args, Array.from(files.iterateSync()).length) ?? undefined
 
-	return await Promise.all(processFiles(files, args, progressBar)).finally(
-		() => {
-			if (progressBar) {
-				progressBar.stop()
-			}
-		}
-	)
+	const strings = await Promise.all(processFiles(files, args, progressBar))
+	// remove the progress bar
+	if (progressBar) progressBar.stop()
+	// return the strings
+	return strings
 }

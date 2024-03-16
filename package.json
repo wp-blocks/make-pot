@@ -12,7 +12,7 @@
 		"lint": "eslint ./src ./tests --fix",
 		"test": "jest",
 		"update-snapshots": "jest -- -u",
-		"run": "node ./lib/index.js tests/fixtures/vinyl/"
+		"run": "node ./lib/index.js"
 	},
 	"bin": {
 		"make-pot": "lib/index.js"

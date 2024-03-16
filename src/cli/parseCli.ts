@@ -85,8 +85,9 @@ export function parseCliArgs(
 			json: !!args.json,
 			location: !!args?.location,
 			output: !!args?.output,
-			fileComment: String(args?.fileComment),
-			// Config: skip, comment and package name
+			fileComment: args.fileComment
+				? String(args.fileComment)
+				: undefined,
 			skip: {
 				js: !!args.skipJs,
 				php: !!args.skipPhp,

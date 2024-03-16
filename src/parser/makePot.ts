@@ -22,13 +22,7 @@ export async function makePot(args: Args): Promise<string> {
 	args.headers = {
 		...args.headers,
 		...pkgData,
-		...{
-			name: metadata.name,
-			url: metadata.url,
-			description: metadata.description,
-			author: metadata.author,
-			authorUri: metadata.authorUri,
-		},
+		...metadata,
 	} as Args['headers']
 
 	/** generate the pot file */

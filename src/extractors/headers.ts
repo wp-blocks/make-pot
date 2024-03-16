@@ -101,16 +101,16 @@ export function translationsHeaders(args: Args) {
 
 	/** the theme and plugin case, the rest is not supported yet */
 	return {
-		[name]: gentranslation('Name of the ' + domain, name, fakePath),
-		[url]: gentranslation('Url of the ' + domain, url, fakePath),
+		[name]: gentranslation(`Name of the ${domain}`, name, fakePath),
+		[url]: gentranslation(`Url of the ${domain}`, url, fakePath),
 		[description]: gentranslation(
-			'Description of the ' + domain,
+			`Description of the ${domain}`,
 			description,
 			fakePath
 		),
-		[author]: gentranslation(domain + ' author', author, fakePath),
+		[author]: gentranslation(`Author of the ${domain}`, author, fakePath),
 		[authorUri]: gentranslation(
-			'Author of the ' + domain,
+			`Author URI of the ${domain}`,
 			authorUri,
 			fakePath
 		),

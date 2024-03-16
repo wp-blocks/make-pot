@@ -51,7 +51,6 @@ export function parsePHPFile(phpContent: string): Record<string, string> {
 					pluginHeaders,
 					keyValueMatch[1].trim()
 				)
-				console.log(header, keyValueMatch[2].trim())
 				if (header === undefined) continue
 				pluginInfo[header] = keyValueMatch[2].trim()
 			}

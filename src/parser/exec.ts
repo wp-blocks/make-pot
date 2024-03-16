@@ -34,9 +34,8 @@ export function getCopyright(
  */
 export async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
-		console.log('📝 Starting makePot for ', args?.slug)
+		console.log('📝 Starting makePot for', args?.slug)
 		console.log('🔍 Extracting strings from', args.paths)
-		console.log('💢 With options', args.options)
 	}
 
 	/**
@@ -99,8 +98,7 @@ export async function exec(args: Args): Promise<string> {
 			Object.values(translationsUnion).length,
 			'group of strings in',
 			stringsJson.length,
-			'files.\n',
-			'In total ' +
+			'files. In total ' +
 				Object.values(translationsUnion)
 					.map((v) => Object.keys(v).length)
 					.reduce((acc, val) => acc + val, 0) +

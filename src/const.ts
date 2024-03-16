@@ -18,11 +18,22 @@ export const pkgJson: Record<string, unknown> = {
 	version,
 	description,
 }
-
+/**
+ * Theme Json metadata headers
+ *
+ */
 export const themeJson = themei18n
 export const blockJson = blocki18n
 export const pkgJsonHeaders = packagei18n
+/**
+ * The Plugin metadata headers
+ * @link https://codex.wordpress.org/File_Header
+ */
 export const pluginHeaders = wpPlugini18n
+/**
+ * The Theme metadata headers
+ * @link https://developer.wordpress.org/plugins/plugin-basics/header-requirements/
+ */
 export const themeHeaders = wpThemei18n
 
 /**

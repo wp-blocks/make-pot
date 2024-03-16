@@ -27,14 +27,17 @@ export function generateHeader(args: Args): Record<string, string> {
 		slug: args.slug || 'PLUGIN NAME',
 		email: args.headers?.email || 'EMAIL',
 		license: args.headers?.license || 'gpl-2.0 or later',
-		version: args.headers?.version || 'VERSION',
-		language: args.headers?.language || 'LANGUAGE',
-		domain: args.headers?.domain || args.headers?.slug || undefined,
+		version: args.headers?.version || '1.0.0',
+		language: args.headers?.language || 'en',
+		domain: args.headers?.textDomain || args.headers?.slug || undefined,
 		bugs: {
 			url:
-				args.headers?.bugs ||
+				args.headers?.bugsUrl ||
 				'https://wordpress.org/support/plugin/' + args.slug,
-			email: args.headers?.authoremail || 'AUTHOR EMAIL',
+			email:
+				args.headers?.bugsEmail ||
+				args.headers?.authoremail ||
+				'AUTHOR EMAIL',
 		},
 	} as const
 

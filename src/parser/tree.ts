@@ -96,16 +96,32 @@ export function doTree(
 			const translationKeys =
 				i18nFunctions[functionName as keyof typeof i18nFunctions]
 
+			const children = raw.children.slice(1, -1)
+			let translationKeyIndex = 0;
+
 			// Get the translation from the arguments (the quoted strings)
-			// Todo: parse the translations string by type of function "fn"
-			raw.children.slice(1, -1).forEach((child, index) => {
-				if (!child.text) return
+			for (const child of children) {
+				let node = child;
+
+				// unwrap the argument node, which is used in PHP.
+				if (child.type === "argument") {
+					if (child.children.length === 0) continue;
+					node = child.children[0];
+				}
+
+				// skip if it's not a string
+				if (node.type !== "string") continue
+
 				// the translation key (eg. msgid)
-				const currentKey = translationKeys[index]
+				const currentKey = translationKeys[translationKeyIndex]
+
 				// the value of that key
 				translation[currentKey as keyof typeof translation] =
 					child.text.slice(1, -1)
-			})
+
+				// increment the index of the translation key
+				translationKeyIndex += 1;
+			}
 
 			// Get the translation data
 			const gettext: GetTextTranslation = {

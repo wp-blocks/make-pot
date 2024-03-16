@@ -112,7 +112,7 @@ export function doTree(
 				msgctxt: translation.msgctxt ?? '',
 				msgid: translation.msgid ?? '',
 				msgid_plural: translation.msgid_plural ?? '',
-				msgstr: [], // msgstr is the translation n your language - for this pot don't need it
+				msgstr: translation.msgid_plural ? ['', ''] : [''],
 				comments: {
 					translator: collectComments(node) ?? '',
 					reference: `${filepath}:${node.startPosition.row + 1}`,

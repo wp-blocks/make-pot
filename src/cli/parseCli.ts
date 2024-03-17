@@ -5,7 +5,6 @@ import * as process from 'process'
 import { DEFAULT_EXCLUDED_PATH } from '../const'
 import { Args, DomainType } from '../types'
 import fs, { accessSync } from 'node:fs'
-import { getCopyright } from '../parser/exec'
 
 function isThemeOrPlugin(currentPath: string = '/', slug: string) {
 	const currentWorkingDirectory = currentPath

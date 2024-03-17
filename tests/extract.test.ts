@@ -185,20 +185,20 @@ echo $link;`
 describe('getStrings wp cli', () => {
 	it('should extract from an array of translations', () => {
 		const filename = 'filename.php'
-		const content = `<?php $instructions = array(
+		const content = `<?php $var = 'don't do this'; $instructions = array(
 		"Overview" => array(
-				"title" => __( 'Overview', 'vsge-3d-product-viewer' ),
-				"text"  => __( "Hold down the right button to move the model", 'vsge-3d-product-viewer' ),
+				"title" => __( 'Overview', '3d-product-viewer' ),
+				"text"  => __( "Hold down the right button to move the model", '3d-product-viewer' ),
 				"icon"  => 'icon-book'
 		),
 		"Rotation" => array(
-				"title" => __( 'Rotation', 'vsge-3d-product-viewer' ),
-				"text"  => __( "Left-click and drag to change the angle", 'vsge-3d-product-viewer' ),
+				"title" => __( 'Rotation', '3d-product-viewer' ),
+				"text"  => __( "Left-click and drag to change the angle", '3d-product-viewer' ),
 				"icon"  => 'icon-rotation'
 		),
 		"Zoom"     => array(
-				"title" => __( 'Zoom', 'vsge-3d-product-viewer' ),
-				"text"  => __( "Use the mouse wheel to zoom in or out on the model", 'vsge-3d-product-viewer' ),
+				"title" => __( 'Zoom', '3d-product-viewer' ),
+				"text"  => __( "Variable is % and not  {$var}", '3d-product-viewer' ),
 				"icon"  => 'icon-zoom'
 		)
 );

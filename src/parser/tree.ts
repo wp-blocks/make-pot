@@ -115,7 +115,8 @@ export function doTree(
 					continue
 				} else if (
 					node?.type === 'string' ||
-					node.type === 'encapsed_string'
+					node.type === 'encapsed_string' ||
+					node.type === 'string_value'
 				) {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1)

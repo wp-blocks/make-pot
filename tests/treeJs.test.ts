@@ -5,14 +5,16 @@ import fs from 'fs'
 import path from 'path'
 
 describe('doTree js', () => {
-	it('Should build pot file js', () => {
-		const filePath = path.join(
-			process.cwd(),
-			'tests/fixtures/block/javascript.js'
-		)
+	const filepath = 'tests/fixtures/block/javascript.js'
+	let filePath: string
+	let fileContent: string
+	beforeAll(() => {
+		filePath = path.join(process.cwd(), filepath)
 		console.log('My file path is: ' + filePath)
-		const fileContent = fs.readFileSync(filePath, 'utf8')
-		const fileParsed = doTree(fileContent, 'block/javascript.js')
+		fileContent = fs.readFileSync(filePath, 'utf8')
+	})
+	test('Should parse TSX file and extract strings', () => {
+		const fileParsed = doTree(fileContent, filepath)
 		expect(fileParsed).toMatchSnapshot()
 	})
 })

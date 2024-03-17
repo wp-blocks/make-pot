@@ -5,14 +5,16 @@ import path from 'path'
 import fs from 'fs'
 
 describe('doTree tsx file', () => {
-	test('Should parse TSX file and extract strings', () => {
-		const filePath = path.join(
-			process.cwd(),
-			'tests/fixtures/block/SvgControls.tsx'
-		)
+	const filepath = 'tests/fixtures/block/SvgControls.tsx'
+	let filePath: string
+	let fileContent: string
+	beforeAll(() => {
+		filePath = path.join(process.cwd(), filepath)
 		console.log('My file path is: ' + filePath)
-		const fileContent = fs.readFileSync(filePath, 'utf8')
-		const fileParsed = doTree(fileContent, 'SvgControls.tsx')
+		fileContent = fs.readFileSync(filePath, 'utf8')
+	})
+	test('Should parse TSX file and extract strings', () => {
+		const fileParsed = doTree(fileContent, filepath)
 		expect(fileParsed).toMatchSnapshot()
 	})
 })

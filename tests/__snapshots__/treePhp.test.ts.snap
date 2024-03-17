@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`doTree php Should build pot file 1`] = `
+exports[`doTree php Should parse TSX file and extract strings 1`] = `
 {
   "": {
     "Huge": {
       "comments": {
-        "reference": "tests/fixtures/php.php:252",
+        "reference": "tests/fixtures/sourcedir/file.php:252",
         "translator": "",
       },
       "msgctxt": "",
@@ -17,7 +17,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Large": {
       "comments": {
-        "reference": "tests/fixtures/php.php:247",
+        "reference": "tests/fixtures/sourcedir/file.php:247",
         "translator": "",
       },
       "msgctxt": "",
@@ -29,7 +29,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Light green cyan to vivid green cyan": {
       "comments": {
-        "reference": "tests/fixtures/php.php:189",
+        "reference": "tests/fixtures/sourcedir/file.php:189",
         "translator": "",
       },
       "msgctxt": "",
@@ -41,7 +41,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Luminous vivid amber to luminous vivid orange": {
       "comments": {
-        "reference": "tests/fixtures/php.php:194",
+        "reference": "tests/fixtures/sourcedir/file.php:194",
         "translator": "",
       },
       "msgctxt": "",
@@ -53,7 +53,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Luminous vivid orange to vivid red": {
       "comments": {
-        "reference": "tests/fixtures/php.php:199",
+        "reference": "tests/fixtures/sourcedir/file.php:199",
         "translator": "",
       },
       "msgctxt": "",
@@ -65,7 +65,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Regular": {
       "comments": {
-        "reference": "tests/fixtures/php.php:242",
+        "reference": "tests/fixtures/sourcedir/file.php:242",
         "translator": "",
       },
       "msgctxt": "",
@@ -77,7 +77,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Small": {
       "comments": {
-        "reference": "tests/fixtures/php.php:237",
+        "reference": "tests/fixtures/sourcedir/file.php:237",
         "translator": "",
       },
       "msgctxt": "",
@@ -89,7 +89,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Vivid cyan blue to vivid purple": {
       "comments": {
-        "reference": "tests/fixtures/php.php:179",
+        "reference": "tests/fixtures/sourcedir/file.php:179",
         "translator": "",
       },
       "msgctxt": "",
@@ -101,7 +101,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "Vivid green cyan to vivid cyan blue": {
       "comments": {
-        "reference": "tests/fixtures/php.php:184",
+        "reference": "tests/fixtures/sourcedir/file.php:184",
         "translator": "",
       },
       "msgctxt": "",
@@ -113,7 +113,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "light grayish magenta": {
       "comments": {
-        "reference": "tests/fixtures/php.php:123",
+        "reference": "tests/fixtures/sourcedir/file.php:123",
         "translator": "",
       },
       "msgctxt": "",
@@ -125,7 +125,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "sdasdasdasd": {
       "comments": {
-        "reference": "tests/fixtures/php.php:7",
+        "reference": "tests/fixtures/sourcedir/file.php:7",
         "translator": "ciao2!",
       },
       "msgctxt": "",
@@ -137,7 +137,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "strong magenta": {
       "comments": {
-        "reference": "tests/fixtures/php.php:118",
+        "reference": "tests/fixtures/sourcedir/file.php:118",
         "translator": "",
       },
       "msgctxt": "",
@@ -149,7 +149,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "very dark gray": {
       "comments": {
-        "reference": "tests/fixtures/php.php:133",
+        "reference": "tests/fixtures/sourcedir/file.php:133",
         "translator": "",
       },
       "msgctxt": "",
@@ -161,182 +161,7 @@ exports[`doTree php Should build pot file 1`] = `
     },
     "very light gray": {
       "comments": {
-        "reference": "tests/fixtures/php.php:128",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "very light gray",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-  },
-}
-`;
-
-exports[`doTree php Should build pot file php 1`] = `
-{
-  "": {
-    "Huge": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:252",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Huge",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Large": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:247",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Large",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Light green cyan to vivid green cyan": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:189",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Light green cyan to vivid green cyan",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Luminous vivid amber to luminous vivid orange": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:194",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Luminous vivid amber to luminous vivid orange",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Luminous vivid orange to vivid red": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:199",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Luminous vivid orange to vivid red",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Regular": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:242",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Regular",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Small": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:237",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Small",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Vivid cyan blue to vivid purple": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:179",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Vivid cyan blue to vivid purple",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "Vivid green cyan to vivid cyan blue": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:184",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "Vivid green cyan to vivid cyan blue",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "light grayish magenta": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:123",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "light grayish magenta",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "sdasdasdasd": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:7",
-        "translator": "ciao2!",
-      },
-      "msgctxt": "",
-      "msgid": "sdasdasdasd",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "strong magenta": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:118",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "strong magenta",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "very dark gray": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:133",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "very dark gray",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
-    "very light gray": {
-      "comments": {
-        "reference": "tests/fixtures/sourcedir/php.php:128",
+        "reference": "tests/fixtures/sourcedir/file.php:128",
         "translator": "",
       },
       "msgctxt": "",

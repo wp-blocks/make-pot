@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`doTree js Should build pot file js 1`] = `
+exports[`doTree js Should parse TSX file and extract strings 1`] = `
 {
   "": {
     "Hello World": {
       "comments": {
-        "reference": "block/javascript.js:19",
+        "reference": "tests/fixtures/block/javascript.js:19",
         "translator": "",
       },
       "msgctxt": "",
@@ -17,7 +17,7 @@ exports[`doTree js Should build pot file js 1`] = `
     },
     "Simple Block": {
       "comments": {
-        "reference": "block/javascript.js:7",
+        "reference": "tests/fixtures/block/javascript.js:7",
         "translator": "",
       },
       "msgctxt": "",

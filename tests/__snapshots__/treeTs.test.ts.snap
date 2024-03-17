@@ -5,7 +5,7 @@ exports[`doTree tsx file Should parse TSX file and extract strings 1`] = `
   "": {
     "Edit Link": {
       "comments": {
-        "reference": "SvgControls.tsx:93",
+        "reference": "tests/fixtures/block/SvgControls.tsx:93",
         "translator": "",
       },
       "msgctxt": "",
@@ -17,7 +17,7 @@ exports[`doTree tsx file Should parse TSX file and extract strings 1`] = `
     },
     "Replace SVG": {
       "comments": {
-        "reference": "SvgControls.tsx:107",
+        "reference": "tests/fixtures/block/SvgControls.tsx:107",
         "translator": "",
       },
       "msgctxt": "",
@@ -29,7 +29,7 @@ exports[`doTree tsx file Should parse TSX file and extract strings 1`] = `
     },
     "Unlink": {
       "comments": {
-        "reference": "SvgControls.tsx:99",
+        "reference": "tests/fixtures/block/SvgControls.tsx:99",
         "translator": "",
       },
       "msgctxt": "",

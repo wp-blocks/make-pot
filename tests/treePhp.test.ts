@@ -4,28 +4,16 @@ import path from 'path'
 import fs from 'fs'
 
 describe('doTree php', () => {
-	it('Should build pot file', () => {
-		const filePath = path.join(
-			process.cwd(),
-			'tests/fixtures/sourcedir/file.php'
-		)
+	const filepath = 'tests/fixtures/sourcedir/file.php'
+	let filePath: string
+	let fileContent: string
+	beforeAll(() => {
+		filePath = path.join(process.cwd(), filepath)
 		console.log('My file path is: ' + filePath)
-		const fileContent = fs.readFileSync(filePath, 'utf8')
-		const fileParsed = doTree(fileContent, 'tests/fixtures/php.php')
-
-		expect(fileParsed).toMatchSnapshot()
+		fileContent = fs.readFileSync(filePath, 'utf8')
 	})
-
-	it('Should build pot file php', () => {
-		const fileContent = fs.readFileSync(
-			path.join(process.cwd(), 'tests/fixtures/sourcedir/file.php'),
-			'utf8'
-		)
-		const fileParsed = doTree(
-			fileContent,
-			'tests/fixtures/sourcedir/php.php'
-		)
-
+	test('Should parse TSX file and extract strings', () => {
+		const fileParsed = doTree(fileContent, filepath)
 		expect(fileParsed).toMatchSnapshot()
 	})
 })

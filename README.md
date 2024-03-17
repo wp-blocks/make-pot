@@ -15,7 +15,15 @@ npm install -g @wp-blocks/make-pot
 ### Usage
 
 ```bash
-npx @wp-blocks/make-pot <sourceDirectory> [destination] [options]
+npx @wp-blocks/make-pot [sourceDirectory] [destination] [options]
+```
+
+or adding it directly as an action into your `package.json`:
+
+```json
+{
+	"build:makepot": "npx @wp-blocks/make-pot"
+}
 ```
 
 #### Positional Arguments:

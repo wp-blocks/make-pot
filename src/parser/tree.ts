@@ -55,6 +55,8 @@ export function doTree(
 			? 'call_expression'
 			: 'function_call_expression'
 
+	const stringType = ['string', 'encapsed_string', 'string_value']
+
 	/**
 	 * Traverse the tree 🌳
 	 *
@@ -113,11 +115,7 @@ export function doTree(
 				if (node?.type === ',') {
 					// skip the comma between arguments
 					continue
-				} else if (
-					node?.type === 'string' ||
-					node.type === 'encapsed_string' ||
-					node.type === 'string_value'
-				) {
+				} else if (stringType.includes(node?.type)) {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1)
 				}

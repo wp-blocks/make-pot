@@ -9,8 +9,8 @@ describe('doTree php', () => {
 			process.cwd(),
 			'tests/fixtures/sourcedir/file.php'
 		)
-		const fileContent = fs.readFileSync(filePath, 'utf8')
 		console.log('My file path is: ' + filePath)
+		const fileContent = fs.readFileSync(filePath, 'utf8')
 		const fileParsed = doTree(fileContent, 'tests/fixtures/php.php')
 
 		expect(fileParsed).toMatchSnapshot()

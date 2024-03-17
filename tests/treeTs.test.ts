@@ -6,11 +6,12 @@ import fs from 'fs'
 
 describe('doTree tsx file', () => {
 	test('Should parse TSX file and extract strings', () => {
-		const fileContent = fs.readFileSync(
-			path.join(process.cwd(), 'tests/fixtures/block/SvgControls.tsx'),
-			'utf8'
+		const filePath = path.join(
+			process.cwd(),
+			'tests/fixtures/block/SvgControls.tsx'
 		)
-		console.log('My file path is: ' + fileContent)
+		console.log('My file path is: ' + filePath)
+		const fileContent = fs.readFileSync(filePath, 'utf8')
 		const fileParsed = doTree(fileContent, 'SvgControls.tsx')
 		expect(fileParsed).toMatchSnapshot()
 	})

@@ -6,5 +6,6 @@
 .run
 /src/makeJson.ts
 /tests/fixtures/
+languages
 example
 

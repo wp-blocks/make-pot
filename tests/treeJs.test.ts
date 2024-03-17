@@ -6,6 +6,20 @@ import path from 'path'
 
 describe('doTree js', () => {
 	it('Should build pot file js', () => {
+		console.log(
+			'currentpath' +
+				path.join(process.cwd(), 'tests/fixtures/block/javascript.js')
+		)
+		console.log(
+			'js file' +
+				fs.readFileSync(
+					path.join(
+						process.cwd(),
+						'tests/fixtures/block/javascript.js'
+					),
+					'utf8'
+				)
+		)
 		const fileContent = fs.readFileSync(
 			path.join(process.cwd(), 'tests/fixtures/block/javascript.js'),
 			'utf8'

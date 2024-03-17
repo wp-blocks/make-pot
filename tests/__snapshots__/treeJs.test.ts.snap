@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`doTree js Should build pot file js 1`] = `
+{
+  "": {
+    "Hello World": {
+      "comments": {
+        "reference": "block/javascript.js:19",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Hello World",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Simple Block": {
+      "comments": {
+        "reference": "block/javascript.js:7",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Simple Block",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+  },
+}
+`;

@@ -49,7 +49,7 @@ npx @wp-blocks/make-pot [sourceDirectory] [destination] [options]
 - `--json`: Outputs the JSON gettext data.
 - `--output`: Outputs the gettext data.
 
-## As a buuild chain step
+## As a build chain step
 
 The `make-pot` module can be used as a build step in your build chain.
 To do so, create a `build:makepot` action in your `package.json` with the following content (refer to the [options](https://github.com/wp-blocks/make-pot?tab=readme-ov-file#options) for more information):

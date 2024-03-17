@@ -10,6 +10,7 @@ describe('doTree tsx file', () => {
 			path.join(process.cwd(), 'tests/fixtures/block/SvgControls.tsx'),
 			'utf8'
 		)
+		console.log('My file path is: ' + fileContent)
 		const fileParsed = doTree(fileContent, 'SvgControls.tsx')
 		expect(fileParsed).toMatchSnapshot()
 	})

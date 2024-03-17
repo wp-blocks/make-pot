@@ -20,7 +20,7 @@ npx @wp-blocks/make-pot <sourceDirectory> [destination] [options]
 
 #### Positional Arguments:
 
-- `sourceDirectory`: Specifies the source directory of your plugin or theme.
+- `sourceDirectory` (optional): Specifies the source directory of your plugin or theme. If not provided, the `.pot` file root will be the source directory.
 - `destination` (optional): Specifies the destination directory where the `.pot` file will be generated. If not provided, the `.pot` file will be created in the source directory.
 
 #### Options:

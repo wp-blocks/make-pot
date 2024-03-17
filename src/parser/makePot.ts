@@ -28,14 +28,15 @@ export async function makePot(args: Args): Promise<string> {
 	/** generate the pot file */
 	const jsonTranslations = await exec(args)
 
-	writeFile(
-		jsonTranslations,
-		path.join(
-			process.cwd(),
-			args.paths.out,
-			`${args?.slug}.${args.options?.json ? 'json' : 'pot'}`
-		)
+	const outputPath = path.join(
+		process.cwd(),
+		(args.headers?.domainPath as string) ?? args.paths.out ?? 'languages',
+		`${args?.slug}.${args.options?.json ? 'json' : 'pot'}`
 	)
+
+	console.log(`Writing pot file to ${outputPath}`)
+
+	writeFile(jsonTranslations, outputPath)
 
 	return jsonTranslations
 }

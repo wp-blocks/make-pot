@@ -97,30 +97,38 @@ export function doTree(
 				i18nFunctions[functionName as keyof typeof i18nFunctions]
 
 			const children = raw.children.slice(1, -1)
-			let translationKeyIndex = 0;
+			let translationKeyIndex = 0
 
 			// Get the translation from the arguments (the quoted strings)
 			for (const child of children) {
-				let node = child;
+				let node = child
+				let nodeValue = node.text
 
 				// unwrap the argument node, which is used in PHP.
-				if (child.type === "argument") {
-					if (child.children.length === 0) continue;
-					node = child.children[0];
+				if (child.type === 'argument') {
+					if (child.children.length === 0) continue
+					node = child.children[0]
 				}
 
-				// skip if it's not a string
-				if (node.type !== "string") continue
+				if (node?.type === ',') {
+					// skip the comma between arguments
+					continue
+				} else if (
+					node?.type === 'string' ||
+					node.type === 'encapsed_string'
+				) {
+					// unquote the strings
+					nodeValue = nodeValue.slice(1, -1)
+				}
 
 				// the translation key (eg. msgid)
 				const currentKey = translationKeys[translationKeyIndex]
 
 				// the value of that key
-				translation[currentKey as keyof typeof translation] =
-					child.text.slice(1, -1)
+				translation[currentKey as keyof typeof translation] = nodeValue
 
 				// increment the index of the translation key
-				translationKeyIndex += 1;
+				translationKeyIndex += 1
 			}
 
 			// Get the translation data

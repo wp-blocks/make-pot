@@ -183,6 +183,31 @@ echo $link;`
 })
 
 describe('getStrings wp cli', () => {
+	it('should extract from an array of translations', () => {
+		const filename = 'filename.php'
+		const content = `<?php $instructions = array(
+		"Overview" => array(
+				"title" => __( 'Overview', 'vsge-3d-product-viewer' ),
+				"text"  => __( "Hold down the right button to move the model", 'vsge-3d-product-viewer' ),
+				"icon"  => 'icon-book'
+		),
+		"Rotation" => array(
+				"title" => __( 'Rotation', 'vsge-3d-product-viewer' ),
+				"text"  => __( "Left-click and drag to change the angle", 'vsge-3d-product-viewer' ),
+				"icon"  => 'icon-rotation'
+		),
+		"Zoom"     => array(
+				"title" => __( 'Zoom', 'vsge-3d-product-viewer' ),
+				"text"  => __( "Use the mouse wheel to zoom in or out on the model", 'vsge-3d-product-viewer' ),
+				"icon"  => 'icon-zoom'
+		)
+);
+`
+
+		const result = doTree(content, filename)
+		expect(result).toMatchSnapshot()
+	})
+
 	it('should extract translations with translator comments inside the formatting hell', () => {
 		const filename = 'filename.php'
 		const content = `<?php if ( count( $errors_in_remigrate_batch ) > 0 ) {
@@ -190,10 +215,10 @@ describe('getStrings wp cli', () => {
 		WP_CLI::warning(
 		  sprintf(
 		    /* Translators: %1$d is number of errors and %2$s is the formatted array of order IDs. */
-		    _n(
+		      _n(
 		        '%1$d error found: %2$s when re-migrating order. Please review the error above.',
 		        '%1$d errors found: %2$s when re-migrating orders. Please review the errors above.',
-		      count( $errors_in_remigrate_batch ),
+		     	count( %s ),
 		        'woocommerce'
 		      ),
 		    count( $errors_in_remigrate_batch ),

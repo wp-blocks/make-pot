@@ -51,13 +51,13 @@ exports[`getStrings wp cli should extract from an array of translations 1`] = `
         "",
       ],
     },
-    "Use the mouse wheel to zoom in or out on the model": {
+    "Variable is % and not  {$var}": {
       "comments": {
         "reference": "filename.php:14",
         "translator": "",
       },
       "msgctxt": "",
-      "msgid": "Use the mouse wheel to zoom in or out on the model",
+      "msgid": "Variable is % and not  {$var}",
       "msgid_plural": "",
       "msgstr": [
         "",

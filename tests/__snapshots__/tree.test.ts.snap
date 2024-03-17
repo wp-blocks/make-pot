@@ -1,0 +1,501 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`doTree js Should parse TSX file and extract strings 1`] = `
+{
+  "": {
+    "Hello World": {
+      "comments": {
+        "reference": "tests/fixtures/block/javascript.js:19",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Hello World",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Simple Block": {
+      "comments": {
+        "reference": "tests/fixtures/block/javascript.js:7",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Simple Block",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+  },
+}
+`;
+
+exports[`doTree php Should parse TSX file and extract strings 1`] = `
+{
+  "": {
+    "Huge": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:252",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Huge",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Large": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:247",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Large",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Light green cyan to vivid green cyan": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:189",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Light green cyan to vivid green cyan",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Luminous vivid amber to luminous vivid orange": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:194",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Luminous vivid amber to luminous vivid orange",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Luminous vivid orange to vivid red": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:199",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Luminous vivid orange to vivid red",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Regular": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:242",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Regular",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Small": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:237",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Small",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Vivid cyan blue to vivid purple": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:179",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Vivid cyan blue to vivid purple",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Vivid green cyan to vivid cyan blue": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:184",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Vivid green cyan to vivid cyan blue",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "light grayish magenta": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:123",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "light grayish magenta",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "sdasdasdasd": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:7",
+        "translator": "ciao2!",
+      },
+      "msgctxt": "",
+      "msgid": "sdasdasdasd",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "strong magenta": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:118",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "strong magenta",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "very dark gray": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:133",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "very dark gray",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "very light gray": {
+      "comments": {
+        "reference": "tests/fixtures/sourcedir/file.php:128",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "very light gray",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+  },
+}
+`;
+
+exports[`doTree php test file should extract translations and comments from code content 1`] = `
+{
+  "Bar Baz": {
+    "comments": {
+      "reference": "filename.php:7",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "Bar Baz",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "F j, Y g:i a": {
+    "comments": {
+      "reference": "filename.php:58",
+      "translator": "localized date and time format, see https://secure.php.net/date",
+    },
+    "msgctxt": "",
+    "msgid": "F j, Y g:i a",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "Foo Bar": {
+    "comments": {
+      "reference": "filename.php:4",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "Foo Bar",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "Hello JSX": {
+    "comments": {
+      "reference": "filename.php:22",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "Hello JSX",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "Plugin name": {
+    "comments": {
+      "reference": "filename.php:79",
+      "translator": "This is a comment",
+    },
+    "msgctxt": "",
+    "msgid": "Plugin name",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "Short text": {
+    "comments": {
+      "reference": "filename.php:19",
+      "translator": "Long comment
+      spanning multiple
+      lines",
+    },
+    "msgctxt": "",
+    "msgid": "Short text",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "Spacey text": {
+    "comments": {
+      "reference": "filename.php:14",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "Spacey text",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "WordPress": {
+    "comments": {
+      "reference": "filename.php:10",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "WordPress",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "\`This is a \${bug}\`": {
+    "comments": {
+      "reference": "filename.php:45",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "\`This is a \${bug}\`",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "baba": {
+    "comments": {
+      "reference": "filename.php:69",
+      "translator": "this should get extracted.",
+    },
+    "msgctxt": "",
+    "msgid": "baba",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "bubu": {
+    "comments": {
+      "reference": "filename.php:71",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "bubu",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "foo": {
+    "comments": {
+      "reference": "filename.php:55",
+      "translator": "Translators 2!",
+    },
+    "msgctxt": "",
+    "msgid": "foo",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "hello world": {
+    "comments": {
+      "reference": "filename.php:52",
+      "translator": "Translators 1!",
+    },
+    "msgctxt": "",
+    "msgid": "hello world",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "https://example.com": {
+    "comments": {
+      "reference": "filename.php:82",
+      "translator": "This is another comment!",
+    },
+    "msgctxt": "",
+    "msgid": "https://example.com",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "off": {
+    "comments": {
+      "reference": "filename.php:67",
+      "translator": "/*
+       * Translators: If there are characters in your language that are not supported
+       * by Lato, translate this to 'off'. Do not translate into your own language.
+       */",
+    },
+    "msgctxt": "",
+    "msgid": "off",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "on": {
+    "comments": {
+      "reference": "filename.php:61",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "on",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "translate.__": {
+    "comments": {
+      "reference": "filename.php:30",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "translate.__",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "wp.i18n.__": {
+    "comments": {
+      "reference": "filename.php:26",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "wp.i18n.__",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+  "wp.i18n._n_single": {
+    "comments": {
+      "reference": "filename.php:27",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "wp.i18n._n_single",
+    "msgid_plural": "wp.i18n._n_plural",
+    "msgstr": [
+      "",
+      "",
+    ],
+  },
+  "yolo": {
+    "comments": {
+      "reference": "filename.php:76",
+      "translator": "",
+    },
+    "msgctxt": "",
+    "msgid": "yolo",
+    "msgid_plural": "",
+    "msgstr": [
+      "",
+    ],
+  },
+}
+`;
+
+exports[`doTree tsx file Should parse TSX file and extract strings 1`] = `
+{
+  "": {
+    "Edit Link": {
+      "comments": {
+        "reference": "tests/fixtures/block/SvgControls.tsx:93",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Edit Link",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Replace SVG": {
+      "comments": {
+        "reference": "tests/fixtures/block/SvgControls.tsx:107",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Replace SVG",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Unlink": {
+      "comments": {
+        "reference": "tests/fixtures/block/SvgControls.tsx:99",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Unlink",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+  },
+}
+`;

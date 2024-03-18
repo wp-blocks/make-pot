@@ -330,21 +330,6 @@ exports[`getStrings wp cli should extract translations and comments from code co
       ],
     },
   },
-  "_nx_context": {
-    "_nx_single": {
-      "comments": {
-        "reference": "filename.php:56",
-        "translator": "",
-      },
-      "msgctxt": "_nx_context",
-      "msgid": "_nx_single",
-      "msgid_plural": "_nx_plural",
-      "msgstr": [
-        "",
-        "",
-      ],
-    },
-  },
   "_nx_noop_context": {
     "_nx_noop_single": {
       "comments": {
@@ -412,6 +397,21 @@ exports[`getStrings wp cli should extract translations and comments from code co
       "msgid": "esc_xml_x",
       "msgid_plural": "",
       "msgstr": [
+        "",
+      ],
+    },
+  },
+  "foo-plugin": {
+    "_nx_single": {
+      "comments": {
+        "reference": "filename.php:56",
+        "translator": "",
+      },
+      "msgctxt": "foo-plugin",
+      "msgid": "_nx_single",
+      "msgid_plural": "_nx_plural",
+      "msgstr": [
+        "",
         "",
       ],
     },
@@ -520,18 +520,6 @@ exports[`getStrings wp cli should extract translations and comments from code co
         "",
       ],
     },
-    "\`This is a \${bug}\`": {
-      "comments": {
-        "reference": "filename.php:45",
-        "translator": "",
-      },
-      "msgctxt": "",
-      "msgid": "\`This is a \${bug}\`",
-      "msgid_plural": "",
-      "msgstr": [
-        "",
-      ],
-    },
     "baba": {
       "comments": {
         "reference": "filename.php:69",
@@ -563,6 +551,18 @@ exports[`getStrings wp cli should extract translations and comments from code co
       },
       "msgctxt": "",
       "msgid": "foo",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "foo-plugin": {
+      "comments": {
+        "reference": "filename.php:45",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "foo-plugin",
       "msgid_plural": "",
       "msgstr": [
         "",

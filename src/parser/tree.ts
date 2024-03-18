@@ -116,7 +116,7 @@ export function doTree(
 					// skip the comma between arguments
 					continue
 				}
-				
+
 				if (stringType.includes(node?.type)) {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1)
@@ -132,6 +132,8 @@ export function doTree(
 							' in ' +
 							filepath // in filename.php
 					)
+					// this string is not translatable and should be skipped
+					continue
 				}
 
 				// the translation key (eg. msgid)
@@ -143,6 +145,8 @@ export function doTree(
 				// increment the index of the translation key
 				translationKeyIndex += 1
 			}
+
+			// TODO: Alert about wrong translation domain?
 
 			// Get the translation data
 			const gettext: GetTextTranslation = {

@@ -121,8 +121,17 @@ export function doTree(
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1)
 				} else {
-				  // unexpected node type
-				  continue
+					// unexpected node type
+					console.warn(
+						'Unexpected node type: ' +
+							node?.type + // variable_name
+							' is ' +
+							translationKeys[translationKeyIndex] + // in number
+							' for  ' +
+							nodeValue + // for $number
+							' in ' +
+							filepath // in filename.php
+					)
 				}
 
 				// the translation key (eg. msgid)

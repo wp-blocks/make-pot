@@ -115,9 +115,14 @@ export function doTree(
 				if (node?.type === ',') {
 					// skip the comma between arguments
 					continue
-				} else if (stringType.includes(node?.type)) {
+				}
+				
+				if (stringType.includes(node?.type)) {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1)
+				} else {
+				  // unexpected node type
+				  continue
 				}
 
 				// the translation key (eg. msgid)

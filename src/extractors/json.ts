@@ -4,6 +4,7 @@ import { JsonSchemaExtractor } from './schema'
 import path from 'path'
 import fs from 'fs'
 import { yieldParsedData } from './utils'
+import { SetOfBlocks } from 'gettext-merger'
 
 /**
  * Parses a JSON file and returns an array of parsed data.
@@ -105,7 +106,7 @@ export async function parseJsonCallback(
 	fileContent: string,
 	filePath: string,
 	filename: 'block.json' | 'theme.json'
-): Promise<TranslationStrings> {
+): Promise<SetOfBlocks> {
 	const data = await parseJsonFile({
 		fileContent: fileContent,
 		filename: filename,

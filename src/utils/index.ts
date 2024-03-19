@@ -118,3 +118,20 @@ export function includeFunction(includePath: string[]) {
 		}
 	})
 }
+
+/**
+ * Generates a copyright comment for the specified slug and license.
+ *
+ * @param {string} slug - The slug to include in the copyright comment
+ * @param {string} [license='GPL v2 or later'] - The license to use in the copyright comment
+ * @return {string} The generated copyright comment
+ */
+export function getCopyright(
+	slug: string,
+	license: string = 'GPL v2 or later'
+): string {
+	return (
+		`# Copyright (C) ${new Date().getFullYear()} ${slug}\n` +
+		`# This file is distributed under the ${license} license.`
+	)
+}

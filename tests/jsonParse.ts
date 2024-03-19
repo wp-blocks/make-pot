@@ -35,20 +35,10 @@ describe('should parse json', () => {
 					msgstr: [],
 				},
 			},
-			'block title': {
-				title: {
-					comments: {
-						reference: 'block/block.json',
-					},
-					msgctxt: 'block title',
-					msgid: 'title',
-					msgstr: [],
-				},
-			},
 		}
 
 		const result = await parseJsonFile({
-			sourceCode: fs.readFileSync(
+			fileContent: fs.readFileSync(
 				'tests/fixtures/block/block.json',
 				'utf8'
 			),

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { makePot } from './parser/makePot'
+import { makePot } from './parser/'
 
 import yargs from 'yargs'
 import { pkgJson } from './const'

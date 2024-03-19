@@ -63,8 +63,6 @@ export const allowedFiles = [
 	'tsx',
 	'mjs',
 	'cjs',
-	'txt',
-	'html',
 	'json',
 ]
 /**

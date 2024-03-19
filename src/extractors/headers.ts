@@ -3,6 +3,7 @@ import { extractPhpPluginData } from './php'
 import { extractCssThemeData } from './css'
 import { gentranslation } from './utils'
 import { pkgJson } from '../const'
+import { SetOfBlocks } from 'gettext-merger'
 
 /**
  * Generates a POT header for a given set of arguments.
@@ -86,7 +87,7 @@ export function extractMainFileData(args: Args): Record<string, string> {
  * @return {Record<string, string>} the generated translation strings
  * @param args
  */
-export function translationsHeaders(args: Args) {
+export function translationsHeaders(args: Args): SetOfBlocks {
 	const { domain, headers } = args as Args
 	const { name, description, author, authorUri, url } = headers as {
 		name: string
@@ -99,20 +100,11 @@ export function translationsHeaders(args: Args) {
 	// the main file is the plugin main php file or the css file
 	const fakePath = domain === 'plugin' ? args.slug + '.php' : 'style.css'
 
-	/** the theme and plugin case, the rest is not supported yet */
-	return {
-		[name]: gentranslation(`Name of the ${domain}`, name, fakePath),
-		[url]: gentranslation(`Url of the ${domain}`, url, fakePath),
-		[description]: gentranslation(
-			`Description of the ${domain}`,
-			description,
-			fakePath
-		),
-		[author]: gentranslation(`Author of the ${domain}`, author, fakePath),
-		[authorUri]: gentranslation(
-			`Author URI of the ${domain}`,
-			authorUri,
-			fakePath
-		),
-	}
+	return new SetOfBlocks([
+		gentranslation(`Name of the ${domain}`, name, fakePath),
+		gentranslation(`Url of the ${domain}`, url, fakePath),
+		gentranslation(`Description of the ${domain}`, description, fakePath),
+		gentranslation(`Author of the ${domain}`, author, fakePath),
+		gentranslation(`Author URI of the ${domain}`, authorUri, fakePath),
+	])
 }

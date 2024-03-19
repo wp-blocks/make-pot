@@ -1,6 +1,8 @@
 // block json and theme json schema extractor
 import axios from 'axios'
 import { I18nSchema } from '../types'
+import * as themei18n from '../assets/theme-i18n.json'
+import * as blocki18n from '../assets/block-i18n.json'
 
 /**
  * Extracts strings from JSON files using the I18n schema.
@@ -11,47 +13,36 @@ export class JsonSchemaExtractor {
 	/** Theme */
 	static themeJsonSource =
 		'http://develop.svn.wordpress.org/trunk/src/wp-includes/theme-i18n.json'
-	static themeJsonFallback = '../assets/theme-i18n.json'
+	static themeJsonFallback = themei18n
 	/** Block */
 	static blockJsonSource =
 		'http://develop.svn.wordpress.org/trunk/src/wp-includes/block-i18n.json'
-	static blockJsonFallback = '../assets/block-i18n.json'
+	static blockJsonFallback = blocki18n
 
 	/**
 	 * Load the schema from the specified URL, with a fallback URL if needed.
 	 *
-	 * @param {string} url - The URL to load the schema from.
+	 * @param {I18nSchema} url - The URL to load the schema from.
 	 * @param {string} fallback - The fallback URL to use if the main URL fails.
 	 * @return {Promise<I18nSchema | null>} The loaded schema, or null if loading fails.
 	 */
 	private static async loadSchema(
 		url: string,
-		fallback: string
-	): Promise<I18nSchema | null> {
-		if (this.schemaCache[url]) {
-			return this.schemaCache[url]
+		fallback: I18nSchema
+	): Promise<I18nSchema> {
+		if (this.schemaCache.url) {
+			return this.schemaCache.url
 		}
 
 		try {
-			const response = await axios.get(url, {
-				headers: {
-					'Cache-Control': 'no-cache',
-				},
-			})
-			this.schemaCache[url] = response.data
+			const response = await axios.get(url)
+			this.schemaCache.url = response.data
 			return response.data
 		} catch (error) {
 			console.error(`Failed to load schema from ${url}. Using fallback.`)
-			try {
-				const fallbackData = await import(fallback)
-				this.schemaCache[url] = fallbackData.default
-				return fallbackData.default
-			} catch (fallbackError) {
-				console.error(
-					`Failed to load fallback schema from ${fallback}.`
-				)
-				return null
-			}
+			const fallbackData = fallback
+			this.schemaCache.url = fallbackData
+			return fallbackData
 		}
 	}
 
@@ -68,7 +59,7 @@ export class JsonSchemaExtractor {
 	): Promise<I18nSchema | undefined> {
 		const schema = await this.loadSchema(
 			options.schema as string,
-			options.schemaFallback as string
+			options.schemaFallback as I18nSchema
 		)
 		if (!schema) {
 			console.error('Failed to load schema.')

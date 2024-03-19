@@ -1,10 +1,10 @@
 import Parser, { type SyntaxNode } from 'tree-sitter'
-import { type TranslationStrings } from '../types'
 import { i18nFunctions } from '../const'
 
-import { GetTextComment, GetTextTranslation } from 'gettext-parser'
+import { GetTextTranslation } from 'gettext-parser'
 import { getParser } from '../fs/glob'
 import { stripTranslationMarkup } from '../utils'
+import { Block, SetOfBlocks } from 'gettext-merger'
 
 /**
  * Collect comments from the AST node and its preceding siblings.
@@ -36,12 +36,9 @@ function collectComments(node: SyntaxNode): string | undefined {
  *
  * @param {string} sourceCode - The source code to be parsed.
  * @param {string} filepath - The path to the file being parsed.
- * @return {TranslationStrings[]} An array of translation strings.
+ * @return {SetOfBlocks} An array of translation strings.
  */
-export function doTree(
-	sourceCode: string,
-	filepath: string
-): TranslationStrings {
+export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 	// set up the parser
 	const parser = new Parser()
 	parser.setLanguage(getParser(filepath))
@@ -49,7 +46,9 @@ export function doTree(
 	// parse the file
 	const tree = parser.parse(sourceCode)
 
-	const gettextTranslations: TranslationStrings = {}
+	// set up the translation object
+	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath)
+
 	const typeToMatch =
 		filepath.split('.').pop()?.toLowerCase() !== 'php'
 			? 'call_expression'
@@ -149,21 +148,17 @@ export function doTree(
 			// TODO: Alert about wrong translation domain?
 
 			// Get the translation data
-			const gettext: GetTextTranslation = {
-				msgctxt: translation.msgctxt ?? '',
-				msgid: translation.msgid ?? '',
-				msgid_plural: translation.msgid_plural ?? '',
-				msgstr: translation.msgid_plural ? ['', ''] : [''],
-				comments: {
-					translator: collectComments(node) ?? '',
-					reference: `${filepath}:${node.startPosition.row + 1}`,
-				} as GetTextComment,
+			const block = new Block([])
+			block.msgctxt = translation.msgctxt
+			block.msgid = translation.msgid
+			block.msgid_plural = translation.msgid_plural
+			block.msgstr = translation.msgid_plural ? ['', ''] : ['']
+			block.comments = {
+				translator: [collectComments(node) ?? ''],
+				reference: [`${filepath}:${node.startPosition.row + 1}`],
 			}
 
-			gettextTranslations[gettext.msgctxt ?? ''] = {
-				...(gettextTranslations[gettext.msgctxt ?? ''] || {}),
-				[gettext.msgid]: gettext,
-			}
+			gettextTranslations.add(block)
 		}
 	}
 

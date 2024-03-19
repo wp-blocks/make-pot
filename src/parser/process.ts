@@ -1,8 +1,12 @@
-import type { Args, TranslationStrings } from '../types'
+import type { Args, Patterns } from '../types'
 import cliProgress, { SingleBar } from 'cli-progress'
-import { Glob } from 'glob'
 import { allowedFiles } from '../const'
-import { parseFile } from '../extractors'
+import { SetOfBlocks } from 'gettext-merger'
+import path from 'path'
+import { readFileAsync } from '../fs'
+import { parseJsonCallback } from '../extractors/json'
+import { doTree } from './tree'
+import { getFiles } from '../fs/glob'
 
 /**
  * Initializes a progress bar and returns the progress bar element.
@@ -33,69 +37,61 @@ function initProgress(args: Args, filesCount: number): SingleBar | undefined {
 /**
  * Processes the given files and returns an array of promises that resolve to TranslationStrings.
  *
- * @param {Glob<{ cwd: string }>} files - The files to process.
+ * @param patterns
  * @param {Args} args - The arguments for processing the files.
- * @param {SingleBar} [progressBar] - An optional progress bar for tracking the progress of file processing.
- * @return {Promise<TranslationStrings>[]} - An array of promises that resolve to TranslationStrings.
+ * @return {Promise<SetOfBlocks[]>} - An array of promises that resolve to TranslationStrings.
  */
-function processFiles(
-	files: Glob<{ cwd: string }>,
-	args: Args,
-	progressBar?: SingleBar
-): Promise<TranslationStrings>[] {
-	const tasks: Promise<TranslationStrings>[] = []
+export async function processFiles(
+	patterns: Patterns,
+	args: Args
+): Promise<Promise<SetOfBlocks>[]> {
+	const tasks: Promise<SetOfBlocks>[] = []
+	let filesCount = 0
 
-	// loop through the files and parse them
-	for (const file of files) {
-		// get the file extension
-		const ext = file.split('.').pop() || undefined
-
-		// check if the extension is allowed
-		if (!ext || !allowedFiles.includes(ext)) {
-			// log the filepath
-			if (progressBar) {
-				progressBar.increment(1, {
-					filename: `Skipping ${ext} file: ${file}`,
-				})
-			}
-			continue
-		}
-
-		const task = parseFile(file, args.paths.cwd).finally(() => {
-			if (progressBar) {
-				progressBar.increment(1, {
-					filename: file,
-				})
-			}
-		})
-
-		// add the task to the array if it's not null
-		if (task !== null) {
-			tasks.push(task as Promise<TranslationStrings>)
-		}
-	}
-
-	return tasks
-}
-
-/**
- * Retrieves an array of translation strings from files that match the specified arguments and pattern.
- *
- * @param {Args} args - The arguments to specify which files to search and parse.
- * @param {string[]} files - An array of file names to search and parse.
- * @return {Promise<TranslationStrings[]>} A promise that resolves to an array of translation strings found in the files.
- */
-export async function getStrings(args: Args, files: Glob<{ cwd: string }>) {
 	/**
 	 * The progress bar that is used to show the progress of the extraction process.
 	 */
-	let progressBar: SingleBar | undefined = undefined
-	progressBar =
-		initProgress(args, Array.from(files.iterateSync()).length) ?? undefined
+	const progressBar: SingleBar | undefined =
+		initProgress(args, filesCount) ?? undefined
 
-	const strings = await Promise.all(processFiles(files, args, progressBar))
+	const files = getFiles(args, patterns)
+
+	// loop through the files and parse them
+	for await (const file of files) {
+		filesCount++
+		const filename = path.basename(file)
+		const ext = path.extname(file).replace(/^./, '')
+		const fileRealPath = path.resolve(args.paths.cwd, file)
+
+		if (filename === 'theme.json' || filename === 'block.json') {
+			tasks.push(
+				readFileAsync(fileRealPath).then(async (sourceCode) => {
+					return await parseJsonCallback(
+						sourceCode,
+						args.paths.cwd,
+						filename
+					)
+				})
+			)
+		}
+
+		if (allowedFiles.includes(ext)) {
+			tasks.push(
+				readFileAsync(fileRealPath).then((content) => {
+					return doTree(content, file)
+				})
+			)
+		}
+
+		if (progressBar) {
+			progressBar.increment(1, {
+				filename: file,
+			})
+		}
+	}
+
 	// remove the progress bar
 	if (progressBar) progressBar.stop()
-	// return the strings
-	return strings
+
+	return tasks
 }

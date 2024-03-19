@@ -1,5 +1,84 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`getStrings wp cli should extract from an array of translations 1`] = `
+{
+  "": {
+    "Hold down the right button to move the model": {
+      "comments": {
+        "reference": "filename.php:4",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Hold down the right button to move the model",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Left-click and drag to change the angle": {
+      "comments": {
+        "reference": "filename.php:9",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Left-click and drag to change the angle",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Overview": {
+      "comments": {
+        "reference": "filename.php:3",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Overview",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Rotation": {
+      "comments": {
+        "reference": "filename.php:8",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Rotation",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Variable is % and not  {$var}": {
+      "comments": {
+        "reference": "filename.php:14",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Variable is % and not  {$var}",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+    "Zoom": {
+      "comments": {
+        "reference": "filename.php:13",
+        "translator": "",
+      },
+      "msgctxt": "",
+      "msgid": "Zoom",
+      "msgid_plural": "",
+      "msgstr": [
+        "",
+      ],
+    },
+  },
+}
+`;
+
 exports[`getStrings wp cli should extract translations and comments from code content 1`] = `
 {
   "": {

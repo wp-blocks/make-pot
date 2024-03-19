@@ -1,8 +1,11 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"description": "A Node.js script for generating a POT file from source code",
-	"author": "Erik Golinelli <https://github.com/erikyo>",
+	"authors": [
+		"Erik Golinelli <erik@codekraft.it> (https://codekraft.it/)",
+		"John Hooks <bitmachina@outlook.com> (https://johnhooks.io/)"
+	],
 	"main": "lib/index.js",
 	"scripts": {
 		"postinstall": "npm rebuild tree-sitter tree-sitter-typescript tree-sitter-php tree-sitter-javascript --force",
@@ -12,7 +15,7 @@
 		"lint": "eslint ./src ./tests --fix",
 		"test": "jest --coverage",
 		"update-snapshots": "jest -- -u",
-		"run": "node ./lib/index.js"
+		"run": "node ./lib/index.js tests/fixtures/vinyl/"
 	},
 	"bin": {
 		"make-pot": "lib/index.js"
@@ -27,7 +30,7 @@
 	"dependencies": {
 		"axios": "^1.6.8",
 		"cli-progress": "^3.12.0",
-		"gettext-merger": "^0.1.0",
+		"gettext-merger": "^1.0.0",
 		"gettext-parser": "^7.0.1",
 		"glob": "^10.3.10",
 		"tree-sitter": "^0.20.6",

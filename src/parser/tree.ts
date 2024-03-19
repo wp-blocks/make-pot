@@ -133,7 +133,7 @@ export function doTree(
 							filepath // in filename.php
 					)
 					// this string is not translatable and should be skipped
-					return
+					continue
 				}
 
 				// the translation key (eg. msgid)

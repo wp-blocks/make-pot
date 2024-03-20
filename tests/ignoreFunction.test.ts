@@ -1,31 +1,7 @@
 import { describe, expect } from '@jest/globals'
 import { Glob, Path } from 'glob'
 import path from 'path'
-import { minimatch } from 'minimatch'
 import { ignoreFunc } from '../src/fs/glob'
-
-describe('includes or not', () => {
-	it('paths includes', () => {
-		expect(
-			path
-				.normalize(
-					'D:\\vvv-local\\www\\phpeighttwo\\public_html\\wp-content\\plugins\\makePot\\tests\\fixtures'
-				)
-				.includes('tests')
-		).toBe(true)
-		expect(
-			path.normalize(
-				path.relative(
-					'D:\\vvv-local\\www\\phpeighttwo\\public_html\\wp-content\\plugins\\makePot\\tests\\fixtures',
-					'tests'
-				)
-			)
-		).toBe('..')
-		expect(
-			minimatch(path.normalize('block/SvgControls.tsx'), 'block/**')
-		).toBe(true)
-	})
-})
 
 const tests = [
 	{

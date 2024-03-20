@@ -64,6 +64,10 @@ export async function exec(args: Args): Promise<string> {
 
 	translationsUnion = await taskRunner(tasks, translationsUnion, args)
 
+	if (!args.options?.json) {
+		return JSON.stringify([potHeader, translationsUnion.toJson()], null, 4)
+	}
+
 	// generate the pot file json
 	const getTextTranslations: GetTextTranslations = {
 		charset: 'iso-8859-1',

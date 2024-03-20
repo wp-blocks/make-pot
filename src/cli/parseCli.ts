@@ -41,9 +41,11 @@ function isThemeOrPlugin(currentPath: string = '/', slug: string) {
 		)
 	}
 
-	if (currentWorkingDirectory.includes('themes')) {
+	if (currentWorkingDirectory.includes('wp-content' + path.sep + 'themes')) {
 		return 'theme'
-	} else if (currentWorkingDirectory.includes('plugins')) {
+	} else if (
+		currentWorkingDirectory.includes('wp-content' + path.sep + 'plugins')
+	) {
 		return 'plugin'
 	}
 	return 'generic'

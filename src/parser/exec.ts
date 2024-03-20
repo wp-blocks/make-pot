@@ -6,6 +6,8 @@ import { getPatterns } from './patterns'
 import { processFiles } from './process'
 import { taskRunner } from './taskRunner'
 import { getCopyright } from '../utils'
+import { SingleBar } from 'cli-progress'
+import { initProgress } from './progress'
 
 /**
  * Runs the parser and generates the pot file or the json file based on the command line arguments
@@ -16,10 +18,6 @@ import { getCopyright } from '../utils'
 export async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
 		console.log('📝 Starting makePot for', args?.slug)
-		console.log('🔍 Extracting strings from', args.paths)
-	}
-
-	if (!args.options?.silent) {
 		console.log(
 			'Memory usage:',
 			(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
@@ -60,9 +58,24 @@ export async function exec(args: Args): Promise<string> {
 	 */
 	const patterns = getPatterns(args)
 
-	const tasks = await processFiles(patterns, args)
+	/**
+	 * The progress bar that is used to show the progress of the extraction process.
+	 */
+	const progressBar: SingleBar | undefined =
+		initProgress(args, 0) ?? undefined
 
-	translationsUnion = await taskRunner(tasks, translationsUnion, args)
+	const tasks = await processFiles(patterns, args, progressBar)
+
+	translationsUnion = await taskRunner(
+		tasks,
+		translationsUnion,
+		args,
+		progressBar
+	)
+
+	if (progressBar) {
+		progressBar.stop()
+	}
 
 	if (!args.options?.json) {
 		return JSON.stringify([potHeader, translationsUnion.toJson()], null, 4)

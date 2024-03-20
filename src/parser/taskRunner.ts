@@ -1,5 +1,6 @@
 import { SetOfBlocks } from 'gettext-merger'
 import { Args } from '../types'
+import { SingleBar } from 'cli-progress'
 
 /**
  * Task runner for the extraction process.
@@ -7,31 +8,38 @@ import { Args } from '../types'
  * @param tasks - The tasks to run
  * @param destination - The destination
  * @param args - The command line arguments
+ * @param progressBar
  */
 export async function taskRunner(
 	tasks: Promise<SetOfBlocks>[],
 	destination: SetOfBlocks,
-	args: Args
+	args: Args,
+	progressBar?: SingleBar
 ) {
 	await Promise.allSettled(tasks)
 		.then((strings) => {
-			// return the strings
+			/**
+			 * Return the strings that are not rejected (they are fulfilled)
+			 */
 			return strings
 				.map((block) => block.status === 'fulfilled' && block.value)
 				.filter(Boolean) as SetOfBlocks[] // remove false 👆
 		})
 		.then((consolidated) => {
-			console.log('🎉 Done!')
 			consolidated.forEach((result) => {
 				if (result.blocks.length > 0) {
+					/**
+					 * Add the strings to the destination set
+					 */
+					destination.addArray(result.blocks)
+					/* Log the results */
 					console.log(
-						'✅ Found',
+						'✅ ' + result.path + ' [',
 						result.blocks.map((b) => b.msgid).join(', '),
-						'strings in',
-						result.path
+						']'
 					)
-					result.blocks.forEach((b) => destination.add(b))
-				} else console.log('❌ No strings found in', result.path)
+					progressBar?.stop()
+				} else console.log('❌ ', result.path + ' has no strings')
 			})
 		})
 		.catch((err) => {
@@ -40,12 +48,12 @@ export async function taskRunner(
 		})
 
 	if (!args.options?.silent) {
+		console.log('🎉 Done!')
 		console.log(
 			'📝 Found',
-			Object.values(destination).length,
-			'groups of strings and ' +
-				Object.values(destination.blocks).length +
-				' strings were found'
+			Object.values(destination.blocks).length,
+			'translation strings in',
+			args.paths.cwd
 		)
 	}
 

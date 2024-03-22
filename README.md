@@ -1,4 +1,8 @@
-## make-pot
+[![](https://img.shields.io/npm/v/@wp-blocks/make-pot.svg?label=npm%20version)](https://www.npmjs.com/package/@wp-blocks/make-pot)
+[![](https://img.shields.io/npm/l/@wp-blocks/make-pot)](https://github.com/wp-blocks/make-pot?tab=GPL-3.0-1-ov-file#readme)
+[![](https://github.com/wp-blocks/make-pot/actions/workflows/node.js.yml/badge.svg)](https://github.com/wp-blocks/make-pot/actions/workflows/node.js.yml)
+
+## Make Pot
 
 `make-pot` is a Node.js module designed to generate the `.pot` file for your WordPress plugin or theme. This file serves as the basis for internationalization, allowing translators to localize your plugin or theme into different languages.
 
@@ -67,3 +71,5 @@ Special thanks to the maintainers in particular [Swissspidy](https://github.com/
 has been very helpful with suggestions and tips on how to rebuild `make-pot`.
 
 Feel free to contribute or report issues on [GitHub](https://github.com/example/example).
+
+This tool is licensed under the [GNU General Public License v3](LICENSE).

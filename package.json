@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"license": "GPL-3.0-or-later",
 	"homepage": "https://wp-blocks.github.io/make-pot/",
 	"description": "A Node.js script for generating a POT file from source code",

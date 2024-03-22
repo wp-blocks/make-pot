@@ -150,7 +150,7 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 			// Get the translation data
 			const block = new Block([])
 			block.msgctxt = translation.msgctxt
-			block.msgid = translation.msgid
+			block.msgid = translation.msgid ?? ''
 			block.msgid_plural = translation.msgid_plural
 			block.msgstr = translation.msgid_plural ? ['', ''] : ['']
 			block.comments = {

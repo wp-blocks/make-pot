@@ -38,9 +38,10 @@ export async function taskRunner(
 						result.blocks.map((b) => b.msgid).join(', '),
 						']'
 					)
-					progressBar?.stop()
 				} else console.log('❌ ', result.path + ' has no strings')
 			})
+
+			progressBar?.stop()
 		})
 		.catch((err) => {
 			console.log('❌ Failed!', err)

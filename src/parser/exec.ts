@@ -77,7 +77,9 @@ export async function exec(args: Args): Promise<string> {
 		progressBar.stop()
 	}
 
-	if (!args.options?.json) {
+	if (args.options?.json) {
+		// generate the json file
+		// TODO: this should compile to Jed-formatted JSON instead of JSON5
 		return JSON.stringify([potHeader, translationsUnion.toJson()], null, 4)
 	}
 

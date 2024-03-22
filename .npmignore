@@ -2,7 +2,11 @@ node_modules
 tests/fixtures
 tests/__snapshots__
 src
+docs/coverage
+languages
+.github
 .prettierrc
  .prettierignore
 .idea
 example
+*.pot

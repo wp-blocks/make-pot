@@ -1,26 +1,13 @@
-import { Args, type TranslationStrings } from '../types'
-import { runExtract } from './index'
+import { Args } from '../types'
 import { cpus, totalmem } from 'node:os'
 import { generateHeader, translationsHeaders } from '../extractors/headers'
 import gettextParser, { GetTextTranslations } from 'gettext-parser'
-import { consolidate } from './consolidate'
-
-/**
- * Generates a copyright comment for the specified slug and license.
- *
- * @param {string} slug - The slug to include in the copyright comment
- * @param {string} [license='GPL v2 or later'] - The license to use in the copyright comment
- * @return {string} The generated copyright comment
- */
-export function getCopyright(
-	slug: string,
-	license: string = 'GPL v2 or later'
-): string {
-	const copyrightComment =
-		`# Copyright (C) ${new Date().getFullYear()} ${slug}\n` +
-		`# This file is distributed under the ${license} license.`
-	return copyrightComment
-}
+import { getPatterns } from './patterns'
+import { processFiles } from './process'
+import { taskRunner } from './taskRunner'
+import { getCopyright } from '../utils'
+import { SingleBar } from 'cli-progress'
+import { initProgress } from './progress'
 
 /**
  * Runs the parser and generates the pot file or the json file based on the command line arguments
@@ -31,26 +18,12 @@ export function getCopyright(
 export async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
 		console.log('📝 Starting makePot for', args?.slug)
-		console.log('🔍 Extracting strings from', args.paths)
-	}
-
-	/**
-	 * Extract the strings from the files
-	 */
-	let stringsJson = await runExtract(args)
-	console.log('🎉 Done!')
-	stringsJson = stringsJson.filter(
-		(value) => value && Object.values(value).length
-	)
-
-	if (!args.options?.silent) {
 		console.log(
 			'Memory usage:',
 			(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
 			'MB (Free:',
 			(totalmem() / 1024 / 1024 / 1024).toFixed(2),
-			'GB)\n',
-			'Cpu User:',
+			'GB)\nCpu User:',
 			(process.cpuUsage().user / 1000000).toFixed(2),
 			'ms Cpu System:',
 			(process.cpuUsage().system / 1000000).toFixed(2),
@@ -78,35 +51,43 @@ export async function exec(args: Args): Promise<string> {
 		)
 
 	/** We need to find the main file data so that the definitions are extracted from the plugin or theme files */
-	const potDefinitions: TranslationStrings = { '': translationsHeaders(args) }
+	let translationsUnion = translationsHeaders(args)
 
 	/**
-	 * Consolidate the strings to a single object so that the final pot file can be generated
+	 * Extract the strings from the files
 	 */
-	const translationsUnion: GetTextTranslations['translations'] = consolidate([
-		potDefinitions,
-		...stringsJson,
-	])
+	const patterns = getPatterns(args)
 
-	if (!args.options?.silent) {
-		console.log(
-			'📝 Found',
-			Object.values(translationsUnion).length,
-			'group of strings in',
-			stringsJson.length,
-			'files. In total ' +
-				Object.values(translationsUnion)
-					.map((v) => Object.keys(v).length)
-					.reduce((acc, val) => acc + val, 0) +
-				' strings were found'
-		)
+	/**
+	 * The progress bar that is used to show the progress of the extraction process.
+	 */
+	const progressBar: SingleBar | undefined =
+		initProgress(args, 0) ?? undefined
+
+	const tasks = await processFiles(patterns, args, progressBar)
+
+	translationsUnion = await taskRunner(
+		tasks,
+		translationsUnion,
+		args,
+		progressBar
+	)
+
+	if (progressBar) {
+		progressBar.stop()
+	}
+
+	if (args.options?.json) {
+		// generate the json file
+		// TODO: this should compile to Jed-formatted JSON instead of JSON5
+		return JSON.stringify([potHeader, translationsUnion.toJson()], null, 4)
 	}
 
 	// generate the pot file json
 	const getTextTranslations: GetTextTranslations = {
 		charset: 'iso-8859-1',
 		headers: potHeader,
-		translations: translationsUnion,
+		translations: translationsUnion.toJson(),
 	}
 
 	// And then compile the pot file

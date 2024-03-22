@@ -1,101 +1,61 @@
-import type { Args, TranslationStrings } from '../types'
-import cliProgress, { SingleBar } from 'cli-progress'
-import { Glob } from 'glob'
+import type { Args, Patterns } from '../types'
+import { SingleBar } from 'cli-progress'
 import { allowedFiles } from '../const'
-import { parseFile } from '../extractors'
-
-/**
- * Initializes a progress bar and returns the progress bar element.
- *
- * @param {Args} args - The argument object containing the source directory and other options.
- * @param {number} filesCount - An array of file names.
- * @return {cliProgress.SingleBar} The progress bar element.
- */
-function initProgress(args: Args, filesCount: number): SingleBar | undefined {
-	if (args.options?.silent) return undefined
-	// Set up the progress bar
-	const progressBar = new cliProgress.SingleBar(
-		{
-			clearOnComplete: true,
-			etaBuffer: 1000,
-			hideCursor: true,
-			format: ' {bar} {percentage}% | ETA: {eta}s | {filename} | {value}/{total}',
-		},
-		cliProgress.Presets.shades_classic
-	)
-
-	progressBar.start(filesCount, 0)
-
-	// Return the progress bar element
-	return progressBar
-}
+import { SetOfBlocks } from 'gettext-merger'
+import path from 'path'
+import { readFileAsync } from '../fs'
+import { parseJsonCallback } from '../extractors/json'
+import { doTree } from './tree'
+import { getFiles } from '../fs/glob'
 
 /**
  * Processes the given files and returns an array of promises that resolve to TranslationStrings.
  *
- * @param {Glob<{ cwd: string }>} files - The files to process.
+ * @param patterns
  * @param {Args} args - The arguments for processing the files.
- * @param {SingleBar} [progressBar] - An optional progress bar for tracking the progress of file processing.
- * @return {Promise<TranslationStrings>[]} - An array of promises that resolve to TranslationStrings.
+ * @param progressBar - The progress bar element.
+ * @return {Promise<SetOfBlocks[]>} - An array of promises that resolve to TranslationStrings.
  */
-function processFiles(
-	files: Glob<{ cwd: string }>,
+export async function processFiles(
+	patterns: Patterns,
 	args: Args,
 	progressBar?: SingleBar
-): Promise<TranslationStrings>[] {
-	const tasks: Promise<TranslationStrings>[] = []
+): Promise<Promise<SetOfBlocks>[]> {
+	const tasks: Promise<SetOfBlocks>[] = []
+	let filesCount = 0
+
+	const files = getFiles(args, patterns)
 
 	// loop through the files and parse them
-	for (const file of files) {
-		// get the file extension
-		const ext = file.split('.').pop() || undefined
+	for await (const file of files) {
+		filesCount++
+		const filename = path.basename(file)
+		const ext = path.extname(file).replace(/^./, '')
+		const fileRealPath = path.resolve(args.paths.cwd, file)
 
-		// check if the extension is allowed
-		if (!ext || !allowedFiles.includes(ext)) {
-			// log the filepath
-			if (progressBar) {
-				progressBar.increment(1, {
-					filename: `Skipping ${ext} file: ${file}`,
+		if (filename === 'theme.json' || filename === 'block.json') {
+			tasks.push(
+				readFileAsync(fileRealPath).then(async (sourceCode) => {
+					return await parseJsonCallback(
+						sourceCode,
+						args.paths.cwd,
+						filename
+					)
 				})
-			}
-			continue
+			)
 		}
 
-		const task = parseFile(file, args.paths.cwd).finally(() => {
-			if (progressBar) {
-				progressBar.increment(1, {
-					filename: file,
+		if (allowedFiles.includes(ext)) {
+			tasks.push(
+				readFileAsync(fileRealPath).then((content) => {
+					return doTree(content, file)
 				})
-			}
-		})
-
-		// add the task to the array if it's not null
-		if (task !== null) {
-			tasks.push(task as Promise<TranslationStrings>)
+			)
 		}
+
+		progressBar?.increment(1, { filename })
+		progressBar?.setTotal(filesCount)
 	}
 
 	return tasks
-}
-
-/**
- * Retrieves an array of translation strings from files that match the specified arguments and pattern.
- *
- * @param {Args} args - The arguments to specify which files to search and parse.
- * @param {string[]} files - An array of file names to search and parse.
- * @return {Promise<TranslationStrings[]>} A promise that resolves to an array of translation strings found in the files.
- */
-export async function getStrings(args: Args, files: Glob<{ cwd: string }>) {
-	/**
-	 * The progress bar that is used to show the progress of the extraction process.
-	 */
-	let progressBar: SingleBar | undefined = undefined
-	progressBar =
-		initProgress(args, Array.from(files.iterateSync()).length) ?? undefined
-
-	const strings = await Promise.all(processFiles(files, args, progressBar))
-	// remove the progress bar
-	if (progressBar) progressBar.stop()
-	// return the strings
-	return strings
 }

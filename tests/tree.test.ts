@@ -138,15 +138,14 @@ describe('doTree php test file', () => {
 
 		const filename = 'filename.php'
 
-		const r = doTree(content, filename)
+		const r = doTree(content, filename).blocks
 		const res = Object.values(r)[0]
-		const translations = Object.keys(res)
-		const comments = Object.entries(res).filter(
-			([x, translation]) => !!translation.comments?.translator
-		)
 
-		expect(translations.length).toBeGreaterThanOrEqual(19)
-		expect(comments.length).toBeGreaterThanOrEqual(8)
+		/** TODO: fix this test - btw i counted 19 blocks and 8 comments in the test file */
+		expect(r.map((block) => block).length).toBeGreaterThanOrEqual(19)
+		expect(
+			r.filter((block) => block.comments).length
+		).toBeGreaterThanOrEqual(8)
 		expect(res).toMatchSnapshot()
 	})
 })

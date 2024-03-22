@@ -64,12 +64,11 @@ export const ignoreFunc = (
  * @param {Patterns} pattern - The pattern object containing the included and excluded file patterns.
  * @return A promise that resolves to an array of file paths.
  */
-export async function getFiles(args: Args, pattern: Patterns) {
+export function getFiles(args: Args, pattern: Patterns) {
 	if (!args.options?.silent)
 		console.log(
-			'Searching in :',
-			path.resolve(args.paths.cwd),
-			'for ' + pattern.include.join(),
+			'Searching in :' + path.resolve(args.paths.cwd),
+			'\nfor ' + pattern.include.join(),
 			'\nignoring patterns: ' + pattern.exclude.join()
 		)
 

@@ -1,6 +1,6 @@
-import { GetTextTranslation } from 'gettext-parser'
-import type { TranslationStrings } from '../types'
 import { getJsonComment } from './json'
+import { Block } from 'gettext-merger'
+import { SetOfBlocks } from 'gettext-merger'
 
 /**
  * Returns the key of an object based on its value
@@ -26,18 +26,18 @@ export function getKeyByValue(
 export const gentranslation = (
 	label: string,
 	string: string,
-	filePath?: string | undefined
-): GetTextTranslation => {
-	return {
-		msgctxt: undefined,
-		msgid: string,
-		msgid_plural: '',
-		msgstr: [],
-		comments: {
-			extracted: label,
-			reference: filePath,
-		} as GetTextTranslation['comments'],
+	filePath: string
+): Block => {
+	const block = new Block([])
+	block.msgctxt = undefined
+	block.msgid = string
+	block.msgid_plural = ''
+	block.msgstr = []
+	block.comments = {
+		extracted: [label],
+		reference: [filePath],
 	}
+	return block
 }
 
 /**
@@ -46,17 +46,21 @@ export const gentranslation = (
  * @param {Record<string, any> | Parser.SyntaxNode} parsed - The parsed JSON data or syntax node.
  * @param {string | Parser} filename - The filename or parser.
  * @param filepath - the path to the file being parsed
- * @return {TranslationStrings[]} An array of translation strings.
+ * @return {SetOfBlocks} An array of translation strings.
  */
 export function yieldParsedData(
 	parsed: Record<string, string | string[]>,
 	filename: 'block.json' | 'theme.json' | 'readme.txt',
 	filepath: string
-): TranslationStrings {
+): SetOfBlocks {
+	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath)
+
 	if (!parsed) {
-		return {}
+		return gettextTranslations
 	}
-	const gettextTranslations: TranslationStrings = {}
+
+	// set the path of the translation
+	gettextTranslations.path = filepath
 
 	Object.entries(parsed).forEach(([term, item]) => {
 		/**
@@ -66,16 +70,13 @@ export function yieldParsedData(
 		 * @param valueKey The key of the translation
 		 */
 		function storeTranslation(value: string, valueKey: string = term) {
-			const entry = gentranslation(
+			const block = gentranslation(
 				getJsonComment(term, filename),
 				valueKey,
 				filepath
 			)
 
-			gettextTranslations[entry.msgctxt ?? ''] = {
-				...(gettextTranslations[entry.msgctxt ?? ''] || {}),
-				[entry.msgid]: entry,
-			}
+			gettextTranslations.add(block)
 		}
 
 		if (!item) {

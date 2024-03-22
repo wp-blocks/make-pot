@@ -82,7 +82,7 @@ describe('getFiles', () => {
 		]
 
 		const files = await getFiles(args, pattern)
-		let collected = []
+		const collected = []
 		for (const file of files) {
 			expect(file).toBeTruthy()
 			collected.push(file)
@@ -101,7 +101,7 @@ describe('getFiles', () => {
 		}
 
 		const files = await getFiles(args, pattern)
-		let collected = []
+		const collected = []
 		for (const file of files) {
 			expect(file).toBeTruthy()
 			collected.push(file)

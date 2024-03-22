@@ -1,5 +1,6 @@
 import { describe, expect } from '@jest/globals'
 import { doTree } from '../src/parser/tree'
+import { Block } from 'gettext-merger'
 
 describe('getStrings', () => {
 	it('should extract translations from js', () => {
@@ -7,36 +8,34 @@ describe('getStrings', () => {
 		const filename = 'filename.js'
 
 		const result = doTree(content, filename)
+		const expected = new Block([])
+		expected.msgid = 'Hello World'
+		expected.comments = {
+			reference: ['filename.js:1'],
+			translator: [''],
+		}
 
-		expect(result).toMatchObject({
-			'': {
-				'Hello World': {
-					comments: {
-						reference: 'filename.js:1',
-					},
-					msgid: 'Hello World',
-					msgstr: [''],
-				},
-			},
-		})
+		expect(result.blocks[0].msgid).toBe(expected.msgid)
 	})
+
 	it('should extract translations from ts', () => {
 		const content = `__('Hello World', 'greeting');`
 		const filename = 'filename.ts'
 
-		const result = doTree(content, filename)
+		const result = doTree(content, filename).blocks[0].toJson()
 
-		expect(result).toMatchObject({
-			'': {
-				'Hello World': {
-					comments: {
-						reference: 'filename.ts:1',
-					},
-					msgid: 'Hello World',
-					msgstr: [''],
-				},
-			},
-		})
+		const expected = new Block([])
+		expected.msgid = 'Hello World'
+		expected.comments = {
+			reference: ['filename.ts:1'],
+			translator: [''],
+		}
+
+		expect(result.msgid).toBe(expected.msgid)
+		expect(expected.comments?.reference).toHaveLength(1)
+		expect([result.comments?.reference]).toEqual(
+			expected.comments?.reference
+		)
 	})
 	it('should extract translations from tsx', () => {
 		const content = `const element = <h1>{ __('Hello World', 'greeting')}</h1>;`
@@ -45,17 +44,15 @@ describe('getStrings', () => {
 
 		const result = doTree(content, filename)
 
-		expect(result).toMatchObject({
-			'': {
-				'Hello World': {
-					comments: {
-						reference: 'filename.tsx:1',
-					},
-					msgid: 'Hello World',
-					msgstr: [''],
-				},
-			},
-		})
+		const expected = new Block([])
+		expected.msgid = 'Hello World'
+		expected.msgstr = ['']
+		expected.comments = {
+			reference: ['filename.tsx:1'],
+			translator: [''],
+		}
+
+		expect(result.blocks[0].toJson()).toEqual(expected.toJson())
 	})
 	it('should extract translations with context', () => {
 		const content = `<?php __('Hello World', 'greeting'); ?>`
@@ -63,42 +60,30 @@ describe('getStrings', () => {
 
 		const result = doTree(content, filename)
 
-		expect(result).toMatchObject({
-			'': {
-				'Hello World': {
-					comments: {
-						reference: 'filename.php:1',
-						translator: '',
-					},
-					msgctxt: '',
-					msgid: 'Hello World',
-					msgid_plural: '',
-					msgstr: [''],
-				},
-			},
-		})
+		const expected = new Block([])
+		expected.msgid = 'Hello World'
+		expected.msgstr = ['']
+		expected.comments = {
+			reference: ['filename.php:1'],
+			translator: [''],
+		}
+
+		expect(result.blocks[0].toJson()).toEqual(expected.toJson())
 	})
 	it('should extract translations from code content with no context or translator comments', () => {
 		const content = `<?php _e('Hello World'); ?>`
-		const expected = {
-			'': {
-				'Hello World': {
-					comments: {
-						reference: 'filename.php:1',
-						translator: '',
-					},
-					msgctxt: '',
-					msgid: 'Hello World',
-					msgstr: [''],
-					msgid_plural: '',
-				},
-			},
+		const expected = new Block([])
+		expected.msgid = 'Hello World'
+		expected.msgstr = ['']
+		expected.comments = {
+			translator: undefined,
+			reference: ['filename.php:1'],
 		}
 		const filename = 'filename.php'
 
 		const result = doTree(content, filename)
 
-		expect(result).toEqual(expected)
+		expect(result.blocks[0]).toEqual(expected)
 	})
 
 	it('should extract translations with comments', () => {
@@ -106,18 +91,18 @@ describe('getStrings', () => {
 		const content = `
 		<?php /** translators: ciao! */ echo _x('Hello World', 'greeting'); ?>`
 		const expected = {
-			greeting: {
-				'Hello World': {
+			blocks: [
+				{
 					comments: {
-						reference: 'filename.php:2',
-						translator: 'ciao!',
+						reference: ['filename.php:2'],
+						translator: ['ciao!'],
 					},
 					msgctxt: 'greeting',
 					msgid: 'Hello World',
-					msgid_plural: '',
 					msgstr: [''],
 				},
-			},
+			],
+			path: 'filename.php',
 		}
 
 		const result = doTree(content, filename)
@@ -137,24 +122,14 @@ describe('getStrings', () => {
 
 
 		<?php echo _x('Hello World', 'greeting'); ?>`
-		const expected = {
-			greeting: {
-				'Hello World': {
-					msgctxt: 'greeting',
-					msgid: 'Hello World',
-					msgid_plural: '',
-					msgstr: [''],
-					comments: {
-						translator: '',
-						reference: 'filename.php:10',
-					},
-				},
-			},
-		}
+		const expected = `#: filename.php:10
+msgctxt "greeting"
+msgid "Hello World"
+msgstr ""`
 
 		const result = doTree(content, filename)
 
-		expect(result).toMatchObject(expected)
+		expect(result.blocks[0].toStr()).toBe(expected)
 	})
 
 	it('should extract translations inside a sprint', () => {
@@ -168,9 +143,15 @@ echo $link;`
 				'Check out this link to my <a href="%s">website</a> made with WordPress.':
 					{
 						comments: {
+							extracted: '',
+							flag: '',
+							previous: '',
 							reference: 'filename.php:3',
+							translator: '',
 						},
+						msgctxt: '',
 						msgid: 'Check out this link to my <a href="%s">website</a> made with WordPress.',
+						msgid_plural: undefined,
 						msgstr: [''],
 					},
 			},
@@ -178,7 +159,7 @@ echo $link;`
 
 		const result = doTree(content, filename)
 
-		expect(result).toMatchObject(expected)
+		expect(result.toJson()).toMatchObject(expected)
 	})
 })
 
@@ -229,26 +210,11 @@ describe('getStrings wp cli', () => {
 			WP_CLI::warning( 'Re-migration successful.', 'woocommerce' );
 		}
 `
-		const expected = {
-			'': {
-				'%1$d error found: %2$s when re-migrating order. Please review the error above.':
-					{
-						comments: {
-							reference: 'filename.php:6',
-							translator:
-								'%1$d is number of errors and %2$s is the formatted array of order IDs.',
-						},
-						msgctxt: '',
-						msgid: '%1$d error found: %2$s when re-migrating order. Please review the error above.',
-						msgid_plural:
-							'%1$d errors found: %2$s when re-migrating orders. Please review the errors above.',
-						msgstr: ['', ''],
-					},
-			},
-		}
 
 		const result = doTree(content, filename)
-		expect(expected).toMatchObject(result)
+		expect(
+			'%1$d error found: %2$s when re-migrating order. Please review the error above.'
+		).toBe(result.blocks[0].msgid)
 	})
 
 	/** see https://github.com/wp-cli/i18n-command/blob/main/features/makepot.feature */

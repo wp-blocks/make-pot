@@ -76,7 +76,7 @@ describe('getStrings', () => {
 		expected.msgid = 'Hello World'
 		expected.msgstr = ['']
 		expected.comments = {
-			translator: [''],
+			translator: undefined,
 			reference: ['filename.php:1'],
 		}
 		const filename = 'filename.php'
@@ -122,10 +122,10 @@ describe('getStrings', () => {
 
 
 		<?php echo _x('Hello World', 'greeting'); ?>`
-		const expected = `filename.php:10
-greeting
-Hello World
-""`
+		const expected = `#: filename.php:10
+msgctxt "greeting"
+msgid "Hello World"
+msgstr ""`
 
 		const result = doTree(content, filename)
 
@@ -138,19 +138,28 @@ Hello World
 $url = 'http://example.com';
 $link = sprintf( wp_kses( __( 'Check out this link to my <a href="%s">website</a> made with WordPress.', 'my-text-domain' ), array(  'a' => array( 'href' => array() ) ) ), esc_url( $url ) );
 echo $link;`
-		const expected = [
-			{
-				comments: { reference: ['filename.php:3'], translator: [''] },
-				msgctxt: undefined,
-				msgid: 'Check out this link to my <a href="%s">website</a> made with WordPress.',
-				msgid_plural: undefined,
-				msgstr: [''],
+		const expected = {
+			'': {
+				'Check out this link to my <a href="%s">website</a> made with WordPress.':
+					{
+						comments: {
+							extracted: '',
+							flag: '',
+							previous: '',
+							reference: 'filename.php:3',
+							translator: '',
+						},
+						msgctxt: '',
+						msgid: 'Check out this link to my <a href="%s">website</a> made with WordPress.',
+						msgid_plural: undefined,
+						msgstr: [''],
+					},
 			},
-		]
+		}
 
 		const result = doTree(content, filename)
 
-		expect(result.blocks).toMatchObject(expected)
+		expect(result.toJson()).toMatchObject(expected)
 	})
 })
 

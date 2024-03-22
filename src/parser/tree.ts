@@ -146,17 +146,19 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 			}
 
 			// TODO: Alert about wrong translation domain?
+			const comments = collectComments(argsNode)
 
 			// Get the translation data
-			const block = new Block([])
-			block.msgctxt = translation.msgctxt
-			block.msgid = translation.msgid ?? ''
-			block.msgid_plural = translation.msgid_plural
-			block.msgstr = translation.msgid_plural ? ['', ''] : ['']
-			block.comments = {
-				translator: [collectComments(node) ?? ''],
-				reference: [`${filepath}:${node.startPosition.row + 1}`],
-			}
+			const block = new Block({
+				msgctxt: translation.msgctxt,
+				msgid: translation.msgid ?? '',
+				msgid_plural: translation.msgid_plural,
+				msgstr: translation.msgid_plural ? ['', ''] : [''],
+				comments: {
+					translator: comments ? [comments] : undefined,
+					reference: [`${filepath}:${node.startPosition.row + 1}`],
+				},
+			})
 
 			gettextTranslations.add(block)
 		}

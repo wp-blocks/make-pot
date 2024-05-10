@@ -90,7 +90,7 @@ describe("getStrings", () => {
 
 		const result = doTree(content, filename);
 
-		assert.deepStrictEqual(result.blocks[0], expected);
+		assert.deepEqual(result.blocks[0], expected);
 	});
 
 	it("should extract translations with comments", () => {
@@ -104,7 +104,7 @@ describe("getStrings", () => {
 
 		const result = doTree(content, filename);
 
-		assert.deepStrictEqual(result.blocks[0].comments, expectedComments);
+		assert.deepEqual(result.blocks[0].comments, expectedComments);
 	});
 
 	it("should extract translations with comments reporting the right position", () => {

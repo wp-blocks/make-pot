@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 
 /**
@@ -109,9 +110,13 @@ export function reverseSlashes(filePath: string): string {
  */
 export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
 	const requested: Record<string, unknown> = {};
-	const pkgJson = require(
-		path.join(__dirname, "..", "..", "package.json"),
-	) as Record<string, unknown>;
+	const pkgJsonPath = path.join(__dirname, "..", "..", "package.json");
+	const pkgJson: Record<string, unknown> = fs.existsSync(pkgJsonPath)
+		? require(pkgJsonPath)
+		: {
+				name: "makepot",
+				version: "",
+			};
 	for (const field of fields) {
 		if (pkgJson[field]) {
 			requested[field] = pkgJson[field];

@@ -1,31 +1,7 @@
 #!/usr/bin/env node
-import { makePot } from './parser/'
-
-import yargs from 'yargs'
-import { pkgJson } from './const'
-import { getArgs } from './cli'
+import { getArgs } from "./cli/index.js";
+import run from "./run.js";
 
 /** Main execution */
-const args = getArgs()
-
-if (Object.keys(args).length > 0) {
-	/* print the version */
-	console.log(pkgJson.name + ' version: ' + pkgJson.version)
-	/* capture the start time */
-	const timeStart = new Date()
-	/** make the pot file */
-	makePot(args)
-		.then(() => {
-			/* output the end time */
-			const timeEnd = new Date()
-			console.log(
-				`🚀 Translation Pot file created in ${timeEnd.getTime() - timeStart.getTime()}ms`
-			)
-		})
-		.catch((error) => {
-			console.error(error)
-		})
-} else {
-	/** print the help if no arguments are passed */
-	yargs.showHelp()
-}
+const args = getArgs();
+run(args);

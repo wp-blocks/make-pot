@@ -1,4 +1,4 @@
-import type { Args, Patterns } from '../types'
+import type { Args, Patterns } from "../types.js";
 
 /**
  * Returns the patterns based on the given arguments.
@@ -12,7 +12,7 @@ export function getPatterns(args: Args) {
 		mergePaths: args.patterns.mergePaths,
 		subtractPaths: args.patterns.subtractPaths,
 		subtractAndMerge: args.patterns.subtractAndMerge,
-	} as Patterns
+	} as Patterns;
 
 	// Additional logic to handle different file types and formats
 	// Exclude blade.php files if --skip-blade is set
@@ -22,24 +22,24 @@ export function getPatterns(args: Args) {
 	) {
 		if (args.options?.skip.blade !== undefined) {
 			// php files but not blade.php
-			pattern.include.push('**/*.php')
+			pattern.include.push("**/*.php");
 		} else {
-			pattern.include.push('**/*.php', '!**/blade.php')
+			pattern.include.push("**/*.php", "!**/blade.php");
 		}
 	}
 
 	// js typescript mjs cjs etc
 	if (args.options?.skip.js !== undefined) {
-		pattern.include.push('**/*.{js,jsx,ts,tsx,mjs,cjs}')
+		pattern.include.push("**/*.{js,jsx,ts,tsx,mjs,cjs}");
 	}
 
 	if (args.options?.skip.blockJson !== undefined) {
-		pattern.include.push('block.json')
+		pattern.include.push("block.json");
 	}
 
 	if (args.options?.skip.themeJson !== undefined) {
-		pattern.include.push('theme.json')
+		pattern.include.push("theme.json");
 	}
 
-	return pattern
+	return pattern;
 }

@@ -1,8 +1,8 @@
 const { sep } = require("node:path");
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const { parseCliArgs } = require("../lib/cli/parseCli.js");
-const { getFiles } = require("../lib/fs/glob.js");
+const { parseCliArgs } = require("./lib/cli/parseCli.js");
+const { getFiles } = require("./lib/fs/glob.js");
 
 describe("getFiles", () => {
 	const DEFAULTS = parseCliArgs({

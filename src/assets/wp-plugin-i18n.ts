@@ -1,0 +1,15 @@
+export default {
+	name: "Plugin Name",
+	slug: "Plugin Slug",
+	url: "Plugin URI",
+	description: "Description",
+	version: "Version",
+	author: "Author",
+	authorUri: "Author URI",
+	tags: "Tags",
+	license: "License",
+	licenseUri: "License URI",
+	updateUri: "Update URI",
+	domainPath: "Domain Path",
+	textDomain: "Text Domain",
+};

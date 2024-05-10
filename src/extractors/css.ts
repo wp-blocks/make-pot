@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { themeHeaders } from "../const.js";
 import type { Args } from "../types.js";
-import { getCommentBlock } from "../utils/index.js";
+import { getCommentBlock } from "../utils/common.js";
 import { extractFileData } from "./text.js";
 import { getKeyByValue } from "./utils.js";
 

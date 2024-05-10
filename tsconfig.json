@@ -1,9 +1,7 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "ES2022",
 		"moduleResolution": "Node16",
-		"lib": [ "es2021" ],
 		"noImplicitAny": true,
 		"preserveConstEnums": true,
 		"sourceMap": true,
@@ -14,7 +12,5 @@
 		"outDir": "lib",
 		"rootDir": "src"
 	},
-	"include": [
-		"./src/**/*.ts",
-	]
+	"include": ["./src/**/*", "./tsconfig.json"]
 }

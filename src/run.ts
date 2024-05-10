@@ -1,12 +1,13 @@
-import { makePot } from "./parser/index.js";
+import { makePot } from "./parser/makePot.js";
 
-import { pkgJson } from "./const.js";
 import type { Args } from "./types.js";
+import { getPkgJsonData } from "./utils/common";
 
 export default function run(args: Args) {
 	if (Object.keys(args).length > 0) {
+		const { version, name } = getPkgJsonData("name", "version");
 		/* print the version */
-		console.log(pkgJson.name + " version: " + pkgJson.version);
+		console.log(`${name} version: ${version}`);
 		/* capture the start time */
 		const timeStart = new Date();
 		/** make the pot file */
@@ -21,7 +22,7 @@ export default function run(args: Args) {
 				);
 			})
 			.catch((error) => {
-				console.error(error);
+				console.error("Error in makePot: " + error);
 			});
 	}
 }

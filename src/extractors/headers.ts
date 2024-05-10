@@ -1,13 +1,13 @@
 import { SetOfBlocks } from "gettext-merger";
-import { pkgJson } from "../const.js";
 import type { Args, PotHeaders } from "../types.js";
+import { getPkgJsonData } from "../utils/common";
 import { extractCssThemeData } from "./css.js";
 import { extractPhpPluginData } from "./php.js";
 import { gentranslation } from "./utils.js";
 
 /**
  * Generates a POT header for a given set of arguments.
- * https://developer.wordpress.org/cli/commands/i18n/make-pot/ ->
+ * https://developer.wordpress.org/cli/commands/i18n/make-pot/
  * String that should be added as a comment to the top of the resulting POT file.
  * By default, a copyright comment is added for WordPress plugins and themes in the following manner:
  * `
@@ -24,6 +24,7 @@ export function generateHeader(args: Args) {
 	const { author, textDomain } = args.headers as {
 		[key in PotHeaders]: string;
 	};
+	const { name, version } = getPkgJsonData("name", "version");
 	const email = "EMAIL";
 	const language = "en";
 	const authorString = `${author} <${email}>`;
@@ -58,7 +59,7 @@ export function generateHeader(args: Args) {
 		"PO-Revision-Date": `${new Date().getFullYear()}-MO-DA HO:MI+ZONE`,
 		"Last-Translator": authorString,
 		"Language-Team": authorString,
-		"X-Generator": `${pkgJson.name} ${pkgJson.version}`,
+		"X-Generator": `${name} ${version}`,
 		Language: `${language}`,
 		// add domain if specified
 		domain,
@@ -97,7 +98,7 @@ export function translationsHeaders(args: Args): SetOfBlocks {
 	};
 
 	// the main file is the plugin main php file or the css file
-	const fakePath = domain === "plugin" ? args.slug + ".php" : "style.css";
+	const fakePath = domain === "plugin" ? `${args.slug}.php` : "style.css";
 
 	return new SetOfBlocks([
 		gentranslation(`Name of the ${domain}`, name, fakePath),

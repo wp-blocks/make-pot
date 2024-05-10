@@ -1,84 +1,69 @@
-const path = require('node:path')
-const fs = require('node:fs')
-const { describe, it } = require('node:test')
-const assert = require('node:assert')
-const { doTree } = require('../lib/parser/tree.js')
+const path = require("node:path");
+const fs = require("node:fs");
+const { describe, it } = require("node:test");
+const assert = require("node:assert");
+const { doTree } = require("../lib/");
 
-describe('doTree js', () => {
-	const filepath = 'tests/fixtures/block/javascript.js'
-	const filePath = path.join(process.cwd(), filepath)
-	const fileContent = fs.readFileSync(filePath, 'utf8')
-	it('Should parse TSX file and extract strings', () => {
-		const fileParsed = doTree(fileContent, filepath)
+describe("doTree js", () => {
+	const filepath = "tests/fixtures/block/javascript.js";
+	const filePath = path.join(process.cwd(), filepath);
+	const fileContent = fs.readFileSync(filePath, "utf8");
+	it("Should parse TSX file and extract strings", () => {
+		const fileParsed = doTree(fileContent, filepath);
 		assert.deepEqual(fileParsed.blocks[0], {
-				comments: {
-					reference: [
-						'tests\\fixtures\\block\\javascript.js:7',
-					],
-					translator: undefined,
-				},
-				msgctxt: undefined,
-				msgid: 'Simple Block',
-				msgid_plural: undefined,
-				msgstr: [
-					'',
-				],
+			comments: {
+				reference: ["tests\\fixtures\\block\\javascript.js:7"],
+				translator: undefined,
 			},
-		)
-	})
-})
+			msgctxt: undefined,
+			msgid: "Simple Block",
+			msgid_plural: undefined,
+			msgstr: [""],
+		});
+	});
+});
 
-describe('doTree php', () => {
-	const filepath = 'tests/fixtures/plugin/plugin.php'
-	const filePath = path.join(process.cwd(), filepath)
-	const fileContent = fs.readFileSync(filePath, 'utf8')
-	it('Should parse TSX file and extract strings', () => {
-		const fileParsed = doTree(fileContent, filepath)
+describe("doTree php", () => {
+	const filepath = "tests/fixtures/plugin/plugin.php";
+	const filePath = path.join(process.cwd(), filepath);
+	const fileContent = fs.readFileSync(filePath, "utf8");
+	it("Should parse TSX file and extract strings", () => {
+		const fileParsed = doTree(fileContent, filepath);
 		assert.deepEqual(fileParsed.blocks[1], {
-				comments: {
-					reference: [
-						'tests\\fixtures\\plugin\\plugin.php:65',
-					],
-					translator: undefined,
-				},
-				msgctxt: undefined,
-				msgid: 'You\\\'re a silly monkey',
-				msgid_plural: undefined,
-				msgstr: [
-					'',
-				],
+			comments: {
+				reference: ["tests\\fixtures\\plugin\\plugin.php:65"],
+				translator: undefined,
 			},
-		)
-	})
-})
+			msgctxt: undefined,
+			msgid: "You\\'re a silly monkey",
+			msgid_plural: undefined,
+			msgstr: [""],
+		});
+	});
+});
 
-describe('doTree tsx file', () => {
-	const filepath = 'tests/fixtures/block/SvgControls.tsx'
-	const filePath = path.join(process.cwd(), filepath)
-	const fileContent = fs.readFileSync(filePath, 'utf8')
-	it('Should parse TSX file and extract strings', () => {
-		const fileParsed = doTree(fileContent, filepath)
+describe("doTree tsx file", () => {
+	const filepath = "tests/fixtures/block/SvgControls.tsx";
+	const filePath = path.join(process.cwd(), filepath);
+	const fileContent = fs.readFileSync(filePath, "utf8");
+	it("Should parse TSX file and extract strings", () => {
+		const fileParsed = doTree(fileContent, filepath);
 		assert.deepEqual(fileParsed.blocks[2], {
-				comments: {
-					reference: [
-						'tests\\fixtures\\block\\SvgControls.tsx:107',
-					],
-					translator: undefined,
-				},
-				msgctxt: undefined,
-				msgid: 'Replace SVG',
-				msgid_plural: undefined,
-				msgstr: [
-					'',
-				],
+			comments: {
+				reference: ["tests\\fixtures\\block\\SvgControls.tsx:107"],
+				translator: undefined,
 			},
-		)
-	})
-})
+			msgctxt: undefined,
+			msgid: "Replace SVG",
+			msgid_plural: undefined,
+			msgstr: [""],
+		});
+	});
+});
 
-describe('doTree php test file', async () => {
+describe("doTree php test file", async () => {
 	/** see wp cli tests */
-	it('should extract translations and comments from code content', () => {
+	it("should extract translations and comments from code content", () => {
 		const content = `<?php
 
       // translators: Foo Bar Comment
@@ -160,14 +145,14 @@ describe('doTree php test file', async () => {
 
       /* Translators: This is another comment! */
       __( 'https://example.com', 'foo-plugin' );
-      `
+      `;
 
-		const filename = 'filename.php'
+		const filename = "filename.php";
 
-		const r = doTree(content, filename).blocks
-		const res = Object.values(r)[0]
+		const r = doTree(content, filename).blocks;
+		const res = Object.values(r)[0];
 
-		assert.strictEqual(r.map((block) => block).length, 11)
-		assert.strictEqual(r.filter((block) => block.comments).length, 11)
-	})
-})
+		assert.strictEqual(r.map((block) => block).length, 11);
+		assert.strictEqual(r.filter((block) => block.comments).length, 11);
+	});
+});

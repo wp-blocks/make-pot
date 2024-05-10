@@ -1,23 +1,9 @@
-import { description, name, version } from "../package.json";
 import blocki18n from "./assets/block-i18n.js";
 import packagei18n from "./assets/package-i18n.js";
 import themei18n from "./assets/theme-i18n.js";
 import wpPlugini18n from "./assets/wp-plugin-i18n.js";
 import wpThemei18n from "./assets/wp-theme-i18n.js";
 
-/**
- *  The makepot package.json file data
- *  @return {
- *      name: string,
- *      version: string,
- *      description: string
- *  } - The package.json data
- */
-export const pkgJson: Record<string, unknown> = {
-	name,
-	version,
-	description,
-};
 /**
  * Theme Json metadata headers
  *

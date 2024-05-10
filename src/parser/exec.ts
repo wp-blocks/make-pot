@@ -3,7 +3,7 @@ import type { SingleBar } from "cli-progress";
 import { type GetTextTranslations, po } from "gettext-parser";
 import { generateHeader, translationsHeaders } from "../extractors/headers.js";
 import type { Args } from "../types.js";
-import { getCopyright } from "../utils/index.js";
+import { getCopyright } from "../utils/common.js";
 import { getPatterns } from "./patterns.js";
 import { processFiles } from "./process.js";
 import { initProgress } from "./progress.js";
@@ -93,5 +93,5 @@ export async function exec(args: Args): Promise<string> {
 	const pluginTranslations = po.compile(getTextTranslations).toString("utf-8");
 
 	// return the pot file as a string with the header
-	return copyrightComment + "\n" + pluginTranslations;
+	return `${copyrightComment}\n${pluginTranslations}`;
 }

@@ -4,9 +4,14 @@ import * as process from "node:process";
 import type * as yargs from "yargs";
 import { DEFAULT_EXCLUDED_PATH } from "../const.js";
 import type { Args, DomainType } from "../types.js";
-import { stringstring } from "../utils/index.js";
+import { stringstring } from "../utils/common.js";
 
-function isThemeOrPlugin(currentPath = "/", slug: string) {
+/**
+ * This function checks if the current working directory is a theme or plugin
+ * @param currentPath The current working directory
+ * @param slug The slug of the theme or plugin
+ */
+function isThemeOrPlugin(currentPath = "/", slug = "default"): DomainType {
 	const currentWorkingDirectory = currentPath;
 
 	try {
@@ -37,7 +42,8 @@ function isThemeOrPlugin(currentPath = "/", slug: string) {
 
 	if (currentWorkingDirectory.includes(`wp-content${path.sep}themes`)) {
 		return "theme";
-	} else if (currentWorkingDirectory.includes(`wp-content${path.sep}plugins`)) {
+	}
+	if (currentWorkingDirectory.includes(`wp-content${path.sep}plugins`)) {
 		return "plugin";
 	}
 	return "generic";

@@ -3,8 +3,8 @@ const path = require("node:path");
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
-const { makePot } = require("../lib/parser/index.js");
-const { getArgs } = require("../lib/cli/index.js");
+const { makePot } = require("../lib/");
+const { getArgs } = require("../lib/cli/getArgs.js");
 
 describe("doTree is like wpcli", () => {
 	it("Should emit a pot file for theme like the wp-cli makepot", async () => {

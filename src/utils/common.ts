@@ -65,21 +65,22 @@ export function detectPatternType(
 
 	if (pattern.includes("*")) {
 		return "glob";
-	} else if (!containsFileExtension && !containsDirectorySeparator) {
-		return "directory";
-	} else if (containsFileExtension && !containsDirectorySeparator) {
-		return "file";
-	} else {
-		return "glob";
 	}
+	if (!containsFileExtension && !containsDirectorySeparator) {
+		return "directory";
+	}
+	if (containsFileExtension && !containsDirectorySeparator) {
+		return "file";
+	}
+	return "glob";
 }
 
 /**
  * Generates a copyright comment for the specified slug and license.
  *
- * @param {string} slug - The slug to include in the copyright comment
- * @param {string} [license='GPL v2 or later'] - The license to use in the copyright comment
- * @return {string} The generated copyright comment
+ * @param slug - The slug to include in the copyright comment
+ * @param [license='GPL v2 or later'] - The license to use in the copyright comment
+ * @return The generated copyright comment
  */
 export function getCopyright(
 	slug: string,
@@ -100,4 +101,22 @@ export function getCopyright(
 export function reverseSlashes(filePath: string): string {
 	// Replace forward slashes with backward slashes
 	return filePath.replace(/\//g, "\\");
+}
+
+/**
+ *  The makepot package.json file data
+ *  @return {Record<string, unknown>} - The package.json data
+ */
+export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
+	const requested: Record<string, unknown> = {};
+	const pkgJson = require(
+		path.join(__dirname, "..", "..", "package.json"),
+	) as Record<string, unknown>;
+	for (const field of fields) {
+		if (pkgJson[field]) {
+			requested[field] = pkgJson[field];
+		}
+	}
+
+	return requested;
 }

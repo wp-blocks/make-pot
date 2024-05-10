@@ -26,7 +26,7 @@ export async function taskRunner(
 				.filter(Boolean) as SetOfBlocks[]; // remove false 👆
 		})
 		.then((consolidated) => {
-			consolidated.forEach((result) => {
+			for (const result of consolidated) {
 				if (result.blocks.length > 0) {
 					/**
 					 * Add the strings to the destination set
@@ -38,8 +38,8 @@ export async function taskRunner(
 						result.blocks.map((b) => b.msgid).join(", "),
 						"]",
 					);
-				} else console.log("❌ ", result.path + " has no strings");
-			});
+				} else console.log("❌ ", `${result.path} has no strings`);
+			}
 
 			progressBar?.stop();
 		})

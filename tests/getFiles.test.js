@@ -1,4 +1,4 @@
-const path = require("node:path");
+const { sep } = require("node:path");
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
 const { parseCliArgs } = require("../lib/cli/parseCli.js");
@@ -42,21 +42,9 @@ describe("getFiles", () => {
 			exclude: ["node_modules", "dist"],
 		};
 		const expectedFiles = [
-			"tests" + path.sep + "fixtures" + path.sep + "file1.txt",
-			"tests" +
-				path.sep +
-				"fixtures" +
-				path.sep +
-				"sourcedir" +
-				path.sep +
-				"file2.txt",
-			"tests" +
-				path.sep +
-				"fixtures" +
-				path.sep +
-				"block" +
-				path.sep +
-				"readme.txt",
+			`tests${sep}fixtures${sep}file1.txt`,
+			`tests${sep}fixtures${sep}sourcedir${sep}file2.txt`,
+			`tests${sep}fixtures${sep}block${sep}readme.txt`,
 		];
 
 		const files = getFiles(args, pattern);
@@ -78,9 +66,9 @@ describe("getFiles", () => {
 			exclude: [],
 		};
 		const expectedFiles = [
-			`tests${path.sep}fixtures${path.sep}sourcedir${path.sep}theme.json`,
-			`tests${path.sep}fixtures${path.sep}sourcedir${path.sep}package.json`,
-			`tests${path.sep}fixtures${path.sep}sourcedir${path.sep}node_modules${path.sep}module${path.sep}block.json`,
+			`tests${sep}fixtures${sep}sourcedir${sep}theme.json`,
+			`tests${sep}fixtures${sep}sourcedir${sep}package.json`,
+			`tests${sep}fixtures${sep}sourcedir${sep}node_modules${sep}module${sep}block.json`,
 		];
 
 		const files = getFiles(args, pattern);

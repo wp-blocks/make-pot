@@ -4,7 +4,7 @@ import type { SetOfBlocks } from "gettext-merger";
 import { allowedFiles } from "../const.js";
 import { parseJsonCallback } from "../extractors/json.js";
 import { getFiles } from "../fs/glob.js";
-import { readFileAsync } from "../fs/index.js";
+import { readFileAsync } from '../fs/fs.js';
 import type { Args, Patterns } from "../types.js";
 import { doTree } from "./tree.js";
 

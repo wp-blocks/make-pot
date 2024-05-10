@@ -3,7 +3,7 @@ import { i18nFunctions } from "../const.js";
 
 import { Block, SetOfBlocks } from "gettext-merger";
 import { getParser } from "../fs/glob.js";
-import { reverseSlashes, stripTranslationMarkup } from "../utils/index.js";
+import { reverseSlashes, stripTranslationMarkup } from "../utils/common.js";
 
 /**
  * Collect comments from the AST node and its preceding siblings.
@@ -122,18 +122,10 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1);
 				} else {
-					// unexpected node type
+					// unexpected node type this string is not translatable and should be skipped
 					console.warn(
-						"Unexpected node type: " +
-							node?.type + // variable_name
-							" is " +
-							translationKeys[translationKeyIndex] + // in number
-							" for  " +
-							nodeValue + // for $number
-							" in " +
-							filepath, // in filename.php
+						`Unexpected node type: ${node?.type} is ${translationKeys[translationKeyIndex]} for  ${nodeValue} in ${filepath}`,
 					);
-					// this string is not translatable and should be skipped
 					continue;
 				}
 

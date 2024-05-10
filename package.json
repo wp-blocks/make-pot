@@ -12,6 +12,11 @@
 	"bin": {
 		"make-pot": "lib/index.js"
 	},
+	"type": "commonjs",
+	"engines": {
+		"node": ">=16.0.0"
+	},
+	"files": ["lib", "*.md", "*.json"],
 	"keywords": [
 		"gettext",
 		"i18n",
@@ -26,6 +31,8 @@
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
 		"test": "node --test",
+		"test:watch": "node --test --watch",
+		"test:coverage": "node --test --experimental-test-coverage",
 		"run": "node ./lib/index.js tests/fixtures/vinyl/"
 	},
 	"repository": {

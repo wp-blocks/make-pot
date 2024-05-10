@@ -1,7 +1,7 @@
-const { describe, it } = require("node:test");
+const { describe, it, beforeEach, before } = require("node:test");
 const assert = require("node:assert");
 const { Block } = require("gettext-merger");
-const { doTree } = require("../lib/parser/tree.js");
+const { doTree } = require("../lib/");
 
 describe("getStrings", () => {
 	it("should extract translations from js", () => {

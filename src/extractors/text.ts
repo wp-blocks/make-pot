@@ -1,4 +1,4 @@
-import { removeCommentMarkup } from "../utils/index.js";
+import { removeCommentMarkup } from "../utils/common.js";
 
 /**
  * Extracts file data from the given file content.

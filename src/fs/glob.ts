@@ -1,61 +1,61 @@
-import Parser from 'tree-sitter'
-import path from 'path'
-import type { Args, Patterns } from '../types'
-import { Glob, Path } from 'glob'
-import { minimatch } from 'minimatch'
-import { detectPatternType } from '../utils'
-
+import path from "node:path";
+import { Glob, type Path } from "glob";
+import { minimatch } from "minimatch";
 // @ts-ignore
-import * as Javascript from 'tree-sitter-javascript'
+import * as Javascript from "tree-sitter-javascript";
 // @ts-ignore
-import * as Ts from 'tree-sitter-typescript'
+import * as php from "tree-sitter-php";
 // @ts-ignore
-import * as Php from 'tree-sitter-php'
+import * as ts from "tree-sitter-typescript";
+import type { Args, Patterns } from "../types.js";
+import { detectPatternType } from "../utils";
 
 /**
  * Return the parser based on the file extension
  *
  * @param file - Path to the file
- * @return {Parser|{}|null} - the parser to be used with the file or null if no parser is found
+ * @return {Parser|null} - the parser to be used with the file or null if no parser is found
  */
-export function getParser(file: string): string | Parser {
-	const ext = file.split('.').pop()
+export function getParser(
+	file: string,
+): string | { name: string; language: unknown } | null {
+	const ext = file.split(".").pop();
 	switch (ext) {
-		case 'ts':
-			return Ts.default.typescript
-		case 'tsx':
-			return Ts.default.tsx
-		case 'js':
-		case 'jsx':
-		case 'mjs':
-		case 'cjs':
-			return Javascript.default
-		case 'php':
-			return Php.default
+		case "ts":
+			return ts.typescript;
+		case "tsx":
+			return ts.tsx;
+		case "js":
+		case "jsx":
+		case "mjs":
+		case "cjs":
+			return Javascript.default;
+		case "php":
+			return php.default;
 		default:
-			return ext!
+			return ext!;
 	}
 }
 
 // Build the ignore function for Glob
 export const ignoreFunc = (
 	filePath: Path,
-	excludedPatterns: string[]
+	excludedPatterns: string[],
 ): boolean => {
 	return excludedPatterns.some((exclude) => {
-		const type = detectPatternType(exclude)
+		const type = detectPatternType(exclude);
 		// return true to ignore
 		switch (type) {
-			case 'file':
-				return filePath.isNamed(exclude)
-			case 'directory':
-				return filePath.relative().includes(exclude)
+			case "file":
+				return filePath.isNamed(exclude);
+			case "directory":
+				return filePath.relative().includes(exclude);
 			default:
 				// Handle glob patterns using minimatch
-				return minimatch(filePath.relative(), exclude)
+				return minimatch(filePath.relative(), exclude);
 		}
-	}) as boolean
-}
+	}) as boolean;
+};
 
 /**
  * Retrieves a list of files based on the provided arguments and patterns.
@@ -67,10 +67,10 @@ export const ignoreFunc = (
 export function getFiles(args: Args, pattern: Patterns) {
 	if (!args.options?.silent)
 		console.log(
-			'Searching in :' + path.resolve(args.paths.cwd),
-			'\nfor ' + pattern.include.join(),
-			'\nignoring patterns: ' + pattern.exclude.join()
-		)
+			"Searching in :" + path.resolve(args.paths.cwd),
+			"\nfor " + pattern.include.join(),
+			"\nignoring patterns: " + pattern.exclude.join(),
+		);
 
 	// Execute the glob search with the built patterns
 	return new Glob(pattern.include, {
@@ -80,5 +80,5 @@ export function getFiles(args: Args, pattern: Patterns) {
 		nodir: true,
 		cwd: args.paths.cwd,
 		root: args.paths.root ? path.resolve(args.paths.root) : undefined,
-	})
+	});
 }

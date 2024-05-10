@@ -1,5 +1,6 @@
-import * as path from 'path'
-import fs from 'node:fs'
+import fs, { writeFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Ensures that a folder exists at the specified path.
@@ -9,23 +10,23 @@ import fs from 'node:fs'
  */
 function ensureFolderExists(folderPath: string | undefined): string {
 	if (folderPath === undefined) {
-		return '.'
+		return ".";
 	}
 	try {
 		// Check if the folder exists
 		fs.accessSync(
 			path.resolve(folderPath),
-			fs.constants.R_OK | fs.constants.W_OK
-		)
+			fs.constants.R_OK | fs.constants.W_OK,
+		);
 	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+		if ((error as NodeJS.ErrnoException).code === "ENOENT") {
 			// The Folder does not exist, so create it
-			fs.mkdirSync(folderPath, { recursive: true })
-			console.log(`Folder created: ${folderPath}`)
-			return folderPath
+			fs.mkdirSync(folderPath, { recursive: true });
+			console.log(`Folder created: ${folderPath}`);
+			return folderPath;
 		}
 	}
-	return folderPath
+	return folderPath;
 }
 
 /**
@@ -36,10 +37,10 @@ function ensureFolderExists(folderPath: string | undefined): string {
  */
 export function writeFile(fileContent: string, dest: string) {
 	if (ensureFolderExists(path.dirname(dest))) {
-		fs.writeFileSync(dest, fileContent)
+		writeFileSync(dest, fileContent);
 	}
 }
 
 export async function readFileAsync(path: string): Promise<string> {
-	return fs.promises.readFile(path, 'utf-8')
+	return readFile(path, "utf-8");
 }

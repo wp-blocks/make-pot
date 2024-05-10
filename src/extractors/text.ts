@@ -1,6 +1,4 @@
-import { getCommentBlock, removeCommentMarkup } from '../utils'
-import { yieldParsedData } from './utils'
-import path from 'path'
+import { removeCommentMarkup } from "../utils/index.js";
 
 /**
  * Extracts file data from the given file content.
@@ -11,23 +9,23 @@ import path from 'path'
  */
 export function extractFileData(
 	fileContent: string,
-	separator: string = ':'
+	separator = ":",
 ): Record<string, string> {
-	const data: Record<string, string> = {}
+	const data: Record<string, string> = {};
 
 	// split by lines and trim every line
 	removeCommentMarkup(fileContent)
 		// split each line by break line and trim each part and add to data
 		?.forEach((line) => {
-			const parts = line.split(separator)
+			const parts = line.split(separator);
 			/* Check if the parser has already collected the data from the previous line
 			 and the current line is empty.
 			 If so, skip this line */
 			if (parts.length !== 2 && Object.values(data).length > 0) {
-				return
+				return;
 			}
-			data[parts[0]?.trim()] = parts[1]?.trim()
-		})
+			data[parts[0]?.trim()] = parts[1]?.trim();
+		});
 
-	return data
+	return data;
 }

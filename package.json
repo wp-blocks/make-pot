@@ -9,6 +9,9 @@
 		"John Hooks <bitmachina@outlook.com> (https://johnhooks.io/)"
 	],
 	"main": "lib/run.js",
+	"bin": {
+		"make-pot": "lib/index.js"
+	},
 	"keywords": [
 		"gettext",
 		"i18n",
@@ -19,14 +22,11 @@
 	],
 	"scripts": {
 		"postinstall": "npm rebuild tree-sitter tree-sitter-typescript tree-sitter-php tree-sitter-javascript --force",
-		"build": "npx esbuild ./src/**/* --format=cjs --outdir=lib --platform=node",
+		"build": "npx esbuild ./src/**/* --format=cjs --minify --outdir=lib --platform=node",
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
-		"test": "node --test --watch",
+		"test": "node --test",
 		"run": "node ./lib/index.js tests/fixtures/vinyl/"
-	},
-	"bin": {
-		"make-pot": "lib/index.js"
 	},
 	"repository": {
 		"type": "git",

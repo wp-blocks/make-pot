@@ -1,12 +1,12 @@
-import type { Args, Patterns } from '../types'
-import { SingleBar } from 'cli-progress'
-import { allowedFiles } from '../const'
-import { SetOfBlocks } from 'gettext-merger'
-import path from 'path'
-import { readFileAsync } from '../fs'
-import { parseJsonCallback } from '../extractors/json'
-import { doTree } from './tree'
-import { getFiles } from '../fs/glob'
+import path from "node:path";
+import type { SingleBar } from "cli-progress";
+import type { SetOfBlocks } from "gettext-merger";
+import { allowedFiles } from "../const.js";
+import { parseJsonCallback } from "../extractors/json.js";
+import { getFiles } from "../fs/glob.js";
+import { readFileAsync } from '../fs/fs.js';
+import type { Args, Patterns } from "../types.js";
+import { doTree } from "./tree.js";
 
 /**
  * Processes the given files and returns an array of promises that resolve to TranslationStrings.
@@ -19,43 +19,37 @@ import { getFiles } from '../fs/glob'
 export async function processFiles(
 	patterns: Patterns,
 	args: Args,
-	progressBar?: SingleBar
+	progressBar?: SingleBar,
 ): Promise<Promise<SetOfBlocks>[]> {
-	const tasks: Promise<SetOfBlocks>[] = []
-	let filesCount = 0
+	const tasks: Promise<SetOfBlocks>[] = [];
+	let filesCount = 0;
 
-	const files = getFiles(args, patterns)
+	const files = getFiles(args, patterns);
 
 	// loop through the files and parse them
 	for await (const file of files) {
-		filesCount++
-		const filename = path.basename(file)
-		const ext = path.extname(file).replace(/^./, '')
-		const fileRealPath = path.resolve(args.paths.cwd, file)
+		filesCount++;
+		const filename = path.basename(file);
+		const ext = path.extname(file).replace(/^./, "");
+		const fileRealPath = path.resolve(args.paths.cwd, file);
 
-		if (filename === 'theme.json' || filename === 'block.json') {
+		if (filename === "theme.json" || filename === "block.json") {
 			tasks.push(
-				readFileAsync(fileRealPath).then(async (sourceCode) => {
-					return await parseJsonCallback(
-						sourceCode,
-						args.paths.cwd,
-						filename
-					)
-				})
-			)
+				readFileAsync(fileRealPath).then((sourceCode) =>
+					parseJsonCallback(sourceCode, args.paths.cwd, filename),
+				),
+			);
 		}
 
 		if (allowedFiles.includes(ext)) {
 			tasks.push(
-				readFileAsync(fileRealPath).then((content) => {
-					return doTree(content, file)
-				})
-			)
+				readFileAsync(fileRealPath).then((content) => doTree(content, file)),
+			);
 		}
 
-		progressBar?.increment(1, { filename })
-		progressBar?.setTotal(filesCount)
+		progressBar?.increment(1, { filename });
+		progressBar?.setTotal(filesCount);
 	}
 
-	return tasks
+	return tasks;
 }

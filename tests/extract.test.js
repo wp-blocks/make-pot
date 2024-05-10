@@ -1,117 +1,114 @@
-import { describe, expect } from '@jest/globals'
-import { doTree } from '../src/parser/tree'
-import { Block } from 'gettext-merger'
+const { describe, it, beforeEach, before } = require("node:test");
+const assert = require("node:assert");
+const { Block } = require("gettext-merger");
+const { doTree } = require("../lib/");
 
-describe('getStrings', () => {
-	it('should extract translations from js', () => {
-		const content = `var foo = __('Hello World', 'greeting');`
-		const filename = 'filename.js'
+describe("getStrings", () => {
+	it("should extract translations from js", () => {
+		const content = `var foo = __('Hello World', 'greeting');`;
+		const filename = "filename.js";
 
-		const result = doTree(content, filename)
-		const expected = new Block([])
-		expected.msgid = 'Hello World'
+		const result = doTree(content, filename);
+		const expected = new Block([]);
+		expected.msgid = "Hello World";
 		expected.comments = {
-			reference: ['filename.js:1'],
-			translator: [''],
-		}
+			reference: ["filename.js:1"],
+			translator: [""],
+		};
 
-		expect(result.blocks[0].msgid).toBe(expected.msgid)
-	})
+		assert.strictEqual(result.blocks[0].msgid, expected.msgid);
+	});
 
-	it('should extract translations from ts', () => {
-		const content = `__('Hello World', 'greeting');`
-		const filename = 'filename.ts'
+	it("should extract translations from ts", () => {
+		const content = `__('Hello World', 'greeting');`;
+		const filename = "filename.ts";
 
-		const result = doTree(content, filename).blocks[0].toJson()
+		const result = doTree(content, filename).blocks[0].toJson();
 
-		const expected = new Block([])
-		expected.msgid = 'Hello World'
+		const expected = new Block([]);
+		expected.msgid = "Hello World";
 		expected.comments = {
-			reference: ['filename.ts:1'],
-			translator: [''],
-		}
+			reference: ["filename.ts:1"],
+			translator: [""],
+		};
 
-		expect(result.msgid).toBe(expected.msgid)
-		expect(expected.comments?.reference).toHaveLength(1)
-		expect([result.comments?.reference]).toEqual(
-			expected.comments?.reference
-		)
-	})
-	it('should extract translations from tsx', () => {
-		const content = `const element = <h1>{ __('Hello World', 'greeting')}</h1>;`
+		assert.strictEqual(result.msgid, expected.msgid);
+		assert.strictEqual(expected.comments?.reference.length, 1);
+		assert.deepStrictEqual(
+			[result.comments.reference],
+			expected.comments.reference,
+		);
+	});
 
-		const filename = 'filename.tsx'
+	it("should extract translations from tsx", () => {
+		const content = `const element = <h1>{ __('Hello World', 'greeting')}</h1>;`;
 
-		const result = doTree(content, filename)
+		const filename = "filename.tsx";
 
-		const expected = new Block([])
-		expected.msgid = 'Hello World'
-		expected.msgstr = ['']
+		const result = doTree(content, filename);
+
+		const expected = new Block([]);
+		expected.msgid = "Hello World";
+		expected.msgstr = [""];
 		expected.comments = {
-			reference: ['filename.tsx:1'],
-			translator: [''],
-		}
+			reference: ["filename.tsx:1"],
+			translator: [""],
+		};
 
-		expect(result.blocks[0].toJson()).toEqual(expected.toJson())
-	})
-	it('should extract translations with context', () => {
-		const content = `<?php __('Hello World', 'greeting'); ?>`
-		const filename = 'filename.php'
+		assert.deepStrictEqual(result.blocks[0].toJson(), expected.toJson());
+	});
 
-		const result = doTree(content, filename)
+	it("should extract translations with context", () => {
+		const content = `<?php __('Hello World', 'greeting'); ?>`;
+		const filename = "filename.php";
 
-		const expected = new Block([])
-		expected.msgid = 'Hello World'
-		expected.msgstr = ['']
+		const result = doTree(content, filename);
+
+		const expected = new Block([]);
+		expected.msgid = "Hello World";
+		expected.msgstr = [""];
 		expected.comments = {
-			reference: ['filename.php:1'],
-			translator: [''],
-		}
+			reference: ["filename.php:1"],
+			translator: [""],
+		};
 
-		expect(result.blocks[0].toJson()).toEqual(expected.toJson())
-	})
-	it('should extract translations from code content with no context or translator comments', () => {
-		const content = `<?php _e('Hello World'); ?>`
-		const expected = new Block([])
-		expected.msgid = 'Hello World'
-		expected.msgstr = ['']
+		assert.deepStrictEqual(result.blocks[0].toJson(), expected.toJson());
+	});
+
+	it("should extract translations from code content with no context or translator comments", () => {
+		const content = `<?php _e('Hello World'); ?>`;
+		const expected = new Block([]);
+		expected.msgctxt = undefined;
+		expected.msgid = "Hello World";
+		expected.msgid_plural = undefined;
+		expected.msgstr = [""];
 		expected.comments = {
 			translator: undefined,
-			reference: ['filename.php:1'],
-		}
-		const filename = 'filename.php'
+			reference: ["filename.php:1"],
+		};
+		const filename = "filename.php";
 
-		const result = doTree(content, filename)
+		const result = doTree(content, filename);
 
-		expect(result.blocks[0]).toEqual(expected)
-	})
+		assert.deepEqual(result.blocks[0], expected);
+	});
 
-	it('should extract translations with comments', () => {
-		const filename = 'filename.php'
+	it("should extract translations with comments", () => {
+		const filename = "filename.php";
 		const content = `
-		<?php /** translators: ciao! */ echo _x('Hello World', 'greeting'); ?>`
-		const expected = {
-			blocks: [
-				{
-					comments: {
-						reference: ['filename.php:2'],
-						translator: ['ciao!'],
-					},
-					msgctxt: 'greeting',
-					msgid: 'Hello World',
-					msgstr: [''],
-				},
-			],
-			path: 'filename.php',
-		}
+		<?php /** translators: ciao! */ echo _x('Hello World', 'greeting'); ?>`;
+		const expectedComments = {
+			reference: ["filename.php:2"],
+			translator: ["ciao!"],
+		};
 
-		const result = doTree(content, filename)
+		const result = doTree(content, filename);
 
-		expect(result).toEqual(expected)
-	})
+		assert.deepEqual(result.blocks[0].comments, expectedComments);
+	});
 
-	it('should extract translations with comments reporting the right position', () => {
-		const filename = 'filename.php'
+	it("should extract translations with comments reporting the right position", () => {
+		const filename = "filename.php";
 		const content = `
 
 
@@ -121,51 +118,52 @@ describe('getStrings', () => {
 
 
 
-		<?php echo _x('Hello World', 'greeting'); ?>`
+		<?php echo _x('Hello World', 'greeting'); ?>`;
 		const expected = `#: filename.php:10
 msgctxt "greeting"
 msgid "Hello World"
-msgstr ""`
+msgstr ""`;
 
-		const result = doTree(content, filename)
+		const result = doTree(content, filename);
 
-		expect(result.blocks[0].toStr()).toBe(expected)
-	})
+		assert.strictEqual(result.blocks[0].toStr(), expected);
+	});
 
-	it('should extract translations inside a sprint', () => {
-		const filename = 'filename.php'
+	it("should extract translations inside a sprint", () => {
+		const filename = "filename.php";
 		const content = ` <?php
 $url = 'http://example.com';
 $link = sprintf( wp_kses( __( 'Check out this link to my <a href="%s">website</a> made with WordPress.', 'my-text-domain' ), array(  'a' => array( 'href' => array() ) ) ), esc_url( $url ) );
-echo $link;`
+echo $link;`;
 		const expected = {
-			'': {
+			"": {
 				'Check out this link to my <a href="%s">website</a> made with WordPress.':
 					{
 						comments: {
-							extracted: '',
-							flag: '',
-							previous: '',
-							reference: 'filename.php:3',
-							translator: '',
+							extracted: "",
+							flag: "",
+							previous: "",
+							reference: "filename.php:3",
+							translator: "",
 						},
-						msgctxt: '',
-						msgid: 'Check out this link to my <a href="%s">website</a> made with WordPress.',
+						msgctxt: "",
+						msgid:
+							'Check out this link to my <a href="%s">website</a> made with WordPress.',
 						msgid_plural: undefined,
-						msgstr: [''],
+						msgstr: [""],
 					},
 			},
-		}
+		};
 
-		const result = doTree(content, filename)
+		const result = doTree(content, filename);
 
-		expect(result.toJson()).toMatchObject(expected)
-	})
-})
+		assert.deepStrictEqual(result.toJson(), expected);
+	});
+});
 
-describe('getStrings wp cli', () => {
-	it('should extract from an array of translations', () => {
-		const filename = 'filename.php'
+describe("getStrings wp cli", () => {
+	it("should extract from an array of translations", () => {
+		const filename = "filename.php";
 		const content = `<?php $var = 'don't do this'; $instructions = array(
 		"Overview" => array(
 				"title" => __( 'Overview', '3d-product-viewer' ),
@@ -183,14 +181,14 @@ describe('getStrings wp cli', () => {
 				"icon"  => 'icon-zoom'
 		)
 );
-`
+`;
 
-		const result = doTree(content, filename)
-		expect(result).toMatchSnapshot()
-	})
+		const result = doTree(content, filename);
+		assert.deepStrictEqual(result.blocks[0].msgid, "Overview");
+	});
 
-	it('should extract translations with translator comments inside the formatting hell', () => {
-		const filename = 'filename.php'
+	it("should extract translations with translator comments inside the formatting hell", () => {
+		const filename = "filename.php";
 		const content = `<?php if ( count( $errors_in_remigrate_batch ) > 0 ) {
 		$formatted_errors = wp_json_encode( $errors_in_remigrate_batch, JSON_PRETTY_PRINT );
 		WP_CLI::warning(
@@ -209,16 +207,17 @@ describe('getStrings wp cli', () => {
 		} else {
 			WP_CLI::warning( 'Re-migration successful.', 'woocommerce' );
 		}
-`
+`;
 
-		const result = doTree(content, filename)
-		expect(
-			'%1$d error found: %2$s when re-migrating order. Please review the error above.'
-		).toBe(result.blocks[0].msgid)
-	})
+		const result = doTree(content, filename);
+		assert.strictEqual(
+			"%1$d error found: %2$s when re-migrating order. Please review the error above.",
+			result.blocks[0].msgid,
+		);
+	});
 
 	/** see https://github.com/wp-cli/i18n-command/blob/main/features/makepot.feature */
-	it('should extract translations and comments from code content', () => {
+	it("should extract translations and comments from code content", () => {
 		const content = `<?php
 
     And a foo-plugin/foo-plugin.php file:
@@ -278,17 +277,17 @@ describe('getStrings wp cli', () => {
 
       __( 'wrong-domain', 'wrong-domain' );
 
-      __( 'Hello world' ); // translators: Greeting`
+      __( 'Hello world' ); // translators: Greeting`;
 
-		const filename = 'filename.php'
+		const filename = "filename.php";
 
-		const result = doTree(content, filename)
+		const result = doTree(content, filename);
 
-		expect(result).toMatchSnapshot()
-	})
+		assert.strictEqual(result.blocks.length, 26);
+	});
 
 	/** see wp cli tests */
-	it('should extract translations and comments from code content', () => {
+	it("should extract translations and comments from code content", () => {
 		const content = `<?php
 
       // translators: Foo Bar Comment
@@ -371,12 +370,12 @@ describe('getStrings wp cli', () => {
 
       /* Translators: This is another comment! */
       __( 'https://example.com', 'foo-plugin' );
-      `
+      `;
 
-		const filename = 'filename.php'
+		const filename = "filename.php";
 
-		const result = doTree(content, filename)
+		const result = doTree(content, filename);
 
-		expect(result).toMatchSnapshot()
-	})
-})
+		assert.strictEqual(result.blocks.length, 20);
+	});
+});

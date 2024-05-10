@@ -1,32 +1,16 @@
 {
 	"compilerOptions": {
-		"module": "NodeNext",
-		"target": "ES2021",
-		"lib": [ "es2021" ],
+		"module": "commonjs",
+		"moduleResolution": "Node16",
 		"noImplicitAny": true,
-		"removeComments": true,
 		"preserveConstEnums": true,
 		"sourceMap": true,
 		"strict": true,
-		"declaration": true,
 		"downlevelIteration": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true,
-		"experimentalDecorators": true,
-		// Import non-ES modules as default imports.
 		"outDir": "lib",
-		"rootDir": "src",
-		// Minify
-		"pretty": false,
-		// types
-		"typeRoots": [
-			"src/types.d.ts",
-			"node_modules/@types",
-			"@types"
-		]
+		"rootDir": "src"
 	},
-	"include": [
-		"./src/**/*"
-	]
+	"include": ["./src/**/*", "./tsconfig.json"]
 }

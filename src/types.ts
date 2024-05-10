@@ -1,26 +1,30 @@
-import { pkgJsonHeaders, pluginHeaders, themeHeaders } from './const'
-import { GetTextTranslation } from 'gettext-parser'
+import type { GetTextTranslation } from "gettext-parser";
+import type { pkgJsonHeaders, pluginHeaders, themeHeaders } from "./const.js";
 
-export type ThemeHeadersType = keyof typeof themeHeaders
-export type PluginHeadersType = keyof typeof pluginHeaders
-export type PkgHeadersType = keyof typeof pkgJsonHeaders
+export type ThemeHeadersType = typeof themeHeaders;
+export type PluginHeadersType = typeof pluginHeaders;
+export type PkgHeadersType = typeof pkgJsonHeaders;
 
 /**
  * The args headers Object types
  */
 export type PotHeaders =
-	| (typeof pkgJsonHeaders)[PkgHeadersType]
-	| (typeof pluginHeaders)[PluginHeadersType]
-	| (typeof themeHeaders)[ThemeHeadersType]
-	| 'license'
+	| keyof PkgHeadersType
+	| keyof PluginHeadersType
+	| keyof ThemeHeadersType
+	| "license"
+	| "email"
+	| "language"
+	| "domain"
+	| "bugs";
 
 // type is the value of the themeHeader Object
 export type DomainType =
-	| 'plugin'
-	| 'theme'
-	| 'block'
-	| 'theme-block'
-	| 'generic'
+	| "plugin"
+	| "theme"
+	| "block"
+	| "theme-block"
+	| "generic";
 
 /**
  * The patterns to use when extracting strings from files.
@@ -45,11 +49,11 @@ export type DomainType =
  *   The following files and folders are always excluded: node_modules, .git, .svn, .CVS, .hg, vendor, *.min.js.
  */
 export interface Patterns {
-	mergePaths?: string[]
-	subtractPaths?: string[]
-	subtractAndMerge?: boolean
-	include: string[]
-	exclude: string[]
+	mergePaths?: string[];
+	subtractPaths?: string[];
+	subtractAndMerge?: boolean;
+	include: string[];
+	exclude: string[];
 }
 
 /**
@@ -83,36 +87,36 @@ export interface Patterns {
  * @param {boolean} silent - Whether to hide progress information.
  */
 export interface Args {
-	slug: string
-	domain: DomainType
+	slug: string;
+	domain: DomainType;
 	paths: {
-		cwd: string
-		out: string
-		root?: string
-	}
+		cwd: string;
+		out: string;
+		root?: string;
+	};
 	options?: {
-		ignoreDomain?: boolean
-		silent?: boolean
-		json?: boolean
-		location?: boolean
-		packageName?: string
-		output?: boolean
-		fileComment?: string
+		ignoreDomain?: boolean;
+		silent?: boolean;
+		json?: boolean;
+		location?: boolean;
+		packageName?: string;
+		output?: boolean;
+		fileComment?: string;
 		skip: {
-			js?: boolean
-			php?: boolean
-			blade?: boolean
-			blockJson?: boolean
-			themeJson?: boolean
-			audit?: boolean
-		}
-	}
-	headers?: Record<PotHeaders, unknown>
-	patterns: Patterns
+			js?: boolean;
+			php?: boolean;
+			blade?: boolean;
+			blockJson?: boolean;
+			themeJson?: boolean;
+			audit?: boolean;
+		};
+	};
+	headers?: { [key in PotHeaders]: string };
+	patterns: Patterns;
 }
 
 export interface I18nSchema {
-	[key: string]: string | string[] | I18nSchema | I18nSchema[]
+	[key: string]: string | string[] | I18nSchema | I18nSchema[];
 }
 
 /**
@@ -126,5 +130,5 @@ export interface I18nSchema {
  * @property {{}} comments an object with the following properties: translator, reference, extracted, flag, previous.
  */
 export interface TranslationStrings {
-	[msgctxt: string]: { [msgId: string]: GetTextTranslation }
+	[msgctxt: string]: { [msgId: string]: GetTextTranslation };
 }

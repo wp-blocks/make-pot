@@ -1,5 +1,5 @@
-import { Args } from '../types'
-import cliProgress, { SingleBar } from 'cli-progress'
+import cliProgress, { type SingleBar } from "cli-progress";
+import type { Args } from "../types.js";
 
 /**
  * Initializes a progress bar and returns the progress bar element.
@@ -10,22 +10,23 @@ import cliProgress, { SingleBar } from 'cli-progress'
  */
 export function initProgress(
 	args: Args,
-	filesCount: number
+	filesCount: number,
 ): SingleBar | undefined {
-	if (args.options?.silent) return undefined
+	if (args.options?.silent) return undefined;
 	// Set up the progress bar
 	const progressBar = new cliProgress.SingleBar(
 		{
 			clearOnComplete: true,
 			etaBuffer: 1000,
 			hideCursor: true,
-			format: ' {bar} {percentage}% | ETA: {eta}s | {filename} | {value}/{total}',
+			format:
+				" {bar} {percentage}% | ETA: {eta}s | {filename} | {value}/{total}",
 		},
-		cliProgress.Presets.shades_classic
-	)
+		cliProgress.Presets.shades_classic,
+	);
 
-	progressBar.start(filesCount, 0)
+	progressBar.start(filesCount, 0);
 
 	// Return the progress bar element
-	return progressBar
+	return progressBar;
 }

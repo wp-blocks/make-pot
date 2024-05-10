@@ -1,23 +1,23 @@
 // block json and theme json schema extractor
-import axios from 'axios'
-import { I18nSchema } from '../types'
-import * as themei18n from '../assets/theme-i18n.json'
-import * as blocki18n from '../assets/block-i18n.json'
+import axios from "axios";
+import * as blocki18n from "../assets/block-i18n.js";
+import * as themei18n from "../assets/theme-i18n.js";
+import type { I18nSchema } from "../types.js";
 
 /**
  * Extracts strings from JSON files using the I18n schema.
  */
 export class JsonSchemaExtractor {
-	private static schemaCache: { [url: string]: I18nSchema } = {}
+	private static schemaCache: { [url: string]: I18nSchema } = {};
 
 	/** Theme */
 	static themeJsonSource =
-		'http://develop.svn.wordpress.org/trunk/src/wp-includes/theme-i18n.json'
-	static themeJsonFallback = themei18n
+		"http://develop.svn.wordpress.org/trunk/src/wp-includes/theme-i18n.json";
+	static themeJsonFallback = themei18n;
 	/** Block */
 	static blockJsonSource =
-		'http://develop.svn.wordpress.org/trunk/src/wp-includes/block-i18n.json'
-	static blockJsonFallback = blocki18n
+		"http://develop.svn.wordpress.org/trunk/src/wp-includes/block-i18n.json";
+	static blockJsonFallback = blocki18n;
 
 	/**
 	 * Load the schema from the specified URL, with a fallback URL if needed.
@@ -28,21 +28,21 @@ export class JsonSchemaExtractor {
 	 */
 	private static async loadSchema(
 		url: string,
-		fallback: I18nSchema
+		fallback: I18nSchema,
 	): Promise<I18nSchema> {
 		if (this.schemaCache.url) {
-			return this.schemaCache.url
+			return this.schemaCache.url;
 		}
 
 		try {
-			const response = await axios.get(url)
-			this.schemaCache.url = response.data
-			return response.data
+			const response = await axios.get(url);
+			this.schemaCache.url = response.data;
+			return response.data;
 		} catch (error) {
-			console.error(`Failed to load schema from ${url}. Using fallback.`)
-			const fallbackData = fallback
-			this.schemaCache.url = fallbackData
-			return fallbackData
+			console.error(`Failed to load schema from ${url}. Using fallback.`);
+			const fallbackData = fallback;
+			this.schemaCache.url = fallbackData;
+			return fallbackData;
 		}
 	}
 
@@ -55,24 +55,24 @@ export class JsonSchemaExtractor {
 	 */
 	public static async fromString(
 		text: string,
-		options: { [key: string]: unknown }
+		options: { [key: string]: unknown },
 	): Promise<I18nSchema | undefined> {
 		const schema = await this.loadSchema(
 			options.schema as string,
-			options.schemaFallback as I18nSchema
-		)
+			options.schemaFallback as I18nSchema,
+		);
 		if (!schema) {
-			console.error('Failed to load schema.')
-			return
+			console.error("Failed to load schema.");
+			return;
 		}
 
-		const json = JSON.parse(text)
+		const json = JSON.parse(text);
 		if (json === null) {
-			console.error(`Could not parse JSON.`)
-			return
+			console.error(`Could not parse JSON.`);
+			return;
 		}
 
-		return this.extractStringsUsingI18nSchema(schema, json)
+		return this.extractStringsUsingI18nSchema(schema, json);
 	}
 
 	/**
@@ -84,45 +84,43 @@ export class JsonSchemaExtractor {
 	 */
 	private static extractStringsUsingI18nSchema(
 		i18nSchema: I18nSchema,
-		settings: unknown
+		settings: unknown,
 	): I18nSchema {
 		if (!i18nSchema || !settings) {
-			return {}
+			return {};
 		}
 
-		if (Array.isArray(i18nSchema) && typeof settings === 'object') {
-			const result: I18nSchema = {}
+		if (Array.isArray(i18nSchema) && typeof settings === "object") {
+			const result: I18nSchema = {};
 			for (const value in settings) {
 				const extracted = this.extractStringsUsingI18nSchema(
 					i18nSchema[value] as I18nSchema,
-					value
-				)
-				Object.assign(result, extracted)
+					value,
+				);
+				Object.assign(result, extracted);
 			}
-			return result
+			return result;
 		}
 
-		if (typeof i18nSchema === 'object' && typeof settings === 'object') {
-			const groupKey = '*'
-			const result: I18nSchema = {}
+		if (typeof i18nSchema === "object" && typeof settings === "object") {
+			const groupKey = "*";
+			const result: I18nSchema = {};
 			for (const [key, value] of Object.entries(settings)) {
 				if (i18nSchema[key]) {
-					result[key] = i18nSchema[key]
-				} else if (
-					Object.prototype.hasOwnProperty.call(i18nSchema, groupKey)
-				) {
+					result[key] = i18nSchema[key];
+				} else if (Object.prototype.hasOwnProperty.call(i18nSchema, groupKey)) {
 					const extracted = this.extractStringsUsingI18nSchema(
 						i18nSchema[groupKey] as I18nSchema,
-						value
-					)
+						value,
+					);
 					if (extracted) {
-						Object.assign(result, extracted)
+						Object.assign(result, extracted);
 					}
 				}
 			}
-			return result
+			return result;
 		}
 
-		return {}
+		return {};
 	}
 }

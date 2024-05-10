@@ -1,6 +1,5 @@
-import { getJsonComment } from './json'
-import { Block } from 'gettext-merger'
-import { SetOfBlocks } from 'gettext-merger'
+import { Block, SetOfBlocks } from "gettext-merger";
+import { getJsonComment } from "./json.js";
 
 /**
  * Returns the key of an object based on its value
@@ -11,9 +10,9 @@ import { SetOfBlocks } from 'gettext-merger'
  */
 export function getKeyByValue(
 	object: Record<string, unknown>,
-	value: string
+	value: string,
 ): string | undefined {
-	return Object.keys(object).find((key) => object[key] === value) ?? undefined
+	return Object.keys(object).find((key) => object[key] === value) ?? undefined;
 }
 
 /**
@@ -26,19 +25,19 @@ export function getKeyByValue(
 export const gentranslation = (
 	label: string,
 	string: string,
-	filePath: string
+	filePath: string,
 ): Block => {
-	const block = new Block([])
-	block.msgctxt = undefined
-	block.msgid = string
-	block.msgid_plural = ''
-	block.msgstr = []
+	const block = new Block([]);
+	block.msgctxt = undefined;
+	block.msgid = string;
+	block.msgid_plural = "";
+	block.msgstr = [];
 	block.comments = {
 		extracted: [label],
 		reference: [filePath],
-	}
-	return block
-}
+	};
+	return block;
+};
 
 /**
  * Extracts strings from parsed JSON data.
@@ -50,17 +49,17 @@ export const gentranslation = (
  */
 export function yieldParsedData(
 	parsed: Record<string, string | string[]>,
-	filename: 'block.json' | 'theme.json' | 'readme.txt',
-	filepath: string
+	filename: "block.json" | "theme.json" | "readme.txt",
+	filepath: string,
 ): SetOfBlocks {
-	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath)
+	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath);
 
 	if (!parsed) {
-		return gettextTranslations
+		return gettextTranslations;
 	}
 
 	// set the path of the translation
-	gettextTranslations.path = filepath
+	gettextTranslations.path = filepath;
 
 	Object.entries(parsed).forEach(([term, item]) => {
 		/**
@@ -73,26 +72,26 @@ export function yieldParsedData(
 			const block = gentranslation(
 				getJsonComment(term, filename),
 				valueKey,
-				filepath
-			)
+				filepath,
+			);
 
-			gettextTranslations.add(block)
+			gettextTranslations.add(block);
 		}
 
 		if (!item) {
-			return
-		} else if (typeof item === 'string') {
-			storeTranslation(item)
+			return;
+		} else if (typeof item === "string") {
+			storeTranslation(item);
 		} else if (Array.isArray(item)) {
-			item.forEach((value) => storeTranslation(value))
+			item.forEach((value) => storeTranslation(value));
 		} else {
 			Object.entries(item).forEach(([key, value]) => {
-				if (typeof value === 'string') {
-					storeTranslation(value, key)
+				if (typeof value === "string") {
+					storeTranslation(value, key);
 				}
-			})
+			});
 		}
-	})
+	});
 
-	return gettextTranslations
+	return gettextTranslations;
 }

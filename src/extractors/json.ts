@@ -1,10 +1,10 @@
-import type { Args, I18nSchema, TranslationStrings } from '../types'
-import { blockJson, pkgJsonHeaders, themeJson } from '../const'
-import { JsonSchemaExtractor } from './schema'
-import path from 'path'
-import fs from 'fs'
-import { yieldParsedData } from './utils'
-import { SetOfBlocks } from 'gettext-merger'
+import fs from "node:fs";
+import path from "node:path";
+import type { SetOfBlocks } from "gettext-merger";
+import { blockJson, pkgJsonHeaders, themeJson } from "../const.js";
+import type { Args, I18nSchema } from "../types.js";
+import { JsonSchemaExtractor } from "./schema.js";
+import { yieldParsedData } from "./utils.js";
 
 /**
  * Parses a JSON file and returns an array of parsed data.
@@ -16,36 +16,36 @@ import { SetOfBlocks } from 'gettext-merger'
  * @return {Promise<TranslationStrings>} A promise that resolves to an object containing the parsed data.
  */
 export async function parseJsonFile(opts: {
-	fileContent: string
-	filename: 'block.json' | 'theme.json'
-	filepath: string
+	fileContent: string;
+	filename: "block.json" | "theme.json";
+	filepath: string;
 }): Promise<I18nSchema> {
 	const jsonTranslations = await JsonSchemaExtractor.fromString(
 		opts.fileContent,
 		{
 			file: opts.filename,
 			schema:
-				opts.filename === 'theme.json'
+				opts.filename === "theme.json"
 					? JsonSchemaExtractor.themeJsonSource
 					: JsonSchemaExtractor.blockJsonSource,
 			schemaFallback:
-				opts.filename === 'theme.json'
+				opts.filename === "theme.json"
 					? JsonSchemaExtractor.themeJsonFallback
 					: JsonSchemaExtractor.blockJsonFallback,
 			addReferences: true,
-		}
-	)
-	return jsonTranslations ?? {}
+		},
+	);
+	return jsonTranslations ?? {};
 }
 
 function getSchema(type?: string) {
 	switch (type) {
-		case 'block.json':
-			return blockJson
-		case 'theme.json':
-			return themeJson
+		case "block.json":
+			return blockJson;
+		case "theme.json":
+			return themeJson;
 		default:
-			return {}
+			return {};
 	}
 }
 
@@ -57,10 +57,10 @@ function getSchema(type?: string) {
  * @return {string} - The comment associated with the given key. If the key is not found, the key itself is returned.
  */
 export function getJsonComment(key: string, type?: string): string {
-	const comments = getSchema(type)
+	const comments = getSchema(type);
 	return key in Object.values(comments)
 		? comments[key as keyof typeof comments]
-		: key
+		: key;
 }
 
 /**
@@ -72,26 +72,26 @@ export function getJsonComment(key: string, type?: string): string {
  * @return {Record<string, string>} - A record containing the extracted package data.
  */
 export function extractPackageJson(args: Args): Record<string, string> {
-	const fields = pkgJsonHeaders
-	const pkgJsonMeta: Record<string, string> = {}
+	const fields = pkgJsonHeaders;
+	const pkgJsonMeta: Record<string, string> = {};
 	// read the package.json file
 	const packageJsonPath = args.paths.cwd
-		? path.join(args.paths.cwd, 'package.json')
-		: 'package.json'
+		? path.join(args.paths.cwd, "package.json")
+		: "package.json";
 
 	/**
 	 *  check if the package.json extract the fields from the package.json file
 	 */
 	if (fs.existsSync(packageJsonPath)) {
-		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 		for (const field of Object.keys(fields)) {
 			// if the field exists in the package.json
 			if (field in packageJson) {
-				pkgJsonMeta[field] = packageJson[field] as string
+				pkgJsonMeta[field] = packageJson[field] as string;
 			}
 		}
 	}
-	return pkgJsonMeta
+	return pkgJsonMeta;
 }
 
 /**
@@ -105,17 +105,17 @@ export function extractPackageJson(args: Args): Record<string, string> {
 export async function parseJsonCallback(
 	fileContent: string,
 	filePath: string,
-	filename: 'block.json' | 'theme.json'
+	filename: "block.json" | "theme.json",
 ): Promise<SetOfBlocks> {
 	const data = await parseJsonFile({
 		fileContent: fileContent,
 		filename: filename,
 		filepath: filePath,
-	})
+	});
 
 	return yieldParsedData(
 		data as Record<string, string | string[]>,
 		filename,
-		path.join(filePath, filename)
-	)
+		path.join(filePath, filename),
+	);
 }

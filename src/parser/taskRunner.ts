@@ -1,6 +1,6 @@
-import { SetOfBlocks } from 'gettext-merger'
-import { Args } from '../types'
-import { SingleBar } from 'cli-progress'
+import type { SingleBar } from "cli-progress";
+import type { SetOfBlocks } from "gettext-merger";
+import type { Args } from "../types.js";
 
 /**
  * Task runner for the extraction process.
@@ -14,7 +14,7 @@ export async function taskRunner(
 	tasks: Promise<SetOfBlocks>[],
 	destination: SetOfBlocks,
 	args: Args,
-	progressBar?: SingleBar
+	progressBar?: SingleBar,
 ) {
 	await Promise.allSettled(tasks)
 		.then((strings) => {
@@ -22,8 +22,8 @@ export async function taskRunner(
 			 * Return the strings that are not rejected (they are fulfilled)
 			 */
 			return strings
-				.map((block) => block.status === 'fulfilled' && block.value)
-				.filter(Boolean) as SetOfBlocks[] // remove false 👆
+				.map((block) => block.status === "fulfilled" && block.value)
+				.filter(Boolean) as SetOfBlocks[]; // remove false 👆
 		})
 		.then((consolidated) => {
 			consolidated.forEach((result) => {
@@ -31,32 +31,32 @@ export async function taskRunner(
 					/**
 					 * Add the strings to the destination set
 					 */
-					destination.addArray(result.blocks)
+					destination.addArray(result.blocks);
 					/* Log the results */
 					console.log(
-						'✅ ' + result.path + ' [',
-						result.blocks.map((b) => b.msgid).join(', '),
-						']'
-					)
-				} else console.log('❌ ', result.path + ' has no strings')
-			})
+						`✅ ${result.path} [`,
+						result.blocks.map((b) => b.msgid).join(", "),
+						"]",
+					);
+				} else console.log("❌ ", result.path + " has no strings");
+			});
 
-			progressBar?.stop()
+			progressBar?.stop();
 		})
 		.catch((err) => {
-			console.log('❌ Failed!', err)
-			process.exit(1)
-		})
+			console.log("❌ Failed!", err);
+			process.exit(1);
+		});
 
 	if (!args.options?.silent) {
-		console.log('🎉 Done!')
+		console.log("🎉 Done!");
 		console.log(
-			'📝 Found',
+			"📝 Found",
 			Object.values(destination.blocks).length,
-			'translation strings in',
-			args.paths.cwd
-		)
+			"translation strings in",
+			args.paths.cwd,
+		);
 	}
 
-	return destination
+	return destination;
 }

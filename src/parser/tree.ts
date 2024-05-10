@@ -1,10 +1,9 @@
-import Parser, { type SyntaxNode } from 'tree-sitter'
-import { i18nFunctions } from '../const'
+import Parser, { type SyntaxNode } from "tree-sitter";
+import { i18nFunctions } from "../const.js";
 
-import { GetTextTranslation } from 'gettext-parser'
-import { getParser } from '../fs/glob'
-import { stripTranslationMarkup } from '../utils'
-import { Block, SetOfBlocks } from 'gettext-merger'
+import { Block, SetOfBlocks } from "gettext-merger";
+import { getParser } from "../fs/glob.js";
+import { reverseSlashes, stripTranslationMarkup } from "../utils/index.js";
 
 /**
  * Collect comments from the AST node and its preceding siblings.
@@ -13,21 +12,19 @@ import { Block, SetOfBlocks } from 'gettext-merger'
  * @return {string[]} An array of collected comments.
  */
 function collectComments(node: SyntaxNode): string | undefined {
-	let currentNode = node
-	let depth = 0
+	let currentNode = node;
+	let depth = 0;
 
 	// Check the node's preceding siblings for comments
 	while (currentNode && depth < 6) {
 		if (
-			currentNode?.previousSibling?.type === 'comment' &&
-			currentNode?.previousSibling?.text
-				.toLowerCase()
-				.includes('translators')
+			currentNode?.previousSibling?.type === "comment" &&
+			currentNode?.previousSibling?.text.toLowerCase().includes("translators")
 		) {
-			return stripTranslationMarkup(currentNode?.previousSibling.text)
+			return stripTranslationMarkup(currentNode?.previousSibling.text);
 		}
-		depth++
-		currentNode = currentNode.parent as SyntaxNode
+		depth++;
+		currentNode = currentNode.parent as SyntaxNode;
 	}
 }
 
@@ -40,21 +37,21 @@ function collectComments(node: SyntaxNode): string | undefined {
  */
 export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 	// set up the parser
-	const parser = new Parser()
-	parser.setLanguage(getParser(filepath))
+	const parser = new Parser();
+	parser.setLanguage(getParser(filepath));
 
 	// parse the file
-	const tree = parser.parse(sourceCode)
+	const tree = parser.parse(sourceCode);
 
 	// set up the translation object
-	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath)
+	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath);
 
 	const typeToMatch =
-		filepath.split('.').pop()?.toLowerCase() !== 'php'
-			? 'call_expression'
-			: 'function_call_expression'
+		filepath.split(".").pop()?.toLowerCase() !== "php"
+			? "call_expression"
+			: "function_call_expression";
 
-	const stringType = ['string', 'encapsed_string', 'string_value']
+	const stringType = ["string", "encapsed_string", "string_value"];
 
 	/**
 	 * Traverse the tree 🌳
@@ -65,107 +62,114 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 		// Walk the tree
 		if (node?.children.length)
 			for (const child of node.children) {
-				traverse(child)
+				traverse(child);
 			}
 
 		// Check if the node matches
 		if (node?.type === typeToMatch) {
 			// The function name is the first child
-			const functionName = node.firstChild?.text ?? null
+			const functionName = node.firstChild?.text ?? null;
 			if (
 				functionName === null ||
 				!Object.keys(i18nFunctions).includes(functionName)
 			) {
-				return
+				return;
 			}
 
 			// The arguments are the last child
-			const argsNode = node.lastChild
+			const argsNode = node.lastChild;
 			if (
 				argsNode === null ||
 				argsNode.childCount === 0 ||
-				argsNode.type !== 'arguments'
+				argsNode.type !== "arguments"
 			) {
-				return
+				return;
 			}
 
 			// Get the whole gettext translation string
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const [_fn, raw] = node.children
-			const translation: Partial<GetTextTranslation> = {}
+			const [_fn, raw] = node.children;
+			const translation: Partial<{
+				msgctxt: string;
+				msgid: string;
+				msgid_plural: string;
+				msgstr: string;
+			}> = {};
 
 			const translationKeys =
-				i18nFunctions[functionName as keyof typeof i18nFunctions]
+				i18nFunctions[functionName as keyof typeof i18nFunctions];
 
-			const children = raw.children.slice(1, -1)
-			let translationKeyIndex = 0
+			const children = raw.children.slice(1, -1);
+			let translationKeyIndex = 0;
 
 			// Get the translation from the arguments (the quoted strings)
 			for (const child of children) {
-				let node = child
-				let nodeValue = node.text
+				let node = child;
+				let nodeValue: string | string[] = node.text;
 
 				// unwrap the argument node, which is used in PHP.
-				if (child.type === 'argument') {
-					if (child.children.length === 0) continue
-					node = child.children[0]
+				if (child.type === "argument") {
+					if (child.children.length === 0) continue;
+					node = child.children[0];
 				}
 
-				if (node?.type === ',') {
+				if (node?.type === ",") {
 					// skip the comma between arguments
-					continue
+					continue;
 				}
 
 				if (stringType.includes(node?.type)) {
 					// unquote the strings
-					nodeValue = nodeValue.slice(1, -1)
+					nodeValue = nodeValue.slice(1, -1);
 				} else {
 					// unexpected node type
 					console.warn(
-						'Unexpected node type: ' +
+						"Unexpected node type: " +
 							node?.type + // variable_name
-							' is ' +
+							" is " +
 							translationKeys[translationKeyIndex] + // in number
-							' for  ' +
+							" for  " +
 							nodeValue + // for $number
-							' in ' +
-							filepath // in filename.php
-					)
+							" in " +
+							filepath, // in filename.php
+					);
 					// this string is not translatable and should be skipped
-					continue
+					continue;
 				}
 
 				// the translation key (eg. msgid)
-				const currentKey = translationKeys[translationKeyIndex]
+				const currentKey = translationKeys[
+					translationKeyIndex
+				] as keyof typeof translation;
 
 				// the value of that key
-				translation[currentKey as keyof typeof translation] = nodeValue
+				translation[currentKey] = nodeValue;
 
 				// increment the index of the translation key
-				translationKeyIndex += 1
+				translationKeyIndex += 1;
 			}
 
 			// TODO: Alert about wrong translation domain?
-			const comments = collectComments(argsNode)
+			const comments = collectComments(argsNode);
 
 			// Get the translation data
 			const block = new Block({
 				msgctxt: translation.msgctxt,
-				msgid: translation.msgid ?? '',
+				msgid: translation.msgid ?? "",
 				msgid_plural: translation.msgid_plural,
-				msgstr: translation.msgid_plural ? ['', ''] : [''],
+				msgstr: translation.msgid_plural ? ["", ""] : [""],
 				comments: {
 					translator: comments ? [comments] : undefined,
 					reference: [`${filepath}:${node.startPosition.row + 1}`],
 				},
-			})
+			} as Block);
 
-			gettextTranslations.add(block)
+			gettextTranslations.add(block);
 		}
 	}
 
-	traverse(tree.rootNode)
+	traverse(tree.rootNode);
 
 	// Return both matches and entries
-	return gettextTranslations
+	return gettextTranslations;
 }

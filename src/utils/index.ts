@@ -88,5 +88,16 @@ export function getCopyright(
 	return (
 		`# Copyright (C) ${new Date().getFullYear()} ${slug}\n` +
 		`# This file is distributed under the ${license} license.`
-	)
+	);
+}
+
+/**
+ * Reverse slashes in a path, and replace forward slashes with backward slashes
+ *
+ * @param filePath - The path to be reversed.
+ * @return {string} The reversed path.
+ */
+export function reverseSlashes(filePath: string): string {
+	// Replace forward slashes with backward slashes
+	return filePath.replace(/\//g, "\\");
 }

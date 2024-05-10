@@ -160,7 +160,9 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 				msgstr: translation.msgid_plural ? ["", ""] : [""],
 				comments: {
 					translator: comments ? [comments] : undefined,
-					reference: [`${filepath}:${node.startPosition.row + 1}`],
+					reference: [
+						`${reverseSlashes(filepath)}:${node.startPosition.row + 1}`,
+					],
 				},
 			} as Block);
 

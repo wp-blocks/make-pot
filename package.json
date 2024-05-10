@@ -23,7 +23,8 @@
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
 		"test": "node --test --watch",
-		"run": "node ./lib/index.js tests/fixtures/vinyl/"
+		"run": "node ./lib/index.js tests/fixtures/vinyl/",
+		"prepare": "husky"
 	},
 	"bin": {
 		"make-pot": "lib/index.js"
@@ -54,8 +55,6 @@
 		"@types/node": "^20.11.28",
 		"@types/yargs": "^17.0.32",
 		"esbuild": "0.21.1",
-		"husky": "^9.0.11",
-		"lint-staged": "^15.2.2",
 		"typescript": "^5.4.5"
 	}
 }

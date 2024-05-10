@@ -23,8 +23,7 @@
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
 		"test": "node --test --watch",
-		"run": "node ./lib/index.js tests/fixtures/vinyl/",
-		"prepare": "husky"
+		"run": "node ./lib/index.js tests/fixtures/vinyl/"
 	},
 	"bin": {
 		"make-pot": "lib/index.js"

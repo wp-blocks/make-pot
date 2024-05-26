@@ -4,11 +4,7 @@
 	"name": "block/name",
 	"title": "block title",
 	"description": "block description",
-	"keywords": [
-		"block keyword",
-		"block keyword 2",
-		"block keyword 3"
-	],
+	"keywords": ["block keyword", "block keyword 2", "block keyword 3"],
 	"supports": {
 		"anchor": true,
 		"align": true,

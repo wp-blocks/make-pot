@@ -12,7 +12,7 @@ describe("doTree js", () => {
 		const fileParsed = doTree(fileContent, filepath);
 		assert.deepEqual(fileParsed.blocks[0], {
 			comments: {
-				reference: ["tests\\fixtures\\block\\javascript.js:7"],
+				reference: ["tests/fixtures/block/javascript.js:7"],
 				translator: undefined,
 			},
 			msgctxt: undefined,
@@ -31,7 +31,7 @@ describe("doTree php", () => {
 		const fileParsed = doTree(fileContent, filepath);
 		assert.deepEqual(fileParsed.blocks[1], {
 			comments: {
-				reference: ["tests\\fixtures\\plugin\\plugin.php:65"],
+				reference: ["tests/fixtures/plugin/plugin.php:65"],
 				translator: undefined,
 			},
 			msgctxt: undefined,
@@ -50,7 +50,7 @@ describe("doTree tsx file", () => {
 		const fileParsed = doTree(fileContent, filepath);
 		assert.deepEqual(fileParsed.blocks[2], {
 			comments: {
-				reference: ["tests\\fixtures\\block\\SvgControls.tsx:107"],
+				reference: ["tests/fixtures/block/SvgControls.tsx:107"],
 				translator: undefined,
 			},
 			msgctxt: undefined,

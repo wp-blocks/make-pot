@@ -94,14 +94,14 @@ export function getCopyright(
 }
 
 /**
- * Reverse slashes in a path, and replace forward slashes with backward slashes
+ * Reverse slashes in a path, and replace backward slashes with forward slashes
  *
  * @param filePath - The path to be reversed.
  * @return {string} The reversed path.
  */
 export function reverseSlashes(filePath: string): string {
-	// Replace forward slashes with backward slashes
-	return filePath.replace(/\//g, "\\");
+	// Replace backward slashes with forward slashes
+	return filePath.replace(/\\/g, "/");
 }
 
 /**

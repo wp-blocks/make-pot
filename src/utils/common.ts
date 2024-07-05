@@ -125,3 +125,25 @@ export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
 
 	return requested;
 }
+
+/**
+ * Print the module header with the current version and name
+ */
+export function printHeader() {
+	const { version, name } = getPkgJsonData("name", "version");
+	/* print the version */
+	console.log(`${name} version: ${version}`);
+}
+
+/**
+ * Output to the console the time elapsed in milliseconds between two dates
+ * @param timeStart the start time
+ * @param timeEnd the end time
+ */
+export function printTimeElapsed(timeStart: Date, timeEnd: Date = new Date()) {
+	console.log(
+		`🚀 Translation Pot file created in ${
+			timeEnd.getTime() - timeStart.getTime()
+		}ms`,
+	);
+}

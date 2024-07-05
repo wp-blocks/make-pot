@@ -1,12 +1,24 @@
 import * as fs from "node:fs";
+import path from "node:path";
+import { glob } from "glob";
 import type { MakeJsonArgs } from "../types";
 
+interface JedData {
+	domain: string;
+	locale_data: Record<string, string[]>;
+}
+
 export class MakeJsonCommand {
+	/**
+	 * Pretty print JSON.
+	 * @private
+	 */
+	private source: string;
 	/**
 	 * The destination file path.
 	 * @private
 	 */
-	private destination: string | null;
+	private destination: string;
 	/**
 	 * The allowed file extensions.
 	 * @private
@@ -17,11 +29,6 @@ export class MakeJsonCommand {
 	 * @private
 	 */
 	private purge: boolean;
-	/**
-	 * Pretty print JSON.
-	 * @private
-	 */
-	private source: string;
 	/**
 	 * Pretty print JSON.
 	 * @private
@@ -44,45 +51,73 @@ export class MakeJsonCommand {
 
 		this.source = args.source;
 		this.destination = args.destination;
-		this.allowedFormats = args.allowedFormats;
+		this.allowedFormats = args.allowedFormats ?? [
+			".ts",
+			".tsx",
+			".js",
+			".jsx",
+			"mjs",
+			"cjs",
+		];
 		this.purge = args.purge;
 		this.prettyPrint = args.prettyPrint;
 		this.debug = args.debug;
 	}
 
-	public async invoke(): Promise<string> {
+	public async invoke(): Promise<Record<string, JedData>> {
 		// get all the files in the source directory
-		const files = await fs.promises.readdir(this.source);
+		const files = await glob("**/*.po", { cwd: this.source, nodir: true });
 
 		// get all the po files
-		const poFiles = files.filter((file) => file.endsWith(".po"));
-		const output: Record<string, string> = {};
-		for (const file of poFiles) {
+		const output: Record<string, JedData> = {};
+		for (const file of files) {
 			//build the filename for the json file using the po files
 			const jsonFilename = file.replace(".po", ".json");
-			output[file] = this.processFile(file);
+			// build the output object
+			output[jsonFilename] = this.processFile(file);
+		}
+		console.log(output);
+
+		for (const key in output) {
+			const [filename, content] = output[key];
+			let contentString: string;
+			if (this.purge) {
+				fs.unlinkSync(path.join(this.source, filename));
+				contentString = JSON.stringify(
+					content,
+					null,
+					this?.prettyPrint ? 2 : 0,
+				);
+			} else {
+				const oldJedContent = fs.readFileSync(
+					path.join(this.source, filename),
+					"utf8",
+				);
+
+				contentString = JSON.stringify(
+					{ ...content, ...JSON.parse(oldJedContent) },
+					null,
+					this?.prettyPrint ? 2 : 0,
+				);
+			}
+
+			fs.writeFileSync(path.join(this.destination, filename), contentString);
+			console.log(`JSON file written to ${this.destination + filename}`);
 		}
 
-		if (this.destination !== null) {
-			fs.writeFileSync(this.destination, output);
-			return `JSON file written to ${this.destination}`;
-		}
-
+		// return the output
 		return output;
 	}
 
-	public processFile(filePath: string): string {
+	public processFile(filePath: string): JedData {
 		// Read the source file
 		const content = fs.readFileSync(filePath, "utf8");
 
 		// Parse the source file
 		const poData = this.parsePoFile(content);
 
-		// Convert to JSON
-		const jedData = this.convertToJed(poData, this.allowedFormats);
-
-		// return the JSON string with pretty printing if enabled
-		return JSON.stringify(jedData, null, this?.prettyPrint ? 2 : 0);
+		// Convert to Jed json dataset
+		return this.convertToJed(poData, this.allowedFormats);
 	}
 
 	private parsePoFile(content: string): Record<string, string> {
@@ -119,7 +154,7 @@ export class MakeJsonCommand {
 	private convertToJed(
 		poData: Record<string, string>,
 		allowedFormats: string[] | null,
-	): object {
+	): JedData {
 		const jedData: object = {
 			domain: "messages",
 			locale_data: {

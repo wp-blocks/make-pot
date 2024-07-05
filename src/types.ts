@@ -115,6 +115,25 @@ export interface Args {
 	patterns: Patterns;
 }
 
+/**
+ * The arguments for the `makeJson` command.
+ * 	@param {string} source the source directory
+ * 	@param {string | null} destination the destination directory (defaults to source)
+ * 	@param {string[] | null} allowedFormats the allowed files
+ * 	@param {boolean} purge remove old json files (otherwise the content will be merged)
+ * 	@param {boolean} prettyPrint?: pretty print json
+ * 	@param {boolean} debug: enable debug mode
+ */
+export interface MakeJsonArgs {
+	slug: string;
+	source: string;
+	destination: string | null;
+	allowedFormats: string[] | null;
+	prettyPrint: boolean;
+	debug: boolean;
+	purge: boolean;
+}
+
 export interface I18nSchema {
 	[key: string]: string | string[] | I18nSchema | I18nSchema[];
 }

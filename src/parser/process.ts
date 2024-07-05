@@ -1,10 +1,10 @@
 import path from "node:path";
 import type { SingleBar } from "cli-progress";
 import type { SetOfBlocks } from "gettext-merger";
-import { allowedFiles } from "../const.js";
+import { allowedFormats } from "../const.js";
 import { parseJsonCallback } from "../extractors/json.js";
+import { readFileAsync } from "../fs/fs.js";
 import { getFiles } from "../fs/glob.js";
-import { readFileAsync } from '../fs/fs.js';
 import type { Args, Patterns } from "../types.js";
 import { doTree } from "./tree.js";
 
@@ -41,7 +41,7 @@ export async function processFiles(
 			);
 		}
 
-		if (allowedFiles.includes(ext)) {
+		if (allowedFormats.includes(ext)) {
 			tasks.push(
 				readFileAsync(fileRealPath).then((content) => doTree(content, file)),
 			);

@@ -98,6 +98,7 @@ export function getArgs(userArgs = {}) {
 			silent: {
 				describe: "No output to stdout",
 				type: "boolean",
+				default: false,
 			},
 			json: {
 				describe: "Output the json gettext data",

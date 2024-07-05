@@ -1,3 +1,4 @@
+import { debug } from "node:util";
 import type { SingleBar } from "cli-progress";
 import type { SetOfBlocks } from "gettext-merger";
 import type { Args } from "../types.js";
@@ -26,22 +27,23 @@ export async function taskRunner(
 				.filter(Boolean) as SetOfBlocks[]; // remove false 👆
 		})
 		.then((consolidated) => {
-			for (const result of consolidated) {
-				if (result.blocks.length > 0) {
-					/**
-					 * Add the strings to the destination set
-					 */
-					destination.addArray(result.blocks);
-					/* Log the results */
-					console.log(
-						`✅ ${result.path} [`,
-						result.blocks.map((b) => b.msgid).join(", "),
-						"]",
-					);
-				} else console.log("❌ ", `${result.path} has no strings`);
-			}
-
 			progressBar?.stop();
+			if (args.options?.silent !== true) {
+				for (const result of consolidated) {
+					if (result.blocks.length > 0) {
+						/**
+						 * Add the strings to the destination set
+						 */
+						destination.addArray(result.blocks);
+						/* Log the results */
+						console.log(
+							`✅ ${result.path} [`,
+							result.blocks.map((b) => b.msgid).join(", "),
+							"]",
+						);
+					} else console.log("❌ ", `${result.path} has no strings`);
+				}
+			}
 		})
 		.catch((err) => {
 			console.log("❌ Failed!", err);

@@ -46,7 +46,7 @@ export const DEFAULT_EXCLUDED_PATH = [
  *
  * Json and text files are parsed in a different way
  */
-export const allowedFiles = ["php", "js", "jsx", "ts", "tsx", "mjs", "cjs"];
+export const allowedFormats = ["php", "js", "jsx", "ts", "tsx", "mjs", "cjs"];
 /**
  * The default functions to use for i18n.
  */

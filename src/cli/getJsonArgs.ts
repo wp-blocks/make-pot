@@ -37,10 +37,6 @@ export function getJsonArgs(additionalArgs = {}): MakeJsonArgs {
 				describe: "Pretty print JSON",
 				type: "boolean",
 			},
-			destination: {
-				describe: "Destination directory",
-				type: "string",
-			},
 			debug: {
 				describe: "Debug mode",
 				type: "boolean",

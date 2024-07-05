@@ -82,7 +82,7 @@ export function parseCliArgs(
 		options: {
 			ignoreDomain: !!args?.ignoreDomain,
 			packageName: String(args.packageName),
-			silent: !!args.silent,
+			silent: args.silent === true, // default is false
 			json: !!args.json,
 			location: !!args?.location,
 			output: !!args?.output,
@@ -121,8 +121,8 @@ export function parseJsonArgs(
 	// Get the input and output paths
 	const inputPath: string =
 		typeof args._[0] === "string" ? args._[0].toString() : "";
-	const outputPath: string | null =
-		typeof args._[1] === "string" ? args._[1].toString() : null;
+	const outputPath: string =
+		typeof args._[1] === "string" ? args._[1].toString() : inputPath;
 	const currentWorkingDirectory = process.cwd();
 	const slug =
 		args.slug && typeof args.slug === "string"

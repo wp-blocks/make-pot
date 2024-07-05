@@ -4,16 +4,15 @@ import { getJsonArgs } from "./cli/getJsonArgs";
 import MakeJsonCommand from "./parser/makeJson";
 import { printHeader, printTimeElapsed } from "./utils/common";
 
-const makeJsonCommand = new MakeJsonCommand();
-
 const args = getJsonArgs();
+const makeJsonCommand = new MakeJsonCommand(args);
 
 if (Object.keys(args).length > 0) {
 	printHeader();
 	/* capture the start time */
 	const timeStart = new Date();
 	makeJsonCommand
-		.invoke(args)
+		.invoke()
 		.then((result) => {
 			if (result) {
 				console.log(result);

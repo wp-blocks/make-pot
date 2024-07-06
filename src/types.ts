@@ -127,7 +127,8 @@ export interface Args {
 export interface MakeJsonArgs {
 	slug: string;
 	source: string;
-	destination: string | null;
+	destination: string;
+	scriptName: string;
 	allowedFormats: string[] | null;
 	prettyPrint: boolean;
 	debug: boolean;
@@ -150,4 +151,16 @@ export interface I18nSchema {
  */
 export interface TranslationStrings {
 	[msgctxt: string]: { [msgId: string]: GetTextTranslation };
+}
+
+/**
+ * The JSON data returned by the `makeJson` command.
+ * @param {string} domain
+ * @param {Record<string, unknown>} locale_data
+ */
+export interface JedData {
+	domain: string;
+	locale_data: {
+		messages: Record<string, unknown>;
+	};
 }

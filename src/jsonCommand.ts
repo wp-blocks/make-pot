@@ -14,7 +14,7 @@ if (Object.keys(args).length > 0) {
 	makeJsonCommand
 		.invoke()
 		.then((result) => {
-			if (result) {
+			if (args.debug) {
 				console.log(result);
 			}
 			/* output the end time */

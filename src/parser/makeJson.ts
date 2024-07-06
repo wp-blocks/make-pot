@@ -195,6 +195,10 @@ export class MakeJsonCommand {
 		}
 		return true;
 	}
+
+	private md5(text: string): string {
+		return crypto.createHash("md5").update(text).digest("hex");
+	}
 }
 
 export default MakeJsonCommand;

@@ -124,15 +124,13 @@ export function parseJsonArgs(
 	const outputPath: string =
 		typeof args._[1] === "string" ? args._[1].toString() : inputPath;
 	const currentWorkingDirectory = process.cwd();
-	const slug =
-		args.slug && typeof args.slug === "string"
-			? args.slug
-			: path.basename(path.resolve(currentWorkingDirectory, inputPath));
+	const slug = path.basename(path.resolve(currentWorkingDirectory));
 
 	return {
 		slug: slug,
 		source: inputPath,
 		destination: outputPath,
+		scriptName: (args.scriptName as string) ?? "index.js",
 		allowedFormats: args.allowedFormats as string[] | null,
 		purge: !!args.purge,
 		prettyPrint: !!args.prettyPrint,

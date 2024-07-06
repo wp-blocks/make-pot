@@ -25,6 +25,10 @@ export function getJsonArgs(additionalArgs = {}): MakeJsonArgs {
 			type: "string",
 		})
 		.options({
+			scriptName: {
+				describe: "The name of the script to be translated",
+				type: "string",
+			},
 			allowedFormats: {
 				describe: "which extensions to use for translation",
 				type: "array",

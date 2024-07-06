@@ -1,54 +1,57 @@
+import crypto from "node:crypto";
 import * as fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
-import type { MakeJsonArgs } from "../types";
-
-interface JedData {
-	domain: string;
-	locale_data: Record<string, string[]>;
-}
+import { IsoCodeRegex, defaultLocale, fileRegex } from "../const";
+import type { JedData, MakeJsonArgs } from "../types";
 
 export class MakeJsonCommand {
 	/**
 	 * Pretty print JSON.
 	 * @private
 	 */
-	private source: string;
+	private readonly source: string;
 	/**
 	 * The destination file path.
 	 * @private
 	 */
-	private destination: string;
+	private readonly destination: string;
 	/**
 	 * The allowed file extensions.
 	 * @private
 	 */
-	private allowedFormats: string[] | null;
+	private readonly allowedFormats: string[];
 	/**
 	 * Remove old POT files.
 	 * @private
 	 */
-	private purge: boolean;
+	private readonly purge: boolean;
 	/**
 	 * Pretty print JSON.
 	 * @private
 	 */
-	private prettyPrint: boolean;
+	private readonly prettyPrint: boolean;
 	/**
 	 * Enable debug mode.
 	 * @private
 	 */
 	private debug: boolean;
+	/**
+	 * The script to be translated.
+	 * @private
+	 */
+	private scriptName: string;
 
 	public constructor(args: MakeJsonArgs) {
-		if (args.source === null) {
-			throw new Error("No source file specified");
+		if (!args.source) {
+			throw new Error("No source directory specified");
 		}
 
 		if (!fs.existsSync(args.source)) {
-			throw new Error("Source file not found");
+			throw new Error("Source directory not found");
 		}
 
+		this.scriptName = this.md5(args.scriptName || "index.js");
 		this.source = args.source;
 		this.destination = args.destination;
 		this.allowedFormats = args.allowedFormats ?? [
@@ -56,14 +59,17 @@ export class MakeJsonCommand {
 			".tsx",
 			".js",
 			".jsx",
-			"mjs",
-			"cjs",
+			".mjs",
+			".cjs",
 		];
 		this.purge = args.purge;
 		this.prettyPrint = args.prettyPrint;
 		this.debug = args.debug;
 	}
 
+	/**
+	 * The main function. Parses the PO files and generates the JSON files.
+	 */
 	public async invoke(): Promise<Record<string, JedData>> {
 		// get all the files in the source directory
 		const files = await glob("**/*.po", { cwd: this.source, nodir: true });
@@ -72,17 +78,21 @@ export class MakeJsonCommand {
 		const output: Record<string, JedData> = {};
 		for (const file of files) {
 			//build the filename for the json file using the po files
-			const jsonFilename = file.replace(".po", ".json");
+			const jsonFilename = file.replace(".po", `-${this.scriptName}.json`);
 			// build the output object
-			output[jsonFilename] = this.processFile(file);
+			output[jsonFilename] = this.processFile(path.join(this.source, file));
 		}
-		console.log(output);
 
-		for (const key in output) {
-			const [filename, content] = output[key];
+		// write the json files
+		for (const [filename, content] of Object.entries(output)) {
 			let contentString: string;
 			if (this.purge) {
-				fs.unlinkSync(path.join(this.source, filename));
+				if (fs.existsSync(path.join(this.destination, filename))) {
+					console.log(
+						`Removing ${path.join(this.destination, filename)} as the purge option is enabled`,
+					);
+					fs.unlinkSync(path.join(this.destination, filename));
+				}
 				contentString = JSON.stringify(
 					content,
 					null,
@@ -109,15 +119,21 @@ export class MakeJsonCommand {
 		return output;
 	}
 
+	/**
+	 * Process a PO file and return the JSON data.
+	 * @param filePath - The path to the PO file.
+	 */
 	public processFile(filePath: string): JedData {
 		// Read the source file
 		const content = fs.readFileSync(filePath, "utf8");
 
+		const languageIsoCode = this.extractIsoCode(filePath);
+
 		// Parse the source file
-		const poData = this.parsePoFile(content);
+		const { header, translations } = this.parsePoFile(content);
 
 		// Convert to Jed json dataset
-		return this.convertToJed(poData, this.allowedFormats);
+		return this.convertToJed(header, translations, languageIsoCode);
 	}
 
 	/**
@@ -207,49 +223,84 @@ export class MakeJsonCommand {
 		return { header, translations };
 	}
 
+	/**
+	 * Converts PO data to Jed data.
+	 * @param header - The header of the PO file.
+	 * @param translations - The translations of the PO file.
+	 * @param languageIsoCode - The ISO code of the language.
+	 * @private
+	 *
+	 * @return An object containing the Jed data.
+	 */
 	private convertToJed(
-		poData: Record<string, string>,
-		allowedFormats: string[] | null,
+		header: string,
+		translations: Record<string, string[]>,
+		languageIsoCode?: string,
 	): JedData {
-		const jedData: object = {
+		console.log("Found translations:", Object.keys(translations).length);
+		return {
 			domain: "messages",
 			locale_data: {
 				messages: {
 					"": {
 						domain: "messages",
-						plural_forms: this.getPluralForms(poData[""]),
-						lang: this.getLanguage(poData[""]),
+						plural_forms: this.getPluralForms(header),
+						lang: languageIsoCode || this.getLanguage(header),
 					},
+					...translations,
 				},
 			},
 		};
-
-		for (const [msgid, msgstr] of Object.entries(poData)) {
-			if (msgid === "") continue;
-
-			if (!allowedFormats || this.isCompatibleFile(msgid, allowedFormats)) {
-				jedData.locale_data.messages[msgid] = [msgstr];
-			}
-		}
-
-		return jedData;
 	}
 
+	/**
+	 * Gets the ISO code from the filename.
+	 * @param filename The filename to extract the ISO code from.
+	 * @private
+	 *
+	 * @returns The ISO code if found, otherwise null.
+	 */
+	private extractIsoCode(filename: string): string | undefined {
+		const match = filename.match(IsoCodeRegex);
+		return match ? match[1] : undefined;
+	}
+
+	/**
+	 * Takes the header content and extracts the plural forms.
+	 * @param headerContent - The header content to extract the plural forms from.
+	 * @private
+	 *
+	 * @returns The plural forms extracted from the header. Defaults to 'nplurals=2; plural=(n != 1);' if not found
+	 */
 	private getPluralForms(headerContent: string): string {
 		const match = headerContent.match(/Plural-Forms:\s*(.*?)\n/);
 		return match ? match[1] : "nplurals=2; plural=(n != 1);";
 	}
 
+	/**
+	 * Takes the header content and extracts the language.
+	 * @param headerContent - The header content to extract the language from.
+	 * @private
+	 *
+	 * @returns The language code extracted from the header.
+	 */
 	private getLanguage(headerContent: string): string {
 		const match = headerContent.match(/Language:\s*(.*?)\n/);
-		return match ? match[1] : "en";
+		return match ? match[1] : defaultLocale;
 	}
 
-	private isCompatibleFile(msgid: string, allowedFormats: string[]): boolean {
-		if (Array.isArray(allowedFormats)) {
-			return allowedFormats.some((ext) => msgid.includes(ext));
-		}
-		return true;
+	/**
+	 * Checks if the given files are compatible with the allowed formats.
+	 * @param files The files array to check.
+	 * @private
+	 *
+	 * @returns True if the files are compatible, false otherwise.
+	 */
+	private isCompatibleFile(files: string[]): boolean {
+		if (!this.allowedFormats) return true;
+		return files.some((file) =>
+			this.allowedFormats.some((format) => file.endsWith(format)),
+		);
 	}
 
 	private md5(text: string): string {

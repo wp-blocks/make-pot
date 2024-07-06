@@ -3,7 +3,7 @@ import * as path from "node:path";
 import * as process from "node:process";
 import type * as yargs from "yargs";
 import { DEFAULT_EXCLUDED_PATH } from "../const.js";
-import type { Args, DomainType } from "../types.js";
+import type { Args, DomainType, MakeJsonArgs } from "../types.js";
 import { stringstring } from "../utils/common.js";
 
 /**
@@ -59,8 +59,10 @@ export function parseCliArgs(
 	args: yargs.PositionalOptions & yargs.Options & yargs.Arguments,
 ): Args {
 	// Get the input and output paths
-	const inputPath: string = typeof args._[0] === "string" ? args._[0] : ".";
-	const outputPath: string = typeof args._[1] === "string" ? args._[1] : ".";
+	const inputPath: string =
+		typeof args._[0] === "string" ? args._[0].toString() : ".";
+	const outputPath: string =
+		typeof args._[1] === "string" ? args._[1].toString() : ".";
 	const currentWorkingDirectory = process.cwd();
 	const slug =
 		args.slug && typeof args.slug === "string"
@@ -80,7 +82,7 @@ export function parseCliArgs(
 		options: {
 			ignoreDomain: !!args?.ignoreDomain,
 			packageName: String(args.packageName),
-			silent: !!args.silent,
+			silent: args.silent === true, // default is false
 			json: !!args.json,
 			location: !!args?.location,
 			output: !!args?.output,
@@ -107,4 +109,31 @@ export function parseCliArgs(
 	parsedArgs.paths.root = args.root ? String(args.root) : undefined;
 
 	return parsedArgs;
+}
+
+/**
+ * Parses the command line arguments for the JSON command.
+ * @param args - The command line arguments to be parsed.
+ */
+export function parseJsonArgs(
+	args: yargs.PositionalOptions & yargs.Options & yargs.Arguments,
+): MakeJsonArgs {
+	// Get the input and output paths
+	const inputPath: string =
+		typeof args._[0] === "string" ? args._[0].toString() : "";
+	const outputPath: string =
+		typeof args._[1] === "string" ? args._[1].toString() : inputPath;
+	const currentWorkingDirectory = process.cwd();
+	const slug = path.basename(path.resolve(currentWorkingDirectory));
+
+	return {
+		slug: slug,
+		source: inputPath,
+		destination: outputPath,
+		scriptName: (args.scriptName as string) ?? "index.js",
+		allowedFormats: args.allowedFormats as string[] | null,
+		purge: !!args.purge,
+		prettyPrint: !!args.prettyPrint,
+		debug: !!args.debug,
+	};
 }

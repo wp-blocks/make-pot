@@ -5,7 +5,20 @@ import { writeFile } from "../fs/fs.js";
 import type { Args } from "../types.js";
 import { exec } from "./exec.js";
 
-function getOutputPath(args: Args): string {
+/**
+ * The output path for the pot file.
+ * @param outpath - the output path for the pot/json files
+ * @return {string} - the output path
+ */
+export function getOutputPath(outpath?: string): string {
+	return path.join(process.cwd(), outpath ?? "languages");
+}
+
+/**
+ * The output path for the pot file.
+ * @param args - the command line arguments
+ */
+function getOutputFilePath(args: Args): string {
 	return path.join(
 		process.cwd(),
 		args.headers?.domainPath ?? args.paths.out ?? "languages",
@@ -36,7 +49,7 @@ export async function makePot(args: Args): Promise<string> {
 	/** Generate the pot file */
 	const jsonTranslations = await exec(args);
 
-	const outputPath = getOutputPath(args);
+	const outputPath = getOutputFilePath(args);
 
 	console.log(`Writing pot file to ${outputPath}`);
 

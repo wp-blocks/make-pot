@@ -42,11 +42,24 @@ export const DEFAULT_EXCLUDED_PATH = [
 ];
 
 /**
+ * The regex used to find the locale in the source code
+ */
+export const IsoCodeRegex = /-([a-z]{2}_[A-Z]{2})\.po$/;
+
+/**
+ * The regex used to find the filename in the source code
+ */
+export const fileRegex = /#:\s*(.*?)(?::\d+)?$/;
+
+export const defaultLocale = "en_US";
+
+/**
  * The files that are allowed to be parsed using tree sitter
  *
  * Json and text files are parsed in a different way
  */
-export const allowedFiles = ["php", "js", "jsx", "ts", "tsx", "mjs", "cjs"];
+export const allowedFormats = ["php", "js", "jsx", "ts", "tsx", "mjs", "cjs"];
+
 /**
  * The default functions to use for i18n.
  */

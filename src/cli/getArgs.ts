@@ -1,7 +1,6 @@
 import process from "node:process";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-
 import { parseCliArgs } from "./parseCli.js";
 
 /**
@@ -99,6 +98,7 @@ export function getArgs(userArgs = {}) {
 			silent: {
 				describe: "No output to stdout",
 				type: "boolean",
+				default: false,
 			},
 			json: {
 				describe: "Output the json gettext data",

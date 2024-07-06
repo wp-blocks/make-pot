@@ -120,35 +120,91 @@ export class MakeJsonCommand {
 		return this.convertToJed(poData, this.allowedFormats);
 	}
 
-	private parsePoFile(content: string): Record<string, string> {
+	/**
+	 * Takes a PO file and returns the header and translations.
+	 * @param content - The content of the PO file.
+	 * @private
+	 *
+	 * @returns An object containing the header and translations.
+	 */
+	private parsePoFile(content: string): {
+		header: string;
+		translations: Record<string, string[]>;
+	} {
 		const lines = content.split("\n");
-		const translations: Record<string, string> = {};
+		const translations: Record<string, string[]> = {};
+		let header = "";
 		let currentMsgid = "";
-		let currentMsgstr = "";
+		let currentMsgstr: string[] = [];
+		let currentFiles: string[] = [];
+		let i = 0;
 
-		for (const line of lines) {
-			if (line.startsWith('msgid "')) {
-				if (currentMsgid && currentMsgstr) {
+		// Trim empty lines at the beginning
+		while (i < lines.length && lines[i].trim() === "") {
+			i++;
+		}
+
+		// Ensure we start with 'msgid ""'
+		if (i < lines.length && !lines[i].startsWith('msgid ""')) {
+			throw new Error(
+				"Invalid PO file format: expected 'msgid \"\"' at the start of the header",
+			);
+		}
+
+		// Parse header lines until we find the first 'msgid ""' and the first 'msgstr ""' or until we reach the end of the file
+		while (i < lines.length && lines[i].trim() !== "") {
+			if (lines[i].startsWith('msgid ""') || lines[i].startsWith('msgstr ""')) {
+				i++;
+				continue;
+			}
+			if (lines[i].startsWith('"') && lines[i].endsWith('"')) {
+				header += `${lines[i].slice(1, -1)}\n`;
+			}
+			i++;
+		}
+
+		// Skip the empty line
+		i++;
+
+		// Parse translations
+		for (; i < lines.length; i++) {
+			const line = lines[i].trim();
+			if (line.startsWith("#: ")) {
+				if (line.startsWith("#: ")) {
+					const match = line.match(fileRegex);
+					if (typeof match?.[1] === "string") {
+						const string = match[1].trim();
+						currentFiles.push(string);
+					}
+				}
+			} else if (line.startsWith('msgid "')) {
+				if (
+					currentMsgid &&
+					currentMsgstr &&
+					this.isCompatibleFile(currentFiles)
+				) {
 					translations[currentMsgid] = currentMsgstr;
 				}
 				currentMsgid = line.slice(7, -1);
-				currentMsgstr = "";
+				currentMsgstr = [];
+				currentFiles = [];
 			} else if (line.startsWith('msgstr "')) {
-				currentMsgstr = line.slice(8, -1);
+				currentMsgstr.push(line.slice(8, -1));
 			} else if (line.startsWith('"') && line.endsWith('"')) {
-				if (currentMsgstr) {
-					currentMsgstr += line.slice(1, -1);
-				} else {
-					currentMsgid += line.slice(1, -1);
-				}
+				currentMsgstr.push(line.slice(1, -1));
 			}
 		}
 
-		if (currentMsgid && currentMsgstr) {
+		// Add the last translation if exists and is compatible
+		if (
+			currentMsgid &&
+			currentMsgstr.length &&
+			this.isCompatibleFile(currentFiles)
+		) {
 			translations[currentMsgid] = currentMsgstr;
 		}
 
-		return translations;
+		return { header, translations };
 	}
 
 	private convertToJed(

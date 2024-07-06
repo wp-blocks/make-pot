@@ -19,6 +19,7 @@ export function getJsonArgs(additionalArgs = {}): MakeJsonArgs {
 		.positional("source", {
 			describe: "Source directory",
 			type: "string",
+			default: "./languages",
 		})
 		.positional("destination", {
 			describe: "Destination directory",
@@ -36,14 +37,17 @@ export function getJsonArgs(additionalArgs = {}): MakeJsonArgs {
 			purge: {
 				describe: "Remove old POT files",
 				type: "boolean",
+				default: true,
 			},
 			prettyPrint: {
 				describe: "Pretty print JSON",
 				type: "boolean",
+				default: false,
 			},
 			debug: {
 				describe: "Debug mode",
 				type: "boolean",
+				default: false,
 			},
 		})
 		.parseSync();

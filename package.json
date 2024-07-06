@@ -14,8 +14,8 @@
 		"default": "lib/index.js",
 		"make-pot": "lib/index.js",
 		"makepot": "lib/index.js",
-		"make-json": "lib/makeJson.js",
-		"makejson": "lib/makeJson.js"
+		"make-json": "lib/jsonCommand.js",
+		"makejson": "lib/jsonCommand.js"
 	},
 	"engines": {
 		"node": ">=16.0.0"
@@ -55,7 +55,8 @@
 		"test:ci": "npm run ci:bundle && node --test",
 		"test:watch": "node --test --watch",
 		"test:coverage": "node --test --experimental-test-coverage",
-		"run": "node ./lib/index.js tests/fixtures/vinyl/"
+		"run": "node ./lib/index.js tests/fixtures/vinyl/",
+		"runJson": "node ./lib/jsonCommand.js tests/fixtures/vinyl/"
 	},
 	"dependencies": {
 		"axios": "^1.7.2",

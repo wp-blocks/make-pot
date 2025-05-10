@@ -1,6 +1,7 @@
 import fs, { writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import type { Args } from "../types";
 
 /**
  * Ensures that a folder exists at the specified path.
@@ -30,17 +31,72 @@ function ensureFolderExists(folderPath: string | undefined): string {
 }
 
 /**
- * Writes the .pot file to disk
+ * Gets the charset of the .pot file
  *
- * @param fileContent the content of the .pot file
- * @param dest the path of the .pot file to write
+ * @param charset the charset of the .pot file
+ * @return the charset of the .pot file
  */
-export function writeFile(fileContent: string, dest: string) {
-	if (ensureFolderExists(path.dirname(dest))) {
-		writeFileSync(dest, fileContent);
+export function getCharset(charset: string | undefined): BufferEncoding {
+	if (!charset) {
+		return "latin1";
+	}
+	// we need to check if the charset is valid otherwise we return latin1 that is a common alias for ISO-8859-1 and the default charset for pot files
+	switch (charset.toLowerCase()) {
+		case "utf-8":
+			return "utf-8";
+		default:
+			return "latin1";
 	}
 }
 
+/**
+ * The output path for the pot file.
+ * @param outpath - the output path for the pot/json files
+ * @return {string} - the output path
+ */
+export function getOutputPath(outpath?: string): string {
+	return path.join(process.cwd(), outpath ?? "languages");
+}
+
+/**
+ * The output path for the pot file.
+ * @param args - the command line arguments
+ */
+function getOutputFilePath(args: Args): string {
+	return path.join(
+		process.cwd(),
+		args.headers?.domainPath ?? args.paths.out ?? "languages",
+		`${args?.slug}.${args.options?.json ? "json" : "pot"}`,
+	);
+}
+
+/**
+ * Writes the .pot file to disk
+ *
+ * @param fileContent the content of the .pot file
+ * @param args the command line arguments passed to the program
+ */
+export function writeFile(fileContent: string, args: Args): void {
+	const dest = getOutputFilePath(args);
+
+	if (ensureFolderExists(path.dirname(dest))) {
+		// latin1 is a common alias for ISO-8859-1 in Node.js and many other systems
+		const encodingCharset = getCharset(args.options?.charset);
+		console.log(`Writing file: ${dest} with charset: ${encodingCharset}`);
+		const potBuffer = Buffer.from(fileContent, encodingCharset);
+		writeFileSync(dest, potBuffer, {
+			encoding: encodingCharset,
+		});
+	} else {
+		console.log(`Folder ${dest} does not exist and cannot be created`);
+	}
+}
+
+/**
+ * The async version of fs.readFile method
+ * @param path the path of the file to read
+ * @return the content of the file as a string
+ */
 export async function readFileAsync(path: string): Promise<string> {
 	return readFile(path, "utf-8");
 }

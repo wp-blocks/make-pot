@@ -2,6 +2,7 @@ import { cpus, totalmem } from "node:os";
 import type { SingleBar } from "cli-progress";
 import { type GetTextTranslations, po } from "gettext-parser";
 import { generateHeader, translationsHeaders } from "../extractors/headers.js";
+import { getCharset } from "../fs/fs";
 import type { Args } from "../types.js";
 import { getCopyright } from "../utils/common.js";
 import { getPatterns } from "./patterns.js";
@@ -82,15 +83,19 @@ export async function exec(args: Args): Promise<string> {
 		return JSON.stringify([potHeader, translationsUnion.toJson()], null, 4);
 	}
 
+	const charset = getCharset(args.options?.charset);
+
 	// generate the pot file json
 	const getTextTranslations: GetTextTranslations = {
-		charset: "iso-8859-1",
+		charset: charset === "latin1" ? "iso-8859-1" : charset,
 		headers: potHeader,
 		translations: translationsUnion.toJson(),
 	};
 
 	// And then compile the pot file
-	const pluginTranslations = po.compile(getTextTranslations).toString("utf-8");
+	const pluginTranslations = po
+		.compile(getTextTranslations)
+		.toString(charset as BufferEncoding);
 
 	// return the pot file as a string with the header
 	return `${copyrightComment}\n${pluginTranslations}`;

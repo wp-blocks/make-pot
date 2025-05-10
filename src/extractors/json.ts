@@ -33,7 +33,7 @@ export async function parseJsonFile(opts: {
 					? JsonSchemaExtractor.themeJsonFallback
 					: JsonSchemaExtractor.blockJsonFallback,
 			addReferences: true,
-		},
+		} as { schema?: string; schemaFallback?: I18nSchema },
 	);
 	return jsonTranslations ?? {};
 }

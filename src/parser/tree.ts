@@ -51,7 +51,12 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 			? "call_expression"
 			: "function_call_expression";
 
-	const stringType = ["string", "encapsed_string", "string_value"];
+	const stringType = [
+		"string",
+		"member_expression",
+		"encapsed_string",
+		"string_value",
+	];
 
 	/**
 	 * Traverse the tree 🌳
@@ -118,13 +123,13 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 					continue;
 				}
 
-				if (stringType.includes(node?.type)) {
+				if (stringType.includes(node.type)) {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1);
 				} else {
 					// unexpected node type this string is not translatable and should be skipped
 					console.warn(
-						`Unexpected node type: ${node?.type} is ${translationKeys[translationKeyIndex]} for  ${nodeValue} in ${filepath}`,
+						`Unexpected node type: ${node?.type} is ${translationKeys[translationKeyIndex]} for ${nodeValue} in ${filepath}`,
 					);
 					continue;
 				}

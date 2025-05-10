@@ -67,6 +67,9 @@ First of all remember that the 'make-pot' help can be printed using the command 
 	}
 ```
 
+The make-pot command does not need any arguments, it will parse the required data from the plugin file (the one in the root directory with the same name of the folder) or the theme.json/theme css file in the case of themes.
+So what you should check before running the command is to have all the WordPress and Node.js required data/metadata in place, nothing else. Anyway, the command can be customized if you need, let's see some examples:
+
 #### Using `make-pot` include and exclude files
 We use glob module to include and exclude files. please check [glob](https://github.com/isaacs/node-glob)
 
@@ -84,8 +87,6 @@ We use glob module to include and exclude files. please check [glob](https://git
 #### Tip:
 The include and exclude options works in a different way... the include option adds the files to the default list of files to be processed, while the exclude option replaces the original list and excludes the specified files/directories.
 The mergePaths option will merge the resulting pot file with another pot file, while the subtractPaths option will subtract the strings from the resulting pot file with another pot file.
-
-
 
 ## As a build chain step
 
@@ -137,7 +138,7 @@ first build the translation pot file using `makepot` (no matter with this module
 then run `makejson`:
 
 ```bash
-npx makejson language --scriptName="build/frontend.js"
+npx makejson languages --scriptName="build/frontend.js"
 ```
 It Will create a file for each po file in the `languages` directory with the md5 hash with the name of the file.
 In this case, the file will be named my-frontend-script-en_US-79431f0eb8deb8221f24df5112e15095.json because the md5 hash of "build/frontend.js" is 79431f0eb8deb8221f24df5112e15095.
@@ -151,7 +152,7 @@ This is crucial because the md5 hash has to be the same as the path of the scrip
  * Loads the plugin text domain for translation.
  */
 function my_i18n() {
-    load_plugin_textdomain( 'my-text-domain', false, __DIR__ . '/languages' );
+    load_plugin_textdomain( 'my-text-domain', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
 add_action( 'init', 'my_i18n' );
 
@@ -159,7 +160,7 @@ add_action( 'init', 'my_i18n' );
  * Registers the block using the metadata loaded from the `block.json` file.
  */
 add_action('init', function () {
-	register_block_type(__DIR__ . '/build', [
+	register_block_type( dirname( plugin_basename( __FILE__ ) ) . '/build', [
 		"script" => "my-vendor-script",
 		"viewScript" => "my-frontend-script",
 		"editorScript" => "my-editor-script",
@@ -171,7 +172,7 @@ add_action('init', function () {
  */
 function my_register_block_type() {
 
-	$fe_assets = include __FILE__ . '/build/my-frontend-script.asset.php';
+	$fe_assets = include dirname( __FILE__ ) . '/build/my-frontend-script.asset.php';
 
 	wp_register_script(
 		'my-frontend-script',

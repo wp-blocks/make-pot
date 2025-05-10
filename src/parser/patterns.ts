@@ -15,30 +15,26 @@ export function getPatterns(args: Args) {
 	} as Patterns;
 
 	// Additional logic to handle different file types and formats
-	// Exclude blade.php files if --skip-blade is set
-	if (
-		args.options?.skip.php !== undefined ||
-		args.options?.skip.blade !== undefined
-	) {
-		if (args.options?.skip.blade !== undefined) {
-			// php files but not blade.php
-			pattern.include.push("**/*.php");
-		} else {
-			pattern.include.push("**/*.php", "!**/blade.php");
+	if (args.options) {
+		// js typescript mjs cjs etc
+		if (args.options.skip.blade) {
+			pattern.exclude.push("**/blade.php");
+		} else if (args.options.skip.php) {
+			pattern.exclude.push("**/*.php", "**/*.blade.php");
 		}
-	}
 
-	// js typescript mjs cjs etc
-	if (args.options?.skip.js !== undefined) {
-		pattern.include.push("**/*.{js,jsx,ts,tsx,mjs,cjs}");
-	}
+		// js typescript mjs cjs etc
+		if (args.options.skip.js) {
+			pattern.exclude.push("**/*.{js,jsx,ts,tsx,mjs,cjs}");
+		}
 
-	if (args.options?.skip.blockJson !== undefined) {
-		pattern.include.push("block.json");
-	}
+		if (args.options.skip.blockJson) {
+			pattern.exclude.push("block.json");
+		}
 
-	if (args.options?.skip.themeJson !== undefined) {
-		pattern.include.push("theme.json");
+		if (args.options.skip.themeJson) {
+			pattern.exclude.push("theme.json");
+		}
 	}
 
 	return pattern;

@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "1.4.0",
+	"version": "1.5.1",
 	"license": "GPL-3.0-or-later",
 	"homepage": "https://wp-blocks.github.io/make-pot/",
 	"description": "A Node.js script for generating a POT file from source code",
@@ -9,7 +9,7 @@
 		"John Hooks <bitmachina@outlook.com> (https://johnhooks.io/)"
 	],
 	"type": "commonjs",
-	"main": "lib/run.js",
+	"main": "lib/potCommand.js",
 	"bin": {
 		"default": "lib/index.js",
 		"make-pot": "lib/index.js",
@@ -59,11 +59,11 @@
 		"runJson": "node ./lib/jsonCommand.js tests/fixtures/vinyl/"
 	},
 	"dependencies": {
-		"axios": "^1.7.2",
+		"axios": "1.8.2",
 		"cli-progress": "^3.12.0",
 		"gettext-merger": "^1.2.1",
 		"gettext-parser": "^4.0.4",
-		"glob": "^10.4.2",
+		"glob": "^11.0.2",
 		"tree-sitter": "^0.20.6",
 		"tree-sitter-javascript": "^0.20.4",
 		"tree-sitter-php": "^0.20.0",
@@ -71,12 +71,12 @@
 		"yargs": "^17.7.1"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.8.3",
-		"@types/cli-progress": "^3.11.5",
+		"@biomejs/biome": "1.9.4",
+		"@types/cli-progress": "^3.11.6",
 		"@types/gettext-parser": "^4.0.4",
-		"@types/node": "^20.14.9",
-		"@types/yargs": "^17.0.32",
-		"esbuild": "0.23.0",
-		"typescript": "^5.5.3"
+		"@types/node": "^22.15.17",
+		"@types/yargs": "^17.0.33",
+		"esbuild": "0.25.0",
+		"typescript": "^5.8.3"
 	}
 }

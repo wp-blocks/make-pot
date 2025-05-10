@@ -90,6 +90,7 @@ export function getArgs(userArgs = {}) {
 			include: {
 				describe: "Include specific files",
 				type: "string",
+				default: "**",
 			},
 			exclude: {
 				describe: "Exclude specific files",

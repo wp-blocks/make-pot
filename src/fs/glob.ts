@@ -67,9 +67,7 @@ export const ignoreFunc = (
 export function getFiles(args: Args, pattern: Patterns) {
 	if (!args.options?.silent)
 		console.log(
-			"Searching in :" + path.resolve(args.paths.cwd),
-			"\nfor " + pattern.include.join(),
-			"\nignoring patterns: " + pattern.exclude.join(),
+			`Searching in :${path.resolve(args.paths.cwd)}\n for ${pattern.include.join()}\n ignoring patterns: ${pattern.exclude.join()}`,
 		);
 
 	// Execute the glob search with the built patterns

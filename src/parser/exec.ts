@@ -37,6 +37,7 @@ export async function exec(args: Args): Promise<string> {
 	// audit
 	if (args.options?.skip.audit) {
 		console.log("Audit strings...");
+		console.log("TODO");
 		/** TODO audit strings */
 		console.log("✅ Done");
 	}

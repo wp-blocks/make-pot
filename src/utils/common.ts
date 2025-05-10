@@ -140,7 +140,7 @@ export function printHeader() {
  */
 export function printTimeElapsed(timeStart: Date, timeEnd: Date = new Date()) {
 	console.log(
-		`🚀 Translation Pot file created in ${
+		`🚀 Make-Pot: Job completed! Pot file created in ${
 			timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);

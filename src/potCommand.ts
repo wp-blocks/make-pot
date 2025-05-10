@@ -15,7 +15,7 @@ export default function potCommand(args: Args) {
 				printTimeElapsed(timeStart);
 			})
 			.catch((error) => {
-				console.error(`🫤 Make-pot - Error: ${error}`);
+				console.error(`🫤 Make-pot - ${error}`);
 			});
 	}
 }

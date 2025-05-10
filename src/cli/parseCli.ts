@@ -98,10 +98,10 @@ export function parseCliArgs(
 		},
 		// Patterns
 		patterns: {
-			mergePaths: stringstring(args.mergePaths as string) ?? [],
-			subtractPaths: stringstring(args.subtractPaths as string) ?? [],
+			mergePaths: stringstring(args.mergePaths as string),
+			subtractPaths: stringstring(args.subtractPaths as string),
 			subtractAndMerge: !!args.subtractAndMerge,
-			include: stringstring(args.include as string) ?? ["**"],
+			include: stringstring(args.include as string),
 			exclude: [
 				...stringstring(args.exclude as string),
 				...DEFAULT_EXCLUDED_PATH,

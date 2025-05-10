@@ -1,30 +1,8 @@
-import path from "node:path";
 import { extractMainFileData } from "../extractors/headers.js";
 import { extractPackageJson } from "../extractors/json.js";
 import { writeFile } from "../fs/fs.js";
 import type { Args } from "../types.js";
 import { exec } from "./exec.js";
-
-/**
- * The output path for the pot file.
- * @param outpath - the output path for the pot/json files
- * @return {string} - the output path
- */
-export function getOutputPath(outpath?: string): string {
-	return path.join(process.cwd(), outpath ?? "languages");
-}
-
-/**
- * The output path for the pot file.
- * @param args - the command line arguments
- */
-function getOutputFilePath(args: Args): string {
-	return path.join(
-		process.cwd(),
-		args.headers?.domainPath ?? args.paths.out ?? "languages",
-		`${args?.slug}.${args.options?.json ? "json" : "pot"}`,
-	);
-}
 
 /**
  * Generates a pot file for localization.
@@ -47,13 +25,15 @@ export async function makePot(args: Args): Promise<string> {
 	} as Args["headers"];
 
 	/** Generate the pot file */
-	const jsonTranslations = await exec(args);
+	exec(args)
+		.then((jsonTranslations) => {
+			writeFile(jsonTranslations, args);
 
-	const outputPath = getOutputFilePath(args);
+			return jsonTranslations;
+		})
+		.catch((error) => {
+			console.error(error);
 
-	console.log(`Writing pot file to ${outputPath}`);
-
-	writeFile(jsonTranslations, outputPath);
-
-	return jsonTranslations;
+			return "";
+		});
 }

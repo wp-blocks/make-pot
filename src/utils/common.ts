@@ -41,16 +41,14 @@ export function stripTranslationMarkup(comment: string): string {
  * @param {string} string - The string to be split.
  * @return {string[]} An array of strings after splitting the input string.
  */
-export function stringstring(
-	string: string | string[] | undefined,
-): string[] | null {
+export function stringstring(string: string | string[] | undefined): string[] {
 	if (typeof string === "string") {
 		if (string.includes(",")) {
 			return string.split(",");
 		}
 		return [string];
 	}
-	return null;
+	return [];
 }
 
 /**

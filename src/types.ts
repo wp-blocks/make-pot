@@ -102,6 +102,7 @@ export interface Args {
 		packageName?: string;
 		output?: boolean;
 		fileComment?: string;
+		charset?: string;
 		skip: {
 			js?: boolean;
 			php?: boolean;

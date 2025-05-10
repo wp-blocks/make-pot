@@ -108,6 +108,11 @@ export function getArgs(userArgs = {}) {
 				describe: "Output the gettext data",
 				type: "boolean",
 			},
+			charset: {
+				describe: "Charset",
+				type: "string",
+				default: "latin1",
+			},
 		})
 		.parseSync();
 	return parseCliArgs({ ...userArgs, ...args });

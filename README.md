@@ -53,6 +53,40 @@ npx @wp-blocks/make-pot [sourceDirectory] [destination] [options]
 - `--json`: Outputs the JSON gettext data.
 - `--output`: Outputs the gettext data.
 
+### Examples
+
+First of all remember that the 'make-pot' help can be printed using the command `npx @wp-blocks/make-pot -h`, and the help for the json command can be printed using the command `npx make-json -h`. the commands are available after installing the module (`npm install @wp-blocks/make-pot`)
+
+#### Using `make-pot` in your `package.json`
+```bash
+	"scripts": {
+		"build": "npm run build:scripts && npm run build:makepot",
+		"build:scripts": "wp-scripts build",
+		"build:makepot": "npx @wp-blocks/make-pot",
+		"build-2:makejson": "npx makejson --scriptName='build/my-block.js'",
+	}
+```
+
+#### Using `make-pot` include and exclude files
+We use glob module to include and exclude files. please check [glob](https://github.com/isaacs/node-glob)
+
+```bash
+	# Every file in includes, frontend and admin directories that is not in node_modules
+	npx @wp-blocks/make-pot --include='includes/**/*,frontend/**/*,admin/**/*' --exclude="**/node_modules/**"
+	# Every file that is a tsx, ts, js and not in node_modules
+	npx @wp-blocks/make-pot --include='**/*.{tsx,ts,js}' --exclude="**/node_modules/**"
+	# Merge the resulting pot file with another pot file
+	npx @wp-blocks/make-pot --mergePaths='path/to/other.pot'
+	# Remove the strings from the resulting pot file with another pot file
+	npx @wp-blocks/make-pot --subtractPaths='path/to/other.pot'
+```
+
+#### Tip:
+The include and exclude options works in a different way... the include option adds the files to the default list of files to be processed, while the exclude option replaces the original list and excludes the specified files/directories.
+The mergePaths option will merge the resulting pot file with another pot file, while the subtractPaths option will subtract the strings from the resulting pot file with another pot file.
+
+
+
 ## As a build chain step
 
 The `make-pot` module can be used as a build step in your build chain.

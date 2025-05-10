@@ -102,7 +102,10 @@ export function parseCliArgs(
 			subtractPaths: stringstring(args.subtractPaths as string) ?? [],
 			subtractAndMerge: !!args.subtractAndMerge,
 			include: stringstring(args.include as string) ?? ["**"],
-			exclude: stringstring(args.exclude as string) ?? DEFAULT_EXCLUDED_PATH,
+			exclude: [
+				...stringstring(args.exclude as string),
+				...DEFAULT_EXCLUDED_PATH,
+			],
 		},
 	};
 

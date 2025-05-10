@@ -50,7 +50,7 @@ export function stringstring(
 		}
 		return [string];
 	}
-	return null;
+	return [];
 }
 
 /**

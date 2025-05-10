@@ -160,16 +160,23 @@ export class MakeJsonCommand {
 			i++;
 		}
 
-		// Ensure we start with 'msgid ""'
-		if (i < lines.length && !lines[i].startsWith('msgid ""')) {
-			throw new Error(
-				"Invalid PO file format: expected 'msgid \"\"' at the start of the header",
+		// Ensure we start with 'msgid "'
+		if (
+			i < lines.length &&
+			(!lines[i].startsWith('msgid "') || !lines[i].startsWith("#"))
+		) {
+			console.error(
+				"Invalid PO file format: expected 'msgid \"' at the start of the header",
 			);
 		}
 
 		// Parse header lines until we find the first 'msgid ""' and the first 'msgstr ""' or until we reach the end of the file
 		while (i < lines.length && lines[i].trim() !== "") {
-			if (lines[i].startsWith('msgid ""') || lines[i].startsWith('msgstr ""')) {
+			if (
+				lines[i].startsWith("msgid") ||
+				lines[i].startsWith("msgstr") ||
+				lines[i].startsWith("#")
+			) {
 				i++;
 				continue;
 			}

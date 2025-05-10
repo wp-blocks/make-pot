@@ -36,7 +36,7 @@ function ensureFolderExists(folderPath: string | undefined): string {
  * @param charset the charset of the .pot file
  * @return the charset of the .pot file
  */
-function getCharset(charset: string | undefined): BufferEncoding {
+export function getCharset(charset: string | undefined): BufferEncoding {
 	if (!charset) {
 		return "latin1";
 	}

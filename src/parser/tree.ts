@@ -53,9 +53,12 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 
 	const stringType = [
 		"string",
-		"member_expression",
-		"encapsed_string",
 		"string_value",
+		"variable_name",
+		"member_expression",
+		"subscript_expression",
+		"function_call_expression",
+		"encapsed_string",
 	];
 
 	/**

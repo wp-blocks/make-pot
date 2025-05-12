@@ -51,12 +51,8 @@
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
 		"test": "node --test",
-		"ci:bundle": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --platform=node",
-		"test:ci": "npm run ci:bundle && node --test",
 		"test:watch": "node --test --watch",
-		"test:coverage": "node --test --experimental-test-coverage",
-		"run": "node ./lib/index.js tests/fixtures/vinyl/",
-		"runJson": "node ./lib/makeJson.js"
+		"test:coverage": "node --test --experimental-test-coverage"
 	},
 	"dependencies": {
 		"cli-progress": "^3.12.0",

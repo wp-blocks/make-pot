@@ -240,24 +240,47 @@ export class MakeJsonCommand {
 	 * @return An object containing the Jed data.
 	 */
 	private convertToJed(
-		header: string,
-		translations: Record<string, string[]>,
+		header: Record<string, string>,
+		translations: {
+			[msgctxt: string]: { [msgId: string]: GetTextTranslation };
+		},
 		languageIsoCode?: string,
 	): JedData {
-		console.log("Found translations:", Object.keys(translations).length);
-		return {
-			domain: "messages",
-			locale_data: {
-				messages: {
-					"": {
-						domain: "messages",
-						plural_forms: this.getPluralForms(header),
-						lang: languageIsoCode || this.getLanguage(header),
-					},
-					...translations,
+		// Domain name to use for the Jed format
+		const domain = "messages";
+
+		// Initialize the Jed-compatible structure
+		const jedData = {
+			[domain]: {
+				"": {
+					domain: domain,
+					lang: languageIsoCode || header.Language || "en",
+					plural_forms:
+						header["Plural-Forms"] || "nplurals=2; plural=(n != 1);",
 				},
 			},
 		};
+
+		// Process all translations
+		Object.keys(translations).forEach((msgctxt) => {
+			const contextTranslations = translations[msgctxt];
+
+			Object.keys(contextTranslations).forEach((msgid) => {
+				const translation = contextTranslations[msgid];
+
+				// Skip empty msgid (header) as we've already handled it
+				if (msgid === "") return;
+
+				// Construct the key using context if available
+				const key =
+					msgctxt && msgctxt !== "" ? `${msgctxt}\u0004${msgid}` : msgid;
+
+				// Add the translation to the Jed data structure
+				jedData[domain][key] = translation.msgstr;
+			});
+		});
+
+		return jedData;
 	}
 
 	/**

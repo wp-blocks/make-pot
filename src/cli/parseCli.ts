@@ -14,6 +14,9 @@ import { stringstring } from "../utils/common.js";
 function isThemeOrPlugin(currentPath = "/", slug = "default"): DomainType {
 	const currentWorkingDirectory = currentPath;
 
+	/**
+	 * Checks if the current working directory contains a plugin file
+	 */
 	try {
 		accessSync(
 			path.join(currentWorkingDirectory, `${slug}.php`),
@@ -27,6 +30,9 @@ function isThemeOrPlugin(currentPath = "/", slug = "default"): DomainType {
 		);
 	}
 
+	/**
+	 * Checks if the current working directory contains a style.css file and is a theme
+	 */
 	try {
 		accessSync(
 			path.join(currentWorkingDirectory, "style.css"),
@@ -40,12 +46,7 @@ function isThemeOrPlugin(currentPath = "/", slug = "default"): DomainType {
 		);
 	}
 
-	if (currentWorkingDirectory.includes(`wp-content${path.sep}themes`)) {
-		return "theme";
-	}
-	if (currentWorkingDirectory.includes(`wp-content${path.sep}plugins`)) {
-		return "plugin";
-	}
+	// If none of the above conditions are met, return "generic"
 	return "generic";
 }
 

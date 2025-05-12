@@ -1,18 +1,25 @@
 import crypto from "node:crypto";
 import * as fs from "node:fs";
 import path from "node:path";
+import {
+	type GetTextTranslation,
+	type GetTextTranslations,
+	po,
+} from "gettext-parser";
 import { glob } from "glob";
-import { IsoCodeRegex, defaultLocale, fileRegex } from "../const";
+import { IsoCodeRegex, defaultLocale } from "../const";
 import type { JedData, MakeJsonArgs } from "../types";
 
 export class MakeJsonCommand {
 	/**
-	 * Pretty print JSON.
+	 * The source file path.
+	 * Should be the "build" directory containing .js files
 	 * @private
 	 */
 	private readonly source: string;
 	/**
 	 * The destination file path.
+	 * Should be the "languages" directory containing .po files
 	 * @private
 	 */
 	private readonly destination: string;
@@ -48,12 +55,10 @@ export class MakeJsonCommand {
 	private paths: object | undefined;
 	private sourceDir: string;
 	public constructor(args: MakeJsonArgs) {
-		if (!args.source) {
-			throw new Error("No source directory specified");
-		}
-
-		if (!fs.existsSync(args.source)) {
-			throw new Error("Source directory not found");
+		this.sourceDir = path.relative(args.paths.cwd, args.source ?? "");
+		if (!fs.existsSync(this.sourceDir)) {
+			console.error("Source directory not found", args);
+			throw new Error(`Source directory ${this.sourceDir} not found`);
 		}
 
 		this.scriptName = args.scriptName;
@@ -138,8 +143,9 @@ export class MakeJsonCommand {
 				);
 			}
 
-			fs.writeFileSync(path.join(this.destination, filename), contentString);
-			console.log(`JSON file written to ${this.destination + filename}`);
+			const destinationPath = path.join(this.destination, filename);
+			fs.writeFileSync(destinationPath, contentString);
+			console.log(`JSON file written to ${destinationPath} with ${filename}`);
 		}
 
 		// return the output
@@ -149,18 +155,26 @@ export class MakeJsonCommand {
 	/**
 	 * Process a PO file and return the JSON data.
 	 * @param filePath - The path to the PO file.
+	 * @param encoding - The encoding of the PO file.
 	 */
-	public processFile(filePath: string): JedData {
+	public processFile(
+		filePath: string,
+		encoding: BufferEncoding = "utf8",
+	): JedData {
 		// Read the source file
-		const content = fs.readFileSync(filePath, "utf8");
+		const content = fs.readFileSync(filePath, encoding) as string;
 
 		const languageIsoCode = this.extractIsoCode(filePath);
 
 		// Parse the source file
-		const { header, translations } = this.parsePoFile(content);
+		const poContent = this.parsePoFile(content);
 
 		// Convert to Jed json dataset
-		return this.convertToJed(header, translations, languageIsoCode);
+		return this.convertToJed(
+			poContent.headers,
+			poContent.translations,
+			languageIsoCode,
+		);
 	}
 
 	/**

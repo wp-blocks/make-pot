@@ -1,7 +1,8 @@
-import makeJsonCommand from "./jsonCommand";
-import potCommand from "./potCommand";
+import makeJson from "./jsonCommand";
+import makePot from "./potCommand";
 
-export { makePot } from "./parser/makePot.js";
 export { doTree } from "./parser/tree.js";
 
-export { makeJsonCommand, potCommand };
+export { makeJson, makePot };
+
+export default { makeJson, makePot };

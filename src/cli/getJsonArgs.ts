@@ -19,7 +19,6 @@ export function getJsonArgs(additionalArgs = {}): MakeJsonArgs {
 		.positional("source", {
 			describe: "Source directory",
 			type: "string",
-			default: "./languages",
 		})
 		.positional("destination", {
 			describe: "Destination directory",
@@ -33,9 +32,10 @@ export function getJsonArgs(additionalArgs = {}): MakeJsonArgs {
 			allowedFormats: {
 				describe: "which extensions to use for translation",
 				type: "array",
+				default: ["js"],
 			},
 			purge: {
-				describe: "Remove old POT files",
+				describe: "Remove old JSON files",
 				type: "boolean",
 				default: true,
 			},

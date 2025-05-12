@@ -40,8 +40,13 @@ export class MakeJsonCommand {
 	 * The script to be translated.
 	 * @private
 	 */
-	private scriptName: string;
-
+	private scriptName: string | string[] | undefined;
+	/**
+	 * The paths to be translated.
+	 * @private
+	 */
+	private paths: object | undefined;
+	private sourceDir: string;
 	public constructor(args: MakeJsonArgs) {
 		if (!args.source) {
 			throw new Error("No source directory specified");
@@ -51,7 +56,7 @@ export class MakeJsonCommand {
 			throw new Error("Source directory not found");
 		}
 
-		this.scriptName = this.md5(args.scriptName || "index.js");
+		this.scriptName = args.scriptName;
 		this.source = args.source;
 		this.destination = args.destination;
 		this.allowedFormats = args.allowedFormats ?? [
@@ -65,6 +70,7 @@ export class MakeJsonCommand {
 		this.purge = args.purge;
 		this.prettyPrint = args.prettyPrint;
 		this.debug = args.debug;
+		this.paths = args.paths;
 	}
 
 	/**
@@ -72,15 +78,36 @@ export class MakeJsonCommand {
 	 */
 	public async invoke(): Promise<Record<string, JedData>> {
 		// get all the files in the source directory
-		const files = await glob("**/*.po", { cwd: this.source, nodir: true });
+		const files = await glob("**/*.po", { cwd: this.destination, nodir: true });
+
+		console.log("Found po files", files, "in", this.destination, "folder");
 
 		// get all the po files
 		const output: Record<string, JedData> = {};
 		for (const file of files) {
-			//build the filename for the json file using the po files
-			const jsonFilename = file.replace(".po", `-${this.scriptName}.json`);
-			// build the output object
-			output[jsonFilename] = this.processFile(path.join(this.source, file));
+			if (!this.scriptName) {
+				this.scriptName = await glob("*.js", {
+					cwd: this.source,
+					nodir: true,
+				});
+				console.log(
+					"Found script:",
+					this.scriptName,
+					"in",
+					this.source,
+					"folder",
+				);
+			}
+
+			if (typeof this.scriptName === "string") {
+				const pot = this.addPot(file, this.scriptName);
+				output[pot.filename] = pot.data;
+			} else if (Array.isArray(this.scriptName)) {
+				for (const script of this.scriptName) {
+					const pot = this.addPot(file, script);
+					output[pot.filename] = pot.data;
+				}
+			}
 		}
 
 		// write the json files

@@ -2,7 +2,7 @@ import MakeJsonCommand from "./parser/makeJson";
 import type { MakeJsonArgs } from "./types";
 import { printMakePotModuleInfo, printTimeElapsed } from "./utils/common";
 
-function makeJsonCommand(args: MakeJsonArgs) {
+export default function makeJsonCommand(args: MakeJsonArgs) {
 	const makeJsonCommand = new MakeJsonCommand(args);
 
 	if (Object.keys(args).length > 0) {
@@ -23,5 +23,3 @@ function makeJsonCommand(args: MakeJsonArgs) {
 			});
 	}
 }
-
-export default makeJsonCommand;

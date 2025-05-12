@@ -9,11 +9,11 @@
 		"John Hooks <bitmachina@outlook.com> (https://johnhooks.io/)"
 	],
 	"type": "commonjs",
-	"main": "lib/potCommand.js",
+	"main": "lib/cli.js",
 	"bin": {
-		"default": "lib/index.js",
-		"make-pot": "lib/index.js",
-		"makepot": "lib/index.js",
+		"default": "lib/cli.js",
+		"make-pot": "lib/makePot.js",
+		"makepot": "lib/makePot.js",
 		"make-json": "lib/makeJson.js",
 		"makejson": "lib/makeJson.js"
 	},
@@ -48,10 +48,12 @@
 	"scripts": {
 		"postinstall": "npm rebuild tree-sitter tree-sitter-typescript tree-sitter-php tree-sitter-javascript --force",
 		"build": "npx esbuild ./src/**/* --format=cjs --minify --outdir=lib --platform=node",
+		"build:ci": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --platform=node",
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
+		"rm": "rmdir /s /q lib",
 		"test": "node --test",
-		"test:ci": "npm run build && npm run test",
+		"test:ci": "npm run build:ci && npm run test",
 		"test:watch": "node --test --watch",
 		"test:coverage": "node --test --experimental-test-coverage"
 	},

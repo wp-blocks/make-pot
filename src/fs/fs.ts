@@ -49,6 +49,19 @@ export function getCharset(charset: string | undefined): BufferEncoding {
 	}
 }
 
+export function getEncodingCharset(charset: string | undefined): string {
+	if (!charset) {
+		return "iso-8859-1";
+	}
+	// we need to check if the charset is valid otherwise we return utf-8 that is a common alias for ISO-8859-1 and the default charset for pot files
+	switch (charset.toLowerCase()) {
+		case "utf-8":
+			return "utf-8";
+		default:
+			return "iso-8859-1";
+	}
+}
+
 /**
  * The output path for the pot file.
  * @param outpath - the output path for the pot/json files
@@ -63,11 +76,15 @@ export function getOutputPath(outpath?: string): string {
  * @param args - the command line arguments
  */
 function getOutputFilePath(args: Args): string {
-	return path.join(
-		process.cwd(),
-		args.headers?.domainPath ?? args.paths.out ?? "languages",
-		`${args?.slug}.${args.options?.json ? "json" : "pot"}`,
-	);
+	const { out, headers, options } = args.paths;
+	let i18nFolder = out ?? headers?.domainPath ?? "languages";
+
+	// Remove leading and trailing slashes
+	i18nFolder = i18nFolder.replace(/^\/+|\/+$/g, "");
+
+	const extension = options?.json ? "json" : "pot";
+
+	return path.join(process.cwd(), i18nFolder, `${args.slug}.${extension}`);
 }
 
 /**
@@ -80,11 +97,13 @@ export function writeFile(fileContent: string, args: Args): void {
 	const dest = getOutputFilePath(args);
 
 	if (ensureFolderExists(path.dirname(dest))) {
-		// latin1 is a common alias for ISO-8859-1 in Node.js and many other systems
+		// get the encoding charset
 		const encodingCharset = getCharset(args.options?.charset);
-		console.log(`Writing file: ${dest} with charset: ${encodingCharset}`);
-		const potBuffer = Buffer.from(fileContent, encodingCharset);
-		writeFileSync(dest, potBuffer, {
+		console.log(`File created at ${dest}`);
+
+		// write the file
+		const potBuffer = Buffer.from(fileContent);
+		writeFileSync(dest, potBuffer.toString(encodingCharset), {
 			encoding: encodingCharset,
 		});
 	} else {

@@ -363,6 +363,28 @@ export class MakeJsonCommand {
 	private md5(text: string): string {
 		return crypto.createHash("md5").update(text).digest("hex");
 	}
+
+	/**
+	 * Adds a script to the output object.
+	 * @private
+	 *
+	 * @param file - The pot file to parse.
+	 * @param script - The script to add.
+	 * @return {Record<string, JedData>} - The output object.
+	 * */
+	private addPot(
+		file: string,
+		script: string,
+	): { filename: string; data: JedData } {
+		const scriptName = this.md5(script);
+		//build the filename for the json file using the po files
+		const jsonFilename = file.replace(".po", `-${scriptName}.json`);
+		// build the output object
+		return {
+			filename: jsonFilename,
+			data: this.processFile(path.join(this.destination, file)),
+		};
+	}
 }
 
 export default MakeJsonCommand;

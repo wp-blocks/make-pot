@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { SingleBar } from "cli-progress";
 import { type GetTextTranslations, po } from "gettext-parser";
-import Tannin, { type TanninDomainMetadata } from "tannin";
+import Tannin from "tannin";
 import { generateHeader, translationsHeaders } from "../extractors/headers.js";
 import { getCharset, getEncodingCharset } from "../fs/fs";
 import type { Args, Patterns } from "../types.js";
@@ -72,10 +72,10 @@ export async function exec(args: Args): Promise<string> {
 	if (args.options?.json) {
 		// generate the json file
 		const jedData: {
-			[p: string]: { [p: string]: TanninDomainMetadata | [string, string] };
+			[p: string]: { [p: string]: [string, string] };
 		} = {
 			[args.slug]: {
-				"": potHeader as TanninDomainMetadata,
+				"": potHeader,
 				...(translationsUnion.toJson() as { [p: string]: [string, string] }),
 			},
 		};

@@ -3,6 +3,7 @@ export default {
 	url: "url",
 	description: "description",
 	author: "author",
+	authors: "authors",
 	authorEmail: "authorEmail",
 	version: "version",
 	bugs: "bugs",

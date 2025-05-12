@@ -80,7 +80,9 @@ export function yieldParsedData(
 
 		if (!item) {
 			return;
-		} else if (typeof item === "string") {
+		}
+
+		if (typeof item === "string") {
 			storeTranslation(item);
 		} else if (Array.isArray(item)) {
 			item.forEach((value) => storeTranslation(value));

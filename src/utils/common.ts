@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { cpus, totalmem } from "node:os";
 import path from "node:path";
 
 /**
@@ -108,26 +109,28 @@ export function reverseSlashes(filePath: string): string {
  */
 export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
 	const requested: Record<string, unknown> = {};
+	// read the package.json file the is in the root directory
 	const pkgJsonPath = path.join(__dirname, "..", "..", "package.json");
+	// read the package.json file or return an empty object
 	const pkgJson: Record<string, unknown> = fs.existsSync(pkgJsonPath)
 		? require(pkgJsonPath)
 		: {
 				name: "makepot",
 				version: "",
 			};
+	// extract the requested fields from the package.json
 	for (const field of fields) {
 		if (pkgJson[field]) {
 			requested[field] = pkgJson[field];
 		}
 	}
-
 	return requested;
 }
 
 /**
  * Print the module header with the current version and name
  */
-export function printHeader() {
+export function printMakePotModuleInfo() {
 	const { version, name } = getPkgJsonData("name", "version");
 	/* print the version */
 	console.log(`${name} version: ${version}`);
@@ -143,5 +146,25 @@ export function printTimeElapsed(timeStart: Date, timeEnd: Date = new Date()) {
 		`🚀 Make-Pot: Job completed! Pot file created in ${
 			timeEnd.getTime() - timeStart.getTime()
 		}ms`,
+	);
+}
+
+/**
+/**
+* Prints the memory usage and cpu usage of the system
+ */
+export function printStats() {
+	console.log(
+		"Memory usage:",
+		(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
+		"MB (Free:",
+		(totalmem() / 1024 / 1024 / 1024).toFixed(2),
+		"GB)\nCpu User:",
+		(process.cpuUsage().user / 1000000).toFixed(2),
+		"ms Cpu System:",
+		(process.cpuUsage().system / 1000000).toFixed(2),
+		"ms of",
+		cpus().length,
+		"cores",
 	);
 }

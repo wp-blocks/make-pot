@@ -122,21 +122,32 @@ export function parseJsonArgs(
 	args: yargs.PositionalOptions & yargs.Options & yargs.Arguments,
 ): MakeJsonArgs {
 	// Get the input and output paths
-	const inputPath: string =
-		typeof args._[0] === "string" ? args._[0].toString() : "";
-	const outputPath: string =
-		typeof args._[1] === "string" ? args._[1].toString() : inputPath;
+	const inputPath: string = (args._[0] as string) || "build";
+	const outputPath: string = (args._[1] as string) || "languages";
 	const currentWorkingDirectory = process.cwd();
 	const slug = path.basename(path.resolve(currentWorkingDirectory));
 
+	let scriptName = undefined;
+	if (args.scriptName) {
+		scriptName = args.scriptName.split(",").map((s) => s.trim());
+		if (scriptName.length === 1) {
+			scriptName = scriptName[0];
+		}
+	}
+
 	return {
-		slug: slug,
+		timeStart: Date.now(),
+		slug,
 		source: inputPath,
 		destination: outputPath,
-		scriptName: (args.scriptName as string) ?? "index.js",
-		allowedFormats: args.allowedFormats as string[] | null,
+		scriptName,
+		allowedFormats: args.allowedFormats as string[],
 		purge: !!args.purge,
 		prettyPrint: !!args.prettyPrint,
 		debug: !!args.debug,
+		paths: {
+			cwd: currentWorkingDirectory,
+			out: path.join(currentWorkingDirectory, outputPath),
+		},
 	};
 }

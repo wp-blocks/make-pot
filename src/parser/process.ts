@@ -39,16 +39,17 @@ export async function processFiles(
 					parseJsonCallback(sourceCode, args.paths.cwd, filename),
 				),
 			);
-		}
-
-		if (allowedFormats.includes(ext)) {
+		} else if (allowedFormats.includes(ext)) {
 			tasks.push(
 				readFileAsync(fileRealPath).then((content) => doTree(content, file)),
 			);
 		}
 
-		progressBar?.increment(1, { filename });
-		progressBar?.setTotal(filesCount);
+		if (progressBar) {
+			progressBar.update(filesCount, { filename: filename });
+			progressBar.setTotal(Object.values(files).length);
+			progressBar.render();
+		}
 	}
 
 	return tasks;

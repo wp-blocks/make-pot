@@ -19,19 +19,7 @@ import { taskRunner } from "./taskRunner.js";
 export async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
 		console.log("📝 Starting makePot for", args?.slug);
-		console.log(
-			"Memory usage:",
-			(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2),
-			"MB (Free:",
-			(totalmem() / 1024 / 1024 / 1024).toFixed(2),
-			"GB)\nCpu User:",
-			(process.cpuUsage().user / 1000000).toFixed(2),
-			"ms Cpu System:",
-			(process.cpuUsage().system / 1000000).toFixed(2),
-			"ms of",
-			cpus().length,
-			"cores",
-		);
+		printStats();
 	}
 
 	// audit

@@ -1,11 +1,33 @@
 #!/usr/bin/env node
+import process from "node:process";
+import * as yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 import { getArgs } from "./cli/getArgs.js";
-import potCommand from "./potCommand";
+import { getJsonArgs } from "./cli/getJsonArgs";
+import makeJsonCommand from "./jsonCommand";
+import makepotCommand from "./potCommand";
+import type { Args, MakeJsonArgs } from "./types";
 
 export { makePot } from "./parser/makePot.js";
-export { MakeJsonCommand } from "./parser/makeJson.js";
 export { doTree } from "./parser/tree.js";
 
 /** Main execution */
-const args = getArgs();
-potCommand(args);
+
+// Get the selected command
+const r = yargs
+	.default(hideBin(process.argv))
+	.options({
+		makejson: {
+			describe: "Make JSON file",
+			type: "boolean",
+			default: false,
+		},
+	})
+	.parseSync() as { makejson: boolean };
+
+// Execute the command
+if (!r.makejson) {
+	makepotCommand(getArgs() as Args);
+} else {
+	makeJsonCommand(getJsonArgs() as MakeJsonArgs);
+}

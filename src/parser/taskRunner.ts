@@ -1,4 +1,3 @@
-import { debug } from "node:util";
 import type { SingleBar } from "cli-progress";
 import type { SetOfBlocks } from "gettext-merger";
 import type { Args } from "../types.js";
@@ -27,7 +26,9 @@ export async function taskRunner(
 				.filter(Boolean) as SetOfBlocks[]; // remove false 👆
 		})
 		.then((consolidated) => {
+			/** Stop the progress bar */
 			progressBar?.stop();
+			/** Log the results */
 			if (args.options?.silent !== true) {
 				for (const result of consolidated) {
 					if (result.blocks.length > 0) {
@@ -37,9 +38,7 @@ export async function taskRunner(
 						destination.addArray(result.blocks);
 						/* Log the results */
 						console.log(
-							`✅ ${result.path} [`,
-							result.blocks.map((b) => b.msgid).join(", "),
-							"]",
+							`✅ ${result.path} [${result.blocks.map((b) => b.msgid).join(", ")}]`,
 						);
 					} else console.log("❌ ", `${result.path} has no strings`);
 				}
@@ -53,10 +52,7 @@ export async function taskRunner(
 	if (!args.options?.silent) {
 		console.log("🎉 Done!");
 		console.log(
-			"📝 Found",
-			Object.values(destination.blocks).length,
-			"translation strings in",
-			args.paths.cwd,
+			`📝 Found ${Object.values(destination.blocks).length} translation strings in ${args.paths.cwd}`,
 		);
 	}
 

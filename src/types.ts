@@ -126,14 +126,20 @@ export interface Args {
  * 	@param {boolean} debug: enable debug mode
  */
 export interface MakeJsonArgs {
-	slug: string;
-	source: string;
-	destination: string;
-	scriptName: string;
-	allowedFormats: string[] | null;
+	timeStart: number;
 	prettyPrint: boolean;
 	debug: boolean;
+	destination: string;
+	scriptName?: string;
 	purge: boolean;
+	source: string;
+	slug: string;
+	allowedFormats?: string[];
+	paths: {
+		cwd: string;
+		out?: string;
+		root?: string;
+	};
 }
 
 export interface I18nSchema {

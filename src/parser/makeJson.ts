@@ -1,18 +1,25 @@
 import crypto from "node:crypto";
 import * as fs from "node:fs";
 import path from "node:path";
+import {
+	type GetTextTranslation,
+	type GetTextTranslations,
+	po,
+} from "gettext-parser";
 import { glob } from "glob";
-import { IsoCodeRegex, defaultLocale, fileRegex } from "../const";
+import { IsoCodeRegex, defaultLocale } from "../const";
 import type { JedData, MakeJsonArgs } from "../types";
 
 export class MakeJsonCommand {
 	/**
-	 * Pretty print JSON.
+	 * The source file path.
+	 * Should be the "build" directory containing .js files
 	 * @private
 	 */
 	private readonly source: string;
 	/**
 	 * The destination file path.
+	 * Should be the "languages" directory containing .po files
 	 * @private
 	 */
 	private readonly destination: string;
@@ -40,18 +47,21 @@ export class MakeJsonCommand {
 	 * The script to be translated.
 	 * @private
 	 */
-	private scriptName: string;
-
+	private scriptName: string | string[] | undefined;
+	/**
+	 * The paths to be translated.
+	 * @private
+	 */
+	private paths: object | undefined;
+	private sourceDir: string;
 	public constructor(args: MakeJsonArgs) {
-		if (!args.source) {
-			throw new Error("No source directory specified");
+		this.sourceDir = path.relative(args.paths.cwd, args.source ?? "");
+		if (!fs.existsSync(this.sourceDir)) {
+			console.error("Source directory not found", args);
+			throw new Error(`Source directory ${this.sourceDir} not found`);
 		}
 
-		if (!fs.existsSync(args.source)) {
-			throw new Error("Source directory not found");
-		}
-
-		this.scriptName = this.md5(args.scriptName || "index.js");
+		this.scriptName = args.scriptName;
 		this.source = args.source;
 		this.destination = args.destination;
 		this.allowedFormats = args.allowedFormats ?? [
@@ -65,6 +75,7 @@ export class MakeJsonCommand {
 		this.purge = args.purge;
 		this.prettyPrint = args.prettyPrint;
 		this.debug = args.debug;
+		this.paths = args.paths;
 	}
 
 	/**
@@ -72,15 +83,36 @@ export class MakeJsonCommand {
 	 */
 	public async invoke(): Promise<Record<string, JedData>> {
 		// get all the files in the source directory
-		const files = await glob("**/*.po", { cwd: this.source, nodir: true });
+		const files = await glob("**/*.po", { cwd: this.destination, nodir: true });
+
+		console.log("Found po files", files, "in", this.destination, "folder");
 
 		// get all the po files
 		const output: Record<string, JedData> = {};
 		for (const file of files) {
-			//build the filename for the json file using the po files
-			const jsonFilename = file.replace(".po", `-${this.scriptName}.json`);
-			// build the output object
-			output[jsonFilename] = this.processFile(path.join(this.source, file));
+			if (!this.scriptName) {
+				this.scriptName = await glob("*.js", {
+					cwd: this.source,
+					nodir: true,
+				});
+				console.log(
+					"Found script:",
+					this.scriptName,
+					"in",
+					this.source,
+					"folder",
+				);
+			}
+
+			if (typeof this.scriptName === "string") {
+				const pot = this.addPot(file, this.scriptName);
+				output[pot.filename] = pot.data;
+			} else if (Array.isArray(this.scriptName)) {
+				for (const script of this.scriptName) {
+					const pot = this.addPot(file, script);
+					output[pot.filename] = pot.data;
+				}
+			}
 		}
 
 		// write the json files
@@ -111,8 +143,9 @@ export class MakeJsonCommand {
 				);
 			}
 
-			fs.writeFileSync(path.join(this.destination, filename), contentString);
-			console.log(`JSON file written to ${this.destination + filename}`);
+			const destinationPath = path.join(this.destination, filename);
+			fs.writeFileSync(destinationPath, contentString);
+			console.log(`JSON file written to ${destinationPath} with ${filename}`);
 		}
 
 		// return the output
@@ -122,18 +155,26 @@ export class MakeJsonCommand {
 	/**
 	 * Process a PO file and return the JSON data.
 	 * @param filePath - The path to the PO file.
+	 * @param encoding - The encoding of the PO file.
 	 */
-	public processFile(filePath: string): JedData {
+	public processFile(
+		filePath: string,
+		encoding: BufferEncoding = "utf8",
+	): JedData {
 		// Read the source file
-		const content = fs.readFileSync(filePath, "utf8");
+		const content = fs.readFileSync(filePath, encoding) as string;
 
 		const languageIsoCode = this.extractIsoCode(filePath);
 
 		// Parse the source file
-		const { header, translations } = this.parsePoFile(content);
+		const poContent = this.parsePoFile(content);
 
 		// Convert to Jed json dataset
-		return this.convertToJed(header, translations, languageIsoCode);
+		return this.convertToJed(
+			poContent.headers,
+			poContent.translations,
+			languageIsoCode,
+		);
 	}
 
 	/**
@@ -143,91 +184,8 @@ export class MakeJsonCommand {
 	 *
 	 * @returns An object containing the header and translations.
 	 */
-	private parsePoFile(content: string): {
-		header: string;
-		translations: Record<string, string[]>;
-	} {
-		const lines = content.split("\n");
-		const translations: Record<string, string[]> = {};
-		let header = "";
-		let currentMsgid = "";
-		let currentMsgstr: string[] = [];
-		let currentFiles: string[] = [];
-		let i = 0;
-
-		// Trim empty lines at the beginning
-		while (i < lines.length && lines[i].trim() === "") {
-			i++;
-		}
-
-		// Ensure we start with 'msgid "'
-		if (
-			i < lines.length &&
-			(!lines[i].startsWith('msgid "') || !lines[i].startsWith("#"))
-		) {
-			console.error(
-				"Invalid PO file format: expected 'msgid \"' at the start of the header",
-			);
-		}
-
-		// Parse header lines until we find the first 'msgid ""' and the first 'msgstr ""' or until we reach the end of the file
-		while (i < lines.length && lines[i].trim() !== "") {
-			if (
-				lines[i].startsWith("msgid") ||
-				lines[i].startsWith("msgstr") ||
-				lines[i].startsWith("#")
-			) {
-				i++;
-				continue;
-			}
-			if (lines[i].startsWith('"') && lines[i].endsWith('"')) {
-				header += `${lines[i].slice(1, -1)}\n`;
-			}
-			i++;
-		}
-
-		// Skip the empty line
-		i++;
-
-		// Parse translations
-		for (; i < lines.length; i++) {
-			const line = lines[i].trim();
-			if (line.startsWith("#: ")) {
-				if (line.startsWith("#: ")) {
-					const match = line.match(fileRegex);
-					if (typeof match?.[1] === "string") {
-						const string = match[1].trim();
-						currentFiles.push(string);
-					}
-				}
-			} else if (line.startsWith('msgid "')) {
-				if (
-					currentMsgid &&
-					currentMsgstr &&
-					this.isCompatibleFile(currentFiles)
-				) {
-					translations[currentMsgid] = currentMsgstr;
-				}
-				currentMsgid = line.slice(7, -1);
-				currentMsgstr = [];
-				currentFiles = [];
-			} else if (line.startsWith('msgstr "')) {
-				currentMsgstr.push(line.slice(8, -1));
-			} else if (line.startsWith('"') && line.endsWith('"')) {
-				currentMsgstr.push(line.slice(1, -1));
-			}
-		}
-
-		// Add the last translation if exists and is compatible
-		if (
-			currentMsgid &&
-			currentMsgstr.length &&
-			this.isCompatibleFile(currentFiles)
-		) {
-			translations[currentMsgid] = currentMsgstr;
-		}
-
-		return { header, translations };
+	private parsePoFile(content: string): GetTextTranslations {
+		return po.parse(content);
 	}
 
 	/**
@@ -240,24 +198,47 @@ export class MakeJsonCommand {
 	 * @return An object containing the Jed data.
 	 */
 	private convertToJed(
-		header: string,
-		translations: Record<string, string[]>,
+		header: Record<string, string>,
+		translations: {
+			[msgctxt: string]: { [msgId: string]: GetTextTranslation };
+		},
 		languageIsoCode?: string,
 	): JedData {
-		console.log("Found translations:", Object.keys(translations).length);
-		return {
-			domain: "messages",
-			locale_data: {
-				messages: {
-					"": {
-						domain: "messages",
-						plural_forms: this.getPluralForms(header),
-						lang: languageIsoCode || this.getLanguage(header),
-					},
-					...translations,
+		// Domain name to use for the Jed format
+		const domain = "messages";
+
+		// Initialize the Jed-compatible structure
+		const jedData = {
+			[domain]: {
+				"": {
+					domain: domain,
+					lang: languageIsoCode || header.Language || "en",
+					plural_forms:
+						header["Plural-Forms"] || "nplurals=2; plural=(n != 1);",
 				},
 			},
 		};
+
+		// Process all translations
+		Object.keys(translations).forEach((msgctxt) => {
+			const contextTranslations = translations[msgctxt];
+
+			Object.keys(contextTranslations).forEach((msgid) => {
+				const translation = contextTranslations[msgid];
+
+				// Skip empty msgid (header) as we've already handled it
+				if (msgid === "") return;
+
+				// Construct the key using context if available
+				const key =
+					msgctxt && msgctxt !== "" ? `${msgctxt}\u0004${msgid}` : msgid;
+
+				// Add the translation to the Jed data structure
+				jedData[domain][key] = translation.msgstr;
+			});
+		});
+
+		return jedData;
 	}
 
 	/**
@@ -312,6 +293,28 @@ export class MakeJsonCommand {
 
 	private md5(text: string): string {
 		return crypto.createHash("md5").update(text).digest("hex");
+	}
+
+	/**
+	 * Adds a script to the output object.
+	 * @private
+	 *
+	 * @param file - The pot file to parse.
+	 * @param script - The script to add.
+	 * @return {Record<string, JedData>} - The output object.
+	 * */
+	private addPot(
+		file: string,
+		script: string,
+	): { filename: string; data: JedData } {
+		const scriptName = this.md5(script);
+		//build the filename for the json file using the po files
+		const jsonFilename = file.replace(".po", `-${scriptName}.json`);
+		// build the output object
+		return {
+			filename: jsonFilename,
+			data: this.processFile(path.join(this.destination, file)),
+		};
 	}
 }
 

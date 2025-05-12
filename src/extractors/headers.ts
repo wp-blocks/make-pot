@@ -1,4 +1,6 @@
 import { SetOfBlocks } from "gettext-merger";
+import { boolean } from "yargs";
+import { getEncodingCharset } from "../fs/fs";
 import type { Args, PotHeaders } from "../types.js";
 import { getPkgJsonData } from "../utils/common";
 import { extractCssThemeData } from "./css.js";
@@ -227,50 +229,36 @@ function consolidateUserHeaderData(args: Args): {
  * @param args - The argument object containing the headers and their values.
  * @return The generated POT header.
  */
-export function generateHeader(args: Args) {
-	const { author, textDomain } = args.headers as {
-		[key in PotHeaders]: string;
-	};
-	const { name, version } = getPkgJsonData("name", "version");
-	const email = "EMAIL";
-	const language = "en";
-	const authorString = `${author} <${email}>`;
-	const domain = textDomain ? `X-Domain: ${textDomain}` : "";
-	const bugs = {
-		url:
-			//args.headers?.bugsUrl ||
-			"https://wordpress.org/support/plugin/" + args.slug,
-		email:
-			// args.headers?.bugsEmail ||
-			email || "AUTHOR EMAIL",
-	};
-	const headerData = {
-		...args.headers,
-		author: args.headers?.author || "AUTHOR",
-		slug: args.slug || "PLUGIN NAME",
-		email: email,
-		license: args.headers?.license || "gpl-2.0 or later",
-		version: args.headers?.version || "1.0.0",
-		language: language,
-		domain: args.headers?.textDomain || args.headers?.slug || "PLUGIN DOMAIN",
-	};
+export async function generateHeader(args: Args) {
+	// Consolidate the user headers data into a single object
+	const headerData = consolidateUserHeaderData(args);
 
-	return {
+	// Validate required fields - exit early if validation fails
+	if (!validateRequiredFields(headerData)) {
+		process.exit(1); // Exit with error code
+		return null; // This is never reached but helps with TypeScript
+	}
+
+	const header = {
 		"Project-Id-Version": `${headerData.slug} ${headerData.version}`,
-		"Report-Msgid-Bugs-To": authorString,
-		"MIME-Version": `1.0`,
-		"Content-Transfer-Encoding": `8bit`,
-		"content-type": "text/plain; charset=iso-8859-1",
+		"Report-Msgid-Bugs-To": headerData.authorString,
+		"MIME-Version": "1.0",
+		"Content-Transfer-Encoding": "8bit",
+		"content-type": `text/plain; charset=${getEncodingCharset(args.options?.charset)}`,
 		"plural-forms": "nplurals=2; plural=(n!=1);",
 		"POT-Creation-Date": `${new Date().toISOString()}`,
 		"PO-Revision-Date": `${new Date().getFullYear()}-MO-DA HO:MI+ZONE`,
-		"Last-Translator": authorString,
-		"Language-Team": authorString,
-		"X-Generator": `${name} ${version}`,
-		Language: `${language}`,
-		// add domain if specified
-		domain,
+		"Last-Translator": headerData.authorString,
+		"Language-Team": headerData.authorString,
+		"X-Generator": `${headerData.author} ${headerData.version}`,
+		Language: `${headerData.language}`,
 	};
+
+	if (headerData.xDomain) {
+		header["X-Domain"] = headerData.xDomain;
+	}
+
+	return header;
 }
 
 /**

@@ -51,6 +51,7 @@
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
 		"test": "node --test",
+		"test:ci": "npm run build && npm run test",
 		"test:watch": "node --test --watch",
 		"test:coverage": "node --test --experimental-test-coverage"
 	},

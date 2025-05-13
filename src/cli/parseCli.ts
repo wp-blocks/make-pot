@@ -3,6 +3,7 @@ import * as path from "node:path";
 import * as process from "node:process";
 import type * as yargs from "yargs";
 import { DEFAULT_EXCLUDED_PATH } from "../const.js";
+import { getEncodingCharset } from "../fs/fs";
 import type { Args, DomainType, MakeJsonArgs } from "../types.js";
 import { stringstring } from "../utils/common.js";
 
@@ -111,8 +112,8 @@ export function parseCliArgs(
 			json: !!args.json,
 			location: !!args?.location,
 			output: !!args?.output,
-			command: args.makejson ? "makejson" : "makepot",
 			fileComment: args.fileComment ? String(args.fileComment) : undefined,
+			charset: getEncodingCharset(args?.charset as string | undefined),
 			skip: {
 				js: !!args.skipJs,
 				php: !!args.skipPhp,

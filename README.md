@@ -2,15 +2,26 @@
 [![](https://img.shields.io/npm/l/@wp-blocks/make-pot)](https://github.com/wp-blocks/make-pot?tab=GPL-3.0-1-ov-file#readme)
 [![](https://github.com/wp-blocks/make-pot/actions/workflows/node.js.yml/badge.svg)](https://github.com/wp-blocks/make-pot/actions/workflows/node.js.yml)
 
-## Make Pot
+## Make POT
 
 `make-pot` is a Node.js module designed to generate the `.pot` file for your WordPress plugin or theme. This file serves as the basis for internationalization, allowing translators to localize your plugin or theme into different languages.
 
 Extract strings from your WordPress plugin or theme and generate a `.pot` file. Works with `js`, `jx`, `ts`, `tsx`, `cjs`, `mjs`,  `php`, `blade`, `txt`, `json` with a custom schema for theme and block.json files.
 
-### Installation
+## Make JSON
+`make-json` is a Node.js module designed to convert `.po` files into JSON format for your WordPress plugin or theme. This conversion facilitates client-side translations and enables your JavaScript code to use the translated strings.
 
-You can install `make-pot` globally via npm:
+Transform your translation files into a JSON format compatible with WordPress i18n package. This module simplifies the process of making your WordPress plugin or theme fully translatable on the frontend.
+
+## Installation
+
+You can install `make-pot` as a dependecy via npm:
+
+```
+npm install -d @wp-blocks/make-pot
+```
+
+or globally
 
 ```
 npm install -g @wp-blocks/make-pot
@@ -19,7 +30,22 @@ npm install -g @wp-blocks/make-pot
 ### Usage
 
 ```bash
+# without installation
 npx @wp-blocks/make-pot [sourceDirectory] [destination] [options]
+npx @wp-blocks/make-pot --makejson [sourceDirectory] [destination] [options]
+
+# installed
+npx makepot [sourceDirectory] [destination] [options]
+npx makejson [sourceDirectory] [destination] [options]
+```
+
+## Make Pot
+
+Example usage:
+
+```bash
+# without installation
+npx @wp-blocks/make-pot src languages --encoding='utf-8' --include="src/**/*.{ts,tsx},inc/**/*,admin/**/*.{php}"
 ```
 
 #### Positional Arguments:
@@ -51,23 +77,25 @@ npx @wp-blocks/make-pot [sourceDirectory] [destination] [options]
 - `--exclude <files>`: Excludes specific files from processing.
 - `--silent`: Suppresses output to stdout.
 - `--json`: Outputs the JSON gettext data.
+- `--encoding`: Defines the encoding of the pot file, you can choose "iso-8859-1" and "uft-8" (defaults to iso-8859-1)
 - `--output`: Outputs the gettext data.
 
-### Examples
+### Example usage
 
 First of all remember that the 'make-pot' help can be printed using the command `npx @wp-blocks/make-pot -h`, and the help for the json command can be printed using the command `npx make-json -h`. the commands are available after installing the module (`npm install @wp-blocks/make-pot`)
 
-#### Using `make-pot` in your `package.json`
+#### Using `make-pot` in your `package.json` (assiming you have already installed the makepot command)
 ```bash
 	"scripts": {
 		"build": "npm run build:scripts && npm run build:makepot",
 		"build:scripts": "wp-scripts build",
-		"build:makepot": "npx @wp-blocks/make-pot",
-		"build-2:makejson": "npx makejson --scriptName='build/my-block.js'",
+		"build:makepot": "npx makepot",
+		"build-2:makejson": "npx makejson",
 	}
 ```
+> Note: that it should be launched after creating the “.po” files with the localized translations (and then at a later time)
 
-The make-pot command does not need any arguments, it will parse the required data from the plugin file (the one in the root directory with the same name of the folder) or the theme.json/theme css file in the case of themes.
+Both command does not need any arguments, they will parse the required data from the plugin file (the one in the root directory with the same name of the folder) or the theme.json/theme css file in the case of themes.
 So what you should check before running the command is to have all the WordPress and Node.js required data/metadata in place, nothing else. Anyway, the command can be customized if you need, let's see some examples:
 
 #### Using `make-pot` include and exclude files
@@ -76,10 +104,13 @@ We use glob module to include and exclude files. please check [glob](https://git
 ```bash
 	# Every file in includes, frontend and admin directories that is not in node_modules
 	npx @wp-blocks/make-pot --include='includes/**/*,frontend/**/*,admin/**/*' --exclude="**/node_modules/**"
+
 	# Every file that is a tsx, ts, js and not in node_modules
 	npx @wp-blocks/make-pot --include='**/*.{tsx,ts,js}' --exclude="**/node_modules/**"
+
 	# Merge the resulting pot file with another pot file
 	npx @wp-blocks/make-pot --mergePaths='path/to/other.pot'
+
 	# Remove the strings from the resulting pot file with another pot file
 	npx @wp-blocks/make-pot --subtractPaths='path/to/other.pot'
 ```
@@ -100,7 +131,7 @@ To do so, create a `build:makepot` action in your `package.json` with the follow
 ```
 ---
 
-# JSON Translations
+# Make JSON
 
 ### Why JSON Translation for WordPress JavaScript?
 
@@ -133,20 +164,20 @@ Unlike traditional PO/MO files, JavaScript translations use JSON. This format is
 
 #### Build the json translations file
 
-first build the translation pot file using `makepot` (no matter with this module or not) and then translate it into the different languages.
+First, build the translation pot file using `makepot` (no matter with this module or not) and then translate it into the different languages.
 
-then run `makejson`:
+translate the pot file into your language and then run `makejson`:
 
 ```bash
-npx makejson languages --scriptName="build/index.js"
+npx makejson
 # OR
-npx @wp-blocks/make-pot languages --makejson --scriptName='build/index.js',
+npx @wp-blocks/make-pot --makejson,
 ```
 It Will create a file for each po file in the `languages` directory with the md5 hash with the name of the file.
 In this case, the file will be named my-frontend-script-en_US-79431f0eb8deb8221f24df5112e15095.json because the md5 hash of "build/frontend.js" is 79431f0eb8deb8221f24df5112e15095.
 This is crucial because the md5 hash has to be the same as the path of the script file.
 
-#### Register the javascript block translations
+## Register the javascript block translations
 
 ```php
 <?php

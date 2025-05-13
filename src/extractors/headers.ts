@@ -176,8 +176,6 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 	const email = pkgAuthor?.email;
 	// this is the author with email address in this format: author <email>
 	const authorString = `${author} <${email}>`;
-	// if textDomain is provided, add it to the header
-	const xDomain = textDomain ? `X-Domain: ${textDomain}` : "";
 	// get the current directory name as slug
 	const currentDir = process
 		.cwd()
@@ -186,23 +184,23 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		?.toLowerCase()
 		.replace(" ", "-");
 	const slug =
-		currentDir || args.slug || args.domain === "theme"
-			? "THEME NAME"
-			: "PLUGIN NAME";
+		args.slug ||
+		currentDir ||
+		(args.domain === "theme" ? "THEME NAME" : "PLUGIN NAME");
 
 	return {
 		...args.headers,
 		author: authorName,
 		authorString: authorString, // this is the author with email address in this format: author <email>
-		slug: args.slug || "PLUGIN NAME",
+		slug,
 		email,
 		bugs,
 		license: args.headers?.license || "gpl-2.0 or later",
-		version: args.headers?.version || pkgJsonData?.version || "1.0.0",
+		version: args.headers?.version || pkgJsonData.version || "0.0.1",
 		language: "en",
 		domain:
 			args.headers?.textDomain || args.headers?.slug || "PLUGIN TEXTDOMAIN",
-		xDomain,
+		xDomain: textDomain,
 	};
 }
 

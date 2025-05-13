@@ -61,6 +61,7 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 		"string",
 		"string_value",
 		"variable_name",
+		"binary_expression",
 		"member_expression",
 		"subscript_expression",
 		"function_call_expression",

@@ -61,7 +61,7 @@ export function yieldParsedData(
 	// set the path of the translation
 	gettextTranslations.path = filepath;
 
-	Object.entries(parsed).forEach(([term, item]) => {
+	for (const [term, item] of Object.entries(parsed)) {
 		/**
 		 * Stores a translation in the gettextTranslations object
 		 *
@@ -79,21 +79,23 @@ export function yieldParsedData(
 		}
 
 		if (!item) {
-			return;
+			continue;
 		}
 
 		if (typeof item === "string") {
 			storeTranslation(item);
 		} else if (Array.isArray(item)) {
-			item.forEach((value) => storeTranslation(value));
+			for (const value of item) {
+				storeTranslation(value);
+			}
 		} else {
-			Object.entries(item).forEach(([key, value]) => {
+			for (const [key, value] of Object.entries(item)) {
 				if (typeof value === "string") {
 					storeTranslation(value, key);
 				}
-			});
+			}
 		}
-	});
+	}
 
 	return gettextTranslations;
 }

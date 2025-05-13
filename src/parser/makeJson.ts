@@ -220,14 +220,14 @@ export class MakeJsonCommand {
 		};
 
 		// Process all translations
-		Object.keys(translations).forEach((msgctxt) => {
+		for (const msgctxt of Object.keys(translations)) {
 			const contextTranslations = translations[msgctxt];
 
-			Object.keys(contextTranslations).forEach((msgid) => {
+			for (const msgid of Object.keys(contextTranslations)) {
 				const translation = contextTranslations[msgid];
 
 				// Skip empty msgid (header) as we've already handled it
-				if (msgid === "") return;
+				if (msgid === "") continue;
 
 				// Construct the key using context if available
 				const key =
@@ -235,10 +235,10 @@ export class MakeJsonCommand {
 
 				// Add the translation to the Jed data structure
 				jedData[domain][key] = translation.msgstr;
-			});
-		});
+			}
+		}
 
-		return jedData;
+		return jedData as JedData;
 	}
 
 	/**

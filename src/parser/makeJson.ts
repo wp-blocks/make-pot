@@ -53,7 +53,16 @@ export class MakeJsonCommand {
 	 * @private
 	 */
 	private paths: object | undefined;
-	private sourceDir: string;
+	/**
+	 * The source directory.
+	 * @private
+	 */
+	private readonly sourceDir: string;
+
+	/**
+	 * The constructor.
+	 * @param args - The arguments to the command.
+	 */
 	public constructor(args: MakeJsonArgs) {
 		this.sourceDir = path.relative(args.paths.cwd, args.source ?? "");
 		if (!fs.existsSync(this.sourceDir)) {

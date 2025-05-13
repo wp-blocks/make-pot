@@ -171,3 +171,19 @@ export interface JedData {
 		messages: Record<string, unknown>;
 	};
 }
+
+/**
+ * The header data of the current plugin / theme as returned by the `extractHeaders` command.
+ */
+export interface I18nHeaders {
+	authorString: string;
+	bugs: string;
+	license: string;
+	author?: string;
+	domain: string;
+	xDomain: string;
+	language: string;
+	version: string;
+	slug: string;
+	email: string | undefined;
+}

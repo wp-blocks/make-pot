@@ -40,7 +40,11 @@ function collectComments(node: SyntaxNode): string | undefined {
 export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 	// set up the parser
 	const parser = new Parser();
-	parser.setLanguage(getParser(filepath));
+	const parserExt = getParser(filepath);
+	// if no parser is found return empty
+	if (!parserExt) return new SetOfBlocks([], filepath);
+	// set the parser language
+	parser.setLanguage(parserExt);
 
 	// parse the file
 	const tree = parser.parse(sourceCode);

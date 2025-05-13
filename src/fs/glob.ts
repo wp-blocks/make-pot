@@ -33,7 +33,7 @@ export function getParser(
 		case "php":
 			return php.default;
 		default:
-			return ext!;
+			return null;
 	}
 }
 

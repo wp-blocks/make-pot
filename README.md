@@ -45,7 +45,7 @@ Example usage:
 
 ```bash
 # without installation
-npx @wp-blocks/make-pot src languages --encoding='utf-8' --include="src/**/*.{ts,tsx},inc/**/*,admin/**/*.{php}"
+npx @wp-blocks/make-pot src languages --charset='utf-8' --include="src/**/*.{ts,tsx},inc/**/*,admin/**/*.{php}"
 ```
 
 #### Positional Arguments:
@@ -77,7 +77,7 @@ npx @wp-blocks/make-pot src languages --encoding='utf-8' --include="src/**/*.{ts
 - `--exclude <files>`: Excludes specific files from processing.
 - `--silent`: Suppresses output to stdout.
 - `--json`: Outputs the JSON gettext data.
-- `--encoding`: Defines the encoding of the pot file, you can choose "iso-8859-1" and "uft-8" (defaults to iso-8859-1)
+- `--charset`: Defines the encoding charset of the pot file, you can choose "iso-8859-1" and "uft-8" (defaults to iso-8859-1)
 - `--output`: Outputs the gettext data.
 
 ### Example usage

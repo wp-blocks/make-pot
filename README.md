@@ -138,7 +138,9 @@ first build the translation pot file using `makepot` (no matter with this module
 then run `makejson`:
 
 ```bash
-npx makejson languages --scriptName="build/frontend.js"
+npx makejson languages --scriptName="build/index.js"
+# OR
+npx @wp-blocks/make-pot languages --makejson --scriptName='build/index.js',
 ```
 It Will create a file for each po file in the `languages` directory with the md5 hash with the name of the file.
 In this case, the file will be named my-frontend-script-en_US-79431f0eb8deb8221f24df5112e15095.json because the md5 hash of "build/frontend.js" is 79431f0eb8deb8221f24df5112e15095.

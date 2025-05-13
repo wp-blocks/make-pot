@@ -21,7 +21,9 @@ function collectComments(node: SyntaxNode): string | undefined {
 			currentNode?.previousSibling?.type === "comment" &&
 			currentNode?.previousSibling?.text.toLowerCase().includes("translators")
 		) {
-			return stripTranslationMarkup(currentNode?.previousSibling.text);
+			return currentNode?.previousSibling?.text
+				? stripTranslationMarkup(currentNode.previousSibling.text)
+				: undefined;
 		}
 		depth++;
 		currentNode = currentNode.parent as SyntaxNode;
@@ -118,7 +120,7 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 					continue;
 				}
 
-				if (stringType.includes(node?.type)) {
+				if (node?.type && stringType.includes(node.type)) {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1);
 				} else {

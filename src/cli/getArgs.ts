@@ -1,6 +1,7 @@
 import process from "node:process";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import type { Args, MakeJsonArgs } from "../types";
 import { parseCliArgs } from "./parseCli.js";
 
 /**
@@ -8,7 +9,7 @@ import { parseCliArgs } from "./parseCli.js";
  *
  * @return The parsed command line arguments and options.
  */
-export function getArgs(userArgs = {}) {
+export function getArgs(userArgs = {}): Args | MakeJsonArgs {
 	const args = yargs
 		.default(hideBin(process.argv))
 		.help("h")

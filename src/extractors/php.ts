@@ -12,16 +12,16 @@ export function extractPhpPluginData(args: Args): Record<string, string> {
 		const fileContent = fs.readFileSync(folderPhpFile, "utf8");
 		fileData = parsePHPFile(fileContent);
 
+		console.log(`🔵 Plugin file detected. (${folderPhpFile})`);
+
 		// Set the domain
-		console.log("Plugin file detected.");
-		console.log(`Plugin file: ${folderPhpFile}`);
 		args.domain = "plugin";
 
 		return fileData;
-	} else {
-		console.log("Plugin file not found.");
-		console.log(`Missing Plugin filename: ${folderPhpFile}`);
 	}
+
+	console.log("Plugin file not found.");
+	console.log(`Missing Plugin filename: ${folderPhpFile}`);
 
 	return {};
 }
@@ -35,7 +35,7 @@ export function extractPhpPluginData(args: Args): Record<string, string> {
 export function parsePHPFile(phpContent: string): Record<string, string> {
 	const match = phpContent.match(/\/\*\*([\s\S]*?)\*\//);
 
-	if (match && match[1]) {
+	if (match?.[1]) {
 		const commentBlock = match[1];
 		const lines = commentBlock.split("\n");
 
@@ -45,7 +45,7 @@ export function parsePHPFile(phpContent: string): Record<string, string> {
 			const keyValueMatch = line.match(/^\s*\*\s*([^:]+):\s*(.*)/);
 
 			// Check if the line matches the expected format
-			if (keyValueMatch && keyValueMatch[1] && keyValueMatch[2]) {
+			if (keyValueMatch?.[1] && keyValueMatch[2]) {
 				// filter the retrieved headers
 				const header = getKeyByValue(pluginHeaders, keyValueMatch[1].trim());
 				if (header === undefined) continue;

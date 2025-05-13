@@ -20,8 +20,7 @@ export function extractCssThemeData(args: Args) {
 		fileData = extractFileData(commentBlock);
 
 		if ("Theme Name" in fileData) {
-			console.log("Theme stylesheet detected.");
-			console.log(`Theme stylesheet: ${styleCssFile}`);
+			console.log(`🔵 Theme stylesheet detected. ${styleCssFile}`);
 			args.domain = "theme";
 
 			const themeInfo: Record<string, string> = {};
@@ -29,7 +28,7 @@ export function extractCssThemeData(args: Args) {
 			// Loop through the theme headers and extract the values with the required format
 			for (const keyValueMatch of Object.entries(fileData)) {
 				// Check if the line matches the expected format
-				if (keyValueMatch && keyValueMatch[0] && keyValueMatch[1]) {
+				if (keyValueMatch?.[0] && keyValueMatch[1]) {
 					// filter the retrieved headers
 					const header = getKeyByValue(themeHeaders, keyValueMatch[0].trim());
 					if (header === undefined) continue;

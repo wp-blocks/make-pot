@@ -2,7 +2,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const { doTree } = require("../lib/");
+const { doTree } = require("../lib");
 
 describe("doTree js", () => {
 	const filepath = "tests/fixtures/block/javascript.js";

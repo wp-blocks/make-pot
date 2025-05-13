@@ -65,11 +65,6 @@ export const ignoreFunc = (
  * @return A promise that resolves to an array of file paths.
  */
 export function getFiles(args: Args, pattern: Patterns) {
-	if (!args.options?.silent)
-		console.log(
-			`Searching in :${path.resolve(args.paths.cwd)}\n for ${pattern.include.join()}\n ignoring patterns: ${pattern.exclude.join()}`,
-		);
-
 	// Execute the glob search with the built patterns
 	return new Glob(pattern.include, {
 		ignore: {

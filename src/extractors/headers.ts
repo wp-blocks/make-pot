@@ -33,9 +33,11 @@ function validateRequiredFields(headerData: any): boolean {
 	if (missingFields.length > 0) {
 		console.error("\n!  Missing required information for POT file header:\n");
 
-		missingFields.forEach((field) => {
-			console.error(`   - ${field.name} is missing or has a default value`);
-		});
+		for (const field of missingFields) {
+			console.error(
+				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1, author: AUTHOR EMAIL)`,
+			);
+		}
 
 		console.error(
 			"\nPlease provide this information adding the missing fields inside the headers object of the plugin/theme declaration or to the package.json file.",

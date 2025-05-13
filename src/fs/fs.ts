@@ -43,6 +43,7 @@ export function getCharset(charset: string | undefined): BufferEncoding {
 	// we need to check if the charset is valid otherwise we return latin1 that is a common alias for ISO-8859-1 and the default charset for pot files
 	switch (charset.toLowerCase()) {
 		case "utf-8":
+		case "utf8":
 			return "utf-8";
 		default:
 			return "latin1";
@@ -56,6 +57,7 @@ export function getEncodingCharset(charset: string | undefined): string {
 	// we need to check if the charset is valid otherwise we return utf-8 that is a common alias for ISO-8859-1 and the default charset for pot files
 	switch (charset.toLowerCase()) {
 		case "utf-8":
+		case "utf8":
 			return "utf-8";
 		default:
 			return "iso-8859-1";

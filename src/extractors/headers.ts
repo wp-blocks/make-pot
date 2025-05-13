@@ -1,7 +1,8 @@
 import { SetOfBlocks } from "gettext-merger";
 import { boolean } from "yargs";
+import type PackageI18n from "../assets/package-i18n";
 import { getEncodingCharset } from "../fs/fs";
-import type { Args, PotHeaders } from "../types.js";
+import type { Args, I18nHeaders, PotHeaders } from "../types.js";
 import { getPkgJsonData } from "../utils/common";
 import { extractCssThemeData } from "./css.js";
 import { extractPhpPluginData } from "./php.js";
@@ -12,7 +13,7 @@ import { gentranslation } from "./utils.js";
  * @param {object} headerData - The header data to validate
  * @returns {boolean} - true if all required fields are present, false otherwise
  */
-function validateRequiredFields(headerData: any): boolean {
+function validateRequiredFields(headerData: I18nHeaders): boolean {
 	const requiredFields = [
 		{ key: "slug", name: "Plugin/Theme slug", placeholder: "PLUGIN NAME" },
 		{ key: "author", name: "Author name", placeholder: "AUTHOR" },
@@ -25,9 +26,7 @@ function validateRequiredFields(headerData: any): boolean {
 		(field) =>
 			!headerData[field.key] ||
 			headerData[field.key] === field.placeholder ||
-			(field.key === "version" &&
-				headerData[field.key] === "0.0.1" &&
-				!headerData.explicitVersion),
+			(field.key === "version" && headerData[field.key] === "0.0.1"),
 	);
 
 	if (missingFields.length > 0) {
@@ -56,10 +55,10 @@ function validateRequiredFields(headerData: any): boolean {
  * Extract author data from package.json author field and return an array of strings
  * the original field is a string and it's longer form is "Your Name <email@example.com> (https://example.com)"
  *
- * @param author the author field from package.json
  * @returns an object with name, email, and website
+ * @param authorData
  */
-function extractAuthorData(authorData: any): {
+function extractAuthorData(authorData: string | object): {
 	name: string;
 	email?: string;
 	website?: string;
@@ -105,7 +104,7 @@ function extractAuthorData(authorData: any): {
  * @param pkgJsonData The package.json data object
  * @returns Author data with name, email and website
  */
-function getAuthorFromPackage(pkgJsonData: any): {
+function getAuthorFromPackage(pkgJsonData: PackageI18n): {
 	name: string;
 	email?: string;
 	website?: string;
@@ -121,7 +120,11 @@ function getAuthorFromPackage(pkgJsonData: any): {
 	// Try each location in order
 	for (const location of locations) {
 		if (pkgJsonData[location]) {
-			let authorData;
+			let authorData: {
+				name: string;
+				email?: string;
+				website?: string;
+			};
 			if (typeof pkgJsonData[location] === "string") {
 				authorData = extractAuthorData(pkgJsonData[location]);
 			} else if (typeof pkgJsonData[location] === "object") {
@@ -150,18 +153,7 @@ function getAuthorFromPackage(pkgJsonData: any): {
  * @param args the command line arguments
  * @return {Record<string, string>} the consolidated headers data object
  */
-function consolidateUserHeaderData(args: Args): {
-	authorString: string;
-	bugs: string;
-	license: string;
-	author: any;
-	domain: string;
-	xDomain: string;
-	language: string;
-	version: string;
-	slug: string;
-	email?: string;
-} {
+function consolidateUserHeaderData(args: Args): I18nHeaders {
 	const { author, textDomain } = args.headers as {
 		[key in PotHeaders]: string;
 	};
@@ -173,9 +165,7 @@ function consolidateUserHeaderData(args: Args): {
 		"authors",
 		"contributors",
 		"maintainers",
-	) as {
-		[key: string]: any;
-	};
+	) as Record<[keyof PackageI18n], string>;
 
 	const bugs = `https://wordpress.org/support/${args.domain === "theme" ? "themes" : "plugins"}/${args.slug}`;
 
@@ -235,6 +225,9 @@ export async function generateHeader(args: Args) {
 	// Consolidate the user headers data into a single object
 	const headerData = consolidateUserHeaderData(args);
 
+	// the makepot module name and version
+	const { name, version } = getPkgJsonData("name", "version");
+
 	// Validate required fields - exit early if validation fails
 	if (!validateRequiredFields(headerData)) {
 		process.exit(1); // Exit with error code
@@ -252,7 +245,7 @@ export async function generateHeader(args: Args) {
 		"PO-Revision-Date": `${new Date().getFullYear()}-MO-DA HO:MI+ZONE`,
 		"Last-Translator": headerData.authorString,
 		"Language-Team": headerData.authorString,
-		"X-Generator": `${headerData.author} ${headerData.version}`,
+		"X-Generator": `${name} ${version}`,
 		Language: `${headerData.language}`,
 	};
 

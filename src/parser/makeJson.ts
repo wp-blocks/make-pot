@@ -163,16 +163,22 @@ export class MakeJsonCommand {
 
 	/**
 	 * Process a PO file and return the JSON data.
-	 * @param filePath - The path to the PO file.
+	 * @param file - The path to the PO file.
+	 * @param script - The script to be translated.
 	 * @param encoding - The encoding of the PO file.
 	 */
 	public processFile(
-		filePath: string,
+		file: string,
+		script: string,
 		encoding: BufferEncoding = "utf8",
-	): JedData {
+	): MakeJson {
+		// Get the file path
+		const filePath = path.join(this.destination, file);
+
 		// Read the source file
 		const content = fs.readFileSync(filePath, encoding) as string;
 
+		// Extract the ISO code
 		const languageIsoCode = this.extractIsoCode(filePath);
 
 		// Parse the source file
@@ -182,6 +188,7 @@ export class MakeJsonCommand {
 		return this.convertToJed(
 			poContent.headers,
 			poContent.translations,
+			script,
 			languageIsoCode,
 		);
 	}

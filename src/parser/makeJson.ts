@@ -8,7 +8,8 @@ import {
 } from "gettext-parser";
 import { glob } from "glob";
 import { IsoCodeRegex, defaultLocale } from "../const";
-import type { JedData, MakeJsonArgs } from "../types";
+import type { JedData, MakeJson, MakeJsonArgs } from "../types";
+import { getPkgJsonData } from "../utils/common";
 
 export class MakeJsonCommand {
 	/**
@@ -90,14 +91,14 @@ export class MakeJsonCommand {
 	/**
 	 * The main function. Parses the PO files and generates the JSON files.
 	 */
-	public async invoke(): Promise<Record<string, JedData>> {
+	public async invoke(): Promise<Record<string, MakeJson>> {
 		// get all the files in the source directory
 		const files = await glob("**/*.po", { cwd: this.destination, nodir: true });
 
 		console.log("Found po files", files, "in", this.destination, "folder");
 
 		// get all the po files
-		const output: Record<string, JedData> = {};
+		const output: Record<string, MakeJson> = {};
 		for (const file of files) {
 			if (!this.scriptName) {
 				this.scriptName = await glob("*.js", {
@@ -163,16 +164,22 @@ export class MakeJsonCommand {
 
 	/**
 	 * Process a PO file and return the JSON data.
-	 * @param filePath - The path to the PO file.
+	 * @param file - The path to the PO file.
+	 * @param script - The script to be translated.
 	 * @param encoding - The encoding of the PO file.
 	 */
 	public processFile(
-		filePath: string,
+		file: string,
+		script: string,
 		encoding: BufferEncoding = "utf8",
-	): JedData {
+	): MakeJson {
+		// Get the file path
+		const filePath = path.join(this.destination, file);
+
 		// Read the source file
 		const content = fs.readFileSync(filePath, encoding) as string;
 
+		// Extract the ISO code
 		const languageIsoCode = this.extractIsoCode(filePath);
 
 		// Parse the source file
@@ -182,6 +189,7 @@ export class MakeJsonCommand {
 		return this.convertToJed(
 			poContent.headers,
 			poContent.translations,
+			script,
 			languageIsoCode,
 		);
 	}
@@ -211,13 +219,24 @@ export class MakeJsonCommand {
 		translations: {
 			[msgctxt: string]: { [msgId: string]: GetTextTranslation };
 		},
+		source: string,
 		languageIsoCode?: string,
-	): JedData {
+	): MakeJson {
+		const packageJson = getPkgJsonData("name", "version") as {
+			name: string;
+			version: string;
+		};
+
 		// Domain name to use for the Jed format
 		const domain = "messages";
 
+		const generator = `${packageJson.name}/${packageJson.version}`.replace(
+			/\//g,
+			"\\/",
+		);
+
 		// Initialize the Jed-compatible structure
-		const jedData = {
+		const jedData: JedData = {
 			[domain]: {
 				"": {
 					domain: domain,
@@ -247,7 +266,21 @@ export class MakeJsonCommand {
 			}
 		}
 
-		return jedData as JedData;
+		const makeJson: {
+			domain: string;
+			generator: string;
+			"translation-revision-date": string;
+			source: string;
+			locale_data: JedData;
+		} = {
+			"translation-revision-date": new Date().toISOString(),
+			generator: generator,
+			source: path.join(this.sourceDir, source),
+			domain,
+			locale_data: jedData,
+		};
+
+		return makeJson as MakeJson;
 	}
 
 	/**
@@ -304,25 +337,29 @@ export class MakeJsonCommand {
 		return crypto.createHash("md5").update(text).digest("hex");
 	}
 
+	private generateFilename(script: string, file: string): string {
+		const scriptName = this.md5(script);
+		//build the filename for the json file using the po files
+		return file.replace(".po", `-${scriptName}.json`);
+	}
+
 	/**
 	 * Adds a script to the output object.
 	 * @private
 	 *
-	 * @param file - The pot file to parse.
+	 * @param potFile - The pot file to parse.
 	 * @param script - The script to add.
 	 * @return {Record<string, JedData>} - The output object.
 	 * */
 	private addPot(
-		file: string,
+		potFile: string,
 		script: string,
-	): { filename: string; data: JedData } {
-		const scriptName = this.md5(script);
-		//build the filename for the json file using the po files
-		const jsonFilename = file.replace(".po", `-${scriptName}.json`);
+	): { filename: string; data: MakeJson } {
+		const filename = this.generateFilename(script, potFile);
 		// build the output object
 		return {
-			filename: jsonFilename,
-			data: this.processFile(path.join(this.destination, file)),
+			filename,
+			data: this.processFile(potFile, script),
 		};
 	}
 }

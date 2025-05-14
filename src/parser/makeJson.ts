@@ -8,7 +8,8 @@ import {
 } from "gettext-parser";
 import { glob } from "glob";
 import { IsoCodeRegex, defaultLocale } from "../const";
-import type { JedData, MakeJsonArgs } from "../types";
+import type { JedData, MakeJson, MakeJsonArgs } from "../types";
+import { getPkgJsonData } from "../utils/common";
 
 export class MakeJsonCommand {
 	/**
@@ -90,14 +91,14 @@ export class MakeJsonCommand {
 	/**
 	 * The main function. Parses the PO files and generates the JSON files.
 	 */
-	public async invoke(): Promise<Record<string, JedData>> {
+	public async invoke(): Promise<Record<string, MakeJson>> {
 		// get all the files in the source directory
 		const files = await glob("**/*.po", { cwd: this.destination, nodir: true });
 
 		console.log("Found po files", files, "in", this.destination, "folder");
 
 		// get all the po files
-		const output: Record<string, JedData> = {};
+		const output: Record<string, MakeJson> = {};
 		for (const file of files) {
 			if (!this.scriptName) {
 				this.scriptName = await glob("*.js", {
@@ -218,6 +219,7 @@ export class MakeJsonCommand {
 		translations: {
 			[msgctxt: string]: { [msgId: string]: GetTextTranslation };
 		},
+		source: string,
 		languageIsoCode?: string,
 	): MakeJson {
 		const packageJson = getPkgJsonData("name", "version") as {
@@ -352,10 +354,6 @@ export class MakeJsonCommand {
 	private addPot(
 		potFile: string,
 		script: string,
-	): { filename: string; data: JedData } {
-		const scriptName = this.md5(script);
-		//build the filename for the json file using the po files
-		const jsonFilename = file.replace(".po", `-${scriptName}.json`);
 	): { filename: string; data: MakeJson } {
 		const filename = this.generateFilename(script, potFile);
 		// build the output object

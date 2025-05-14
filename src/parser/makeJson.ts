@@ -314,21 +314,23 @@ export class MakeJsonCommand {
 	 * Adds a script to the output object.
 	 * @private
 	 *
-	 * @param file - The pot file to parse.
+	 * @param potFile - The pot file to parse.
 	 * @param script - The script to add.
 	 * @return {Record<string, JedData>} - The output object.
 	 * */
 	private addPot(
-		file: string,
+		potFile: string,
 		script: string,
 	): { filename: string; data: JedData } {
 		const scriptName = this.md5(script);
 		//build the filename for the json file using the po files
 		const jsonFilename = file.replace(".po", `-${scriptName}.json`);
+	): { filename: string; data: MakeJson } {
+		const filename = this.generateFilename(script, potFile);
 		// build the output object
 		return {
-			filename: jsonFilename,
-			data: this.processFile(path.join(this.destination, file)),
+			filename,
+			data: this.processFile(potFile, script),
 		};
 	}
 }

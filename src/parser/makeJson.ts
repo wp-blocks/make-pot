@@ -304,6 +304,12 @@ export class MakeJsonCommand {
 		return crypto.createHash("md5").update(text).digest("hex");
 	}
 
+	private generateFilename(script: string, file: string): string {
+		const scriptName = this.md5(script);
+		//build the filename for the json file using the po files
+		return file.replace(".po", `-${scriptName}.json`);
+	}
+
 	/**
 	 * Adds a script to the output object.
 	 * @private

@@ -166,10 +166,17 @@ export interface TranslationStrings {
  * @param {Record<string, unknown>} locale_data
  */
 export interface JedData {
-	domain: string;
-	locale_data: {
-		messages: Record<string, unknown>;
+	[domain: string]: {
+		[key: string]: string | string[];
 	};
+}
+
+export interface MakeJson {
+	domain: string;
+	generator: string;
+	"translation-revision-date": string;
+	source: string;
+	locale_data: JedData;
 }
 
 /**

@@ -219,12 +219,22 @@ export class MakeJsonCommand {
 			[msgctxt: string]: { [msgId: string]: GetTextTranslation };
 		},
 		languageIsoCode?: string,
-	): JedData {
+	): MakeJson {
+		const packageJson = getPkgJsonData("name", "version") as {
+			name: string;
+			version: string;
+		};
+
 		// Domain name to use for the Jed format
 		const domain = "messages";
 
+		const generator = `${packageJson.name}/${packageJson.version}`.replace(
+			/\//g,
+			"\\/",
+		);
+
 		// Initialize the Jed-compatible structure
-		const jedData = {
+		const jedData: JedData = {
 			[domain]: {
 				"": {
 					domain: domain,
@@ -254,7 +264,21 @@ export class MakeJsonCommand {
 			}
 		}
 
-		return jedData as JedData;
+		const makeJson: {
+			domain: string;
+			generator: string;
+			"translation-revision-date": string;
+			source: string;
+			locale_data: JedData;
+		} = {
+			"translation-revision-date": new Date().toISOString(),
+			generator: generator,
+			source: path.join(this.sourceDir, source),
+			domain,
+			locale_data: jedData,
+		};
+
+		return makeJson as MakeJson;
 	}
 
 	/**

@@ -209,6 +209,7 @@ export class MakeJsonCommand {
 	 * Converts PO data to Jed data.
 	 * @param header - The header of the PO file.
 	 * @param translations - The translations of the PO file.
+	 * @param source - The source of the PO file.
 	 * @param languageIsoCode - The ISO code of the language.
 	 * @private
 	 *
@@ -230,10 +231,7 @@ export class MakeJsonCommand {
 		// Domain name to use for the Jed format
 		const domain = "messages";
 
-		const generator = `${packageJson.name}/${packageJson.version}`.replace(
-			/\//g,
-			"\\/",
-		);
+		const generator = `${packageJson.name}/${packageJson.version}`;
 
 		// Initialize the Jed-compatible structure
 		const jedData: JedData = {
@@ -275,7 +273,7 @@ export class MakeJsonCommand {
 		} = {
 			"translation-revision-date": new Date().toISOString(),
 			generator: generator,
-			source: path.join(this.sourceDir, source),
+			source: path.join(this.sourceDir, source).replace(/\\/g, "/"),
 			domain,
 			locale_data: jedData,
 		};
@@ -355,7 +353,10 @@ export class MakeJsonCommand {
 		potFile: string,
 		script: string,
 	): { filename: string; data: MakeJson } {
-		const filename = this.generateFilename(script, potFile);
+		const filename = this.generateFilename(
+			path.join(this.source, script).replace(/\\/g, "/"),
+			potFile,
+		);
 		// build the output object
 		return {
 			filename,

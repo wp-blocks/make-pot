@@ -1,5 +1,7 @@
 import * as blocki18n from "../assets/block-i18n.js";
+import type BlockI18n from "../assets/block-i18n.js";
 import * as themei18n from "../assets/theme-i18n.js";
+import type ThemeI18n from "../assets/theme-i18n.js";
 import type { I18nSchema } from "../types.js";
 
 /**
@@ -40,7 +42,6 @@ export class JsonSchemaExtractor {
 				responseType: "json",
 				accept: "application/json",
 				headers: {
-					"Content-Type": "application/json",
 					"Access-Control-Allow-Origin": "*",
 				},
 			})
@@ -52,13 +53,13 @@ export class JsonSchemaExtractor {
 				});
 
 			// Verify if the response is valid
-			if (!response || !response?.data) {
+			if (!response) {
 				return fallback;
 			}
 
 			console.log("Schema loaded successfully");
-			JsonSchemaExtractor.schemaCache[url] = response.data;
-			return response.data;
+			JsonSchemaExtractor.schemaCache[url] = response;
+			return response;
 		} catch (error) {
 			console.error(
 				`\nFailed to load schema from ${url}. Using fallback. Error: ${error.message}`,
@@ -93,7 +94,7 @@ export class JsonSchemaExtractor {
 		);
 
 		try {
-			const json = JSON.parse(text);
+			const json = JSON.parse(text) as Record<string, unknown>;
 			if (json === null) {
 				console.error("Could not parse JSON.");
 				return;
@@ -110,39 +111,33 @@ export class JsonSchemaExtractor {
 	 * Extracts strings using the provided I18n schema and settings.
 	 *
 	 * @param {I18nSchema} i18nSchema - The I18n schema to extract strings from.
-	 * @param {any} settings - The settings to use for string extraction.
+	 * @param {any} json - The settings to use for string extraction.
 	 * @return {{ [key: string]: string }} The extracted translations as key-value pairs.
 	 */
 	private static extractStringsUsingI18nSchema(
 		i18nSchema: I18nSchema,
-		settings: unknown,
-	): I18nSchema {
-		if (!i18nSchema || !settings) {
+		json: Record<string, unknown>,
+	): I18nSchema | undefined {
+		if (!i18nSchema || !json) {
 			return {};
 		}
 
-		if (Array.isArray(i18nSchema) && typeof settings === "object") {
-			const result: I18nSchema = {};
-			for (const value in settings) {
-				const extracted = JsonSchemaExtractor.extractStringsUsingI18nSchema(
-					i18nSchema[value] as I18nSchema,
-					value,
-				);
-				Object.assign(result, extracted);
-			}
-			return result;
-		}
-
-		if (typeof i18nSchema === "object" && typeof settings === "object") {
+		/**
+		 * the rest of the schema are nested in an object
+		 */
+		if (typeof i18nSchema === "object" && typeof json === "object") {
 			const groupKey = "*";
 			const result: I18nSchema = {};
-			for (const [key, value] of Object.entries(settings)) {
-				if (i18nSchema[key]) {
-					result[key] = i18nSchema[key];
+			for (const [key, value] of Object.entries(json)) {
+				if (
+					i18nSchema[key] &&
+					(typeof value === "string" || Array.isArray(value))
+				) {
+					result[key] = value;
 				} else if (Object.prototype.hasOwnProperty.call(i18nSchema, groupKey)) {
 					const extracted = JsonSchemaExtractor.extractStringsUsingI18nSchema(
 						i18nSchema[groupKey] as I18nSchema,
-						value,
+						value as Record<string, unknown>,
 					);
 					if (extracted) {
 						Object.assign(result, extracted);
@@ -152,6 +147,6 @@ export class JsonSchemaExtractor {
 			return result;
 		}
 
-		return {};
+		return json as I18nSchema;
 	}
 }

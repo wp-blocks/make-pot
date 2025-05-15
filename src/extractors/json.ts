@@ -18,20 +18,18 @@ import { yieldParsedData } from "./utils.js";
 export async function parseJsonFile(opts: {
 	fileContent: string;
 	filename: "block.json" | "theme.json";
-	filepath: string;
 }): Promise<I18nSchema> {
+	const isTheme = opts.filename === "theme.json";
 	const jsonTranslations = await JsonSchemaExtractor.fromString(
 		opts.fileContent,
 		{
 			file: opts.filename,
-			schema:
-				opts.filename === "theme.json"
-					? JsonSchemaExtractor.themeJsonSource
-					: JsonSchemaExtractor.blockJsonSource,
-			schemaFallback:
-				opts.filename === "theme.json"
-					? JsonSchemaExtractor.themeJsonFallback
-					: JsonSchemaExtractor.blockJsonFallback,
+			schema: isTheme
+				? JsonSchemaExtractor.themeJsonSource
+				: JsonSchemaExtractor.blockJsonSource,
+			schemaFallback: isTheme
+				? JsonSchemaExtractor.themeJsonFallback
+				: JsonSchemaExtractor.blockJsonFallback,
 			addReferences: true,
 		} as { schema?: string; schemaFallback?: I18nSchema },
 	);
@@ -110,7 +108,6 @@ export async function parseJsonCallback(
 	const data = await parseJsonFile({
 		fileContent: fileContent,
 		filename: filename,
-		filepath: filePath,
 	});
 
 	return yieldParsedData(

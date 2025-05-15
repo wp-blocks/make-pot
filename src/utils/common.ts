@@ -143,12 +143,12 @@ export function printMakePotModuleInfo() {
  * @param timeEnd the end time
  */
 export function printTimeElapsed(
-	scriptName: string,
+	scriptName: "Make-Pot" | "Make-Json",
 	timeStart: Date,
 	timeEnd: Date = new Date(),
 ) {
 	console.log(
-		`🚀 ${scriptName}: Job completed! Pot file created in ${
+		`🚀 ${scriptName}: Job completed! ${scriptName.split("-")[1]} file created in ${
 			timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);

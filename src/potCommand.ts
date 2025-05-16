@@ -12,7 +12,7 @@ export default function potCommand(args: Args) {
 		makePot(args)
 			.then(() => {
 				/* output the end time */
-				printTimeElapsed(timeStart);
+				printTimeElapsed("Make-Pot", timeStart);
 			})
 			.catch((error) => {
 				console.error(`🫤 Make-pot - ${error}`);

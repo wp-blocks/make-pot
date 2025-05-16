@@ -16,7 +16,7 @@ export default function makeJsonCommand(args: MakeJsonArgs) {
 					console.log(result);
 				}
 				/* output the end time */
-				printTimeElapsed(timeStart);
+				printTimeElapsed("Make-Json", timeStart);
 			})
 			.catch((error) => {
 				console.error(`🫤 make-json - Error: ${error}`);

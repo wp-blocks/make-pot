@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"license": "GPL-3.0-or-later",
 	"homepage": "https://wp-blocks.github.io/make-pot/",
 	"description": "A Node.js script for generating a POT file from source code",
@@ -9,13 +9,13 @@
 		"John Hooks <bitmachina@outlook.com> (https://johnhooks.io/)"
 	],
 	"type": "commonjs",
-	"main": "lib/cli.js",
+	"main": "lib/index.js",
 	"bin": {
-		"default": "lib/cli.js",
-		"make-pot": "lib/makePot.js",
-		"makepot": "lib/makePot.js",
-		"make-json": "lib/makeJson.js",
-		"makejson": "lib/makeJson.js"
+		"default": "./lib/cli.js",
+		"make-pot": "./lib/makePot.js",
+		"makepot": "./lib/makePot.js",
+		"make-json": "./lib/makeJson.js",
+		"makejson": "./lib/makeJson.js"
 	},
 	"engines": {
 		"node": ">=16.0.0"
@@ -48,12 +48,13 @@
 	"scripts": {
 		"postinstall": "npm rebuild tree-sitter tree-sitter-typescript tree-sitter-php tree-sitter-javascript --force",
 		"build": "npx esbuild ./src/**/* --format=cjs --minify --outdir=lib --platform=node",
-		"build:ci": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --platform=node",
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --apply src",
 		"rm": "rmdir /s /q lib",
-		"test": "node --test",
-		"test:ci": "npm run build:ci && npm run test",
+		"test:build": "npx esbuild ./src/**/* --format=cjs --sourcemap --outdir=lib --platform=node",
+		"test": "npm run test:build && node --test",
+		"build:build-ci": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --platform=node",
+		"test:ci": "npm run build:build-ci && npm run test",
 		"test:watch": "node --test --watch",
 		"test:coverage": "node --test --experimental-test-coverage"
 	},
@@ -62,11 +63,11 @@
 		"gettext-merger": "^1.2.1",
 		"gettext-parser": "^4.0.4",
 		"glob": "^11.0.2",
+		"tannin": "^1.2.0",
 		"tree-sitter": "^0.20.6",
 		"tree-sitter-javascript": "^0.20.4",
 		"tree-sitter-php": "^0.20.0",
 		"tree-sitter-typescript": "^0.20.5",
-		"tannin": "^1.2.0",
 		"yargs": "^17.7.1"
 	},
 	"devDependencies": {

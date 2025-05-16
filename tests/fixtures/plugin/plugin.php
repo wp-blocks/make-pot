@@ -3,8 +3,8 @@
  * Plugin Name: plugin
  * Plugin URI:
  * Description: An example plugin to demo how to do internationalization in a WordPress plugin.
- * Author: David Wood
- * Author URI: https://davidwood.ninja/
+ * Author: Erik yo
+ * Author URI: https://codekraft.it
  * Version: 1.0.0
  * License: GPL3+
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html

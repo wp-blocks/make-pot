@@ -1,5 +1,5 @@
 import { extractMainFileData } from "../extractors/headers.js";
-import { extractPackageJson } from "../extractors/json.js";
+import { extractPackageJson } from "../extractors/packageJson.js";
 import { writeFile } from "../fs/fs.js";
 import type { Args } from "../types.js";
 import { exec } from "./exec.js";

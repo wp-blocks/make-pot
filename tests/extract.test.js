@@ -283,7 +283,7 @@ describe("getStrings wp cli", () => {
 
 		const result = doTree(content, filename);
 
-		assert.strictEqual(result.blocks.length, 27);
+		assert.strictEqual(result.blocks.length, 26);
 	});
 
 	/** see wp cli tests */

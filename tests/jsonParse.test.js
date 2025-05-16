@@ -6,15 +6,43 @@ const { parseJsonFile } = require("../lib/extractors/json.js");
 describe("should parse json", () => {
 	describe("should parse block.json", () => {
 		it("block.json", async () => {
-			const expected = {
-				description: "my block description",
-				keywords: [
-					"my block keyword",
-					"my block keyword 2",
-					"my block keyword 3",
-				],
-				title: "my block title",
-			};
+			const expected = [
+				{
+					msgctxt: "block title",
+					msgid: "my block title",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "block description",
+					msgid: "my block description",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "block keyword",
+					msgid: "my block keyword",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "block keyword",
+					msgid: "my block keyword 2",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "block keyword",
+					msgid: "my block keyword 3",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+			];
 
 			const result = await parseJsonFile({
 				fileContent: fs.readFileSync("tests/fixtures/block/block.json", "utf8"),

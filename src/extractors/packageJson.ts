@@ -27,7 +27,7 @@ export function extractPackageJson(args: Args): Record<string, string> {
 		for (const field of Object.keys(fields)) {
 			// if the field exists in the package.json
 			if (field in packageJson) {
-				pkgJsonMeta[field] = packageJson[field] as string;
+				pkgJsonMeta[field] = `${packageJson[field]}` as string;
 			}
 		}
 	}

@@ -35,7 +35,7 @@ export function extractPhpPluginData(args: Args): Record<string, string> {
 export function parsePHPFile(phpContent: string): Record<string, string> {
 	const match = phpContent.match(/\/\*\*([\s\S]*?)\*\//);
 
-	if (match?.[1]) {
+	if (match?.[1] && match) {
 		const commentBlock = match[1];
 		const lines = commentBlock.split("\n");
 
@@ -43,6 +43,10 @@ export function parsePHPFile(phpContent: string): Record<string, string> {
 
 		for (const line of lines) {
 			const keyValueMatch = line.match(/^\s*\*\s*([^:]+):\s*(.*)/);
+
+			if (!keyValueMatch) {
+				continue;
+			}
 
 			// Check if the line matches the expected format
 			if (keyValueMatch?.[1] && keyValueMatch[2]) {

@@ -20,29 +20,31 @@ describe("Header generation", () => {
 
 		it("from package.json data", async () => {
 			const expected = {
-				"Project-Id-Version": "plugin 1.5.1",
-				"Report-Msgid-Bugs-To": "Erik Golinelli <erik@codekraft.it>",
+				"Project-Id-Version": "plugin 1.0.0",
+				"Report-Msgid-Bugs-To": "John Doe <erik@codekraft.it>",
 				"MIME-Version": "1.0",
 				"Content-Transfer-Encoding": "8bit",
 				"content-type": "text/plain; charset=iso-8859-1",
 				"plural-forms": "nplurals=2; plural=(n!=1);",
 				"POT-Creation-Date": undefined,
 				"PO-Revision-Date": undefined,
-				"Last-Translator": "Erik Golinelli <erik@codekraft.it>",
-				"Language-Team": "Erik Golinelli <erik@codekraft.it>",
+				"Last-Translator": "John Doe <erik@codekraft.it>",
+				"Language-Team": "John Doe <erik@codekraft.it>",
 				"X-Generator": "@wp-blocks/make-pot 1.5.1",
 				Language: "en",
 				"x-Domain": "plugin",
 			};
 
 			const result = await generateHeader({
-				name: "my-block",
-				authors: ["John Doe <1dHsK@example.com> (http://example.com)"],
-				version: "1.0.0",
-				license: "MIT",
-				homepage: "https://example.com",
-				repository: "https://github.com/example/my-block",
-				domain: "my-plugin-text-domain",
+				headers: {
+					name: "my-block",
+					author: "John Doe",
+					version: "1.0.0",
+					license: "MIT",
+					homepage: "https://example.com",
+					repository: "https://github.com/example/my-block",
+					domain: "my-plugin-text-domain",
+				},
 				paths: {
 					cwd: "./tests/fixtures/plugin",
 				},

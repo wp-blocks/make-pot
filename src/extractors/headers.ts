@@ -221,7 +221,7 @@ export async function generateHeader(args: Args) {
 	const headerData = consolidateUserHeaderData(args);
 
 	// the makepot module name and version
-	const { name = "", version = "0.0.1" } = getPkgJsonData("name", "version");
+	const { name, version } = getPkgJsonData("name", "version");
 
 	// Validate required fields - exit early if validation fails
 	if (!validateRequiredFields(headerData)) {

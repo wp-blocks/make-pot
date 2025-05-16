@@ -1,3 +1,4 @@
+import type { Block } from "gettext-merger";
 import * as blocki18n from "../assets/block-i18n.js";
 import type BlockI18n from "../assets/block-i18n.js";
 import * as themei18n from "../assets/theme-i18n.js";
@@ -15,11 +16,11 @@ export class JsonSchemaExtractor {
 	/** Theme */
 	static themeJsonSource =
 		"http://develop.svn.wordpress.org/trunk/src/wp-includes/theme-i18n.json";
-	static themeJsonFallback = themei18n;
+	static themeJsonFallback = themei18n as ThemeI18n;
 	/** Block */
 	static blockJsonSource =
 		"http://develop.svn.wordpress.org/trunk/src/wp-includes/block-i18n.json";
-	static blockJsonFallback = blocki18n;
+	static blockJsonFallback = blocki18n as BlockI18n;
 
 	/**
 	 * Load the schema from the specified URL, with a fallback URL if needed.
@@ -73,34 +74,43 @@ export class JsonSchemaExtractor {
 	 * Parses a string and extracts translations using the specified schema.
 	 *
 	 * @param {string} text - the input string to be parsed
-	 * @param {{ [key: string]: any }} options - the options for parsing the input string
+	 * @param {object} schema - the schema to use for parsing the input string
+	 * @param {string} schema.url - the URL of the schema to use for parsing the input string
+	 * @param {object} schema.schemaFallback - the fallback schema to use if the main schema fails
+	 * @param {object} options - the options for parsing the input string
+	 * @param {string} options.file - the name of the file being parsed
+	 * @param {boolean} options.addReferences - whether to add references to the extracted strings
+	 *
 	 * @return {Promise<I18nSchema | undefined>} a promise that resolves with the extracted schema
 	 */
-	public static async fromString(
+	public static async parse(
 		text: string,
-		options: { schema?: string; schemaFallback?: I18nSchema },
-	): Promise<I18nSchema | undefined> {
-		const schemaUrl = options.schema as string;
-		const schemaFallback = options.schemaFallback as I18nSchema;
-
-		if (!schemaUrl || !schemaFallback) {
-			console.error("Schema URL or fallback not provided");
-			return;
-		}
-
-		const schema = await JsonSchemaExtractor.loadSchema(
-			schemaUrl,
-			schemaFallback,
+		schema: {
+			url: string;
+			fallback: I18nSchema;
+		},
+		options: {
+			file: "block.json" | "theme.json";
+			addReferences: boolean;
+		},
+	): Promise<Block[] | undefined> {
+		const parsedSchema = await JsonSchemaExtractor.loadSchema(
+			schema.url,
+			schema.fallback,
 		);
 
 		try {
 			const json = JSON.parse(text) as Record<string, unknown>;
-			if (json === null) {
+			if (!json) {
 				console.error("Could not parse JSON.");
 				return;
 			}
 
-			return JsonSchemaExtractor.extractStringsUsingI18nSchema(schema, json);
+			return JsonSchemaExtractor.extractFromJsonSchema(
+				json,
+				parsedSchema,
+				options,
+			);
 		} catch (error) {
 			console.error(`Error parsing JSON: ${error.message}`);
 			return;
@@ -108,45 +118,153 @@ export class JsonSchemaExtractor {
 	}
 
 	/**
-	 * Extracts strings using the provided I18n schema and settings.
+	 * Extracts translatable strings from a JSON file by comparing it with a schema
 	 *
-	 * @param {I18nSchema} i18nSchema - The I18n schema to extract strings from.
-	 * @param {any} json - The settings to use for string extraction.
-	 * @return {{ [key: string]: string }} The extracted translations as key-value pairs.
+	 * @param {Object} json - The JSON object to extract strings from
+	 * @param {Object} schema - The schema that defines which fields contain translatable strings
+	 * @param {Object} options - Options for extraction
+	 * @param {string} options.filename - The name of the file being extracted (for references)
+	 * @param {boolean} options.addReferences - Whether to add file references in comments
+	 * @return {Array} - An array of objects with translatable strings in gettext format
 	 */
-	private static extractStringsUsingI18nSchema(
-		i18nSchema: I18nSchema,
+	private static extractFromJsonSchema(
 		json: Record<string, unknown>,
-	): I18nSchema | undefined {
-		if (!i18nSchema || !json) {
-			return {};
-		}
+		schema: I18nSchema,
+		options: { filename?: string; addReferences?: boolean } = {
+			filename: undefined,
+			addReferences: false,
+		},
+	): Block[] | undefined {
+		const { filename = "block.json", addReferences = false } = options;
+		const translations = [];
 
 		/**
-		 * the rest of the schema are nested in an object
+		 * Recursive function to extract translatable strings
+		 * @param {*} currentJson - The current node in the JSON
+		 * @param {*} currentSchema - The current node in the schema
+		 * @param {Array} path - The current path in the JSON
 		 */
-		if (typeof i18nSchema === "object" && typeof json === "object") {
-			const groupKey = "*";
-			const result: I18nSchema = {};
-			for (const [key, value] of Object.entries(json)) {
-				if (
-					i18nSchema[key] &&
-					(typeof value === "string" || Array.isArray(value))
-				) {
-					result[key] = value;
-				} else if (Object.prototype.hasOwnProperty.call(i18nSchema, groupKey)) {
-					const extracted = JsonSchemaExtractor.extractStringsUsingI18nSchema(
-						i18nSchema[groupKey] as I18nSchema,
-						value as Record<string, unknown>,
-					);
-					if (extracted) {
-						Object.assign(result, extracted);
+		function extract(currentJson, currentSchema, path = []) {
+			// If either is null or undefined, there's nothing to do
+			if (!currentJson || !currentSchema) return;
+
+			// Handles the case where both are objects
+			if (
+				typeof currentJson === "object" &&
+				!Array.isArray(currentJson) &&
+				typeof currentSchema === "object" &&
+				!Array.isArray(currentSchema)
+			) {
+				// Iterate over the schema keys
+				for (const key of Object.keys(currentSchema)) {
+					if (key in currentJson) {
+						// If the key exists in the JSON, check the type
+						if (typeof currentJson[key] === "string") {
+							// It's a string - add it to translations
+							addTranslation(
+								currentJson[key],
+								currentSchema[key],
+								filename,
+								addReferences,
+							);
+						} else if (
+							Array.isArray(currentJson[key]) &&
+							Array.isArray(currentSchema[key])
+						) {
+							// It's an array - handle each element
+							handleArrays(
+								currentJson[key],
+								currentSchema[key],
+								[...path, key],
+								filename,
+								addReferences,
+							);
+						} else if (
+							typeof currentJson[key] === "object" &&
+							typeof currentSchema[key] === "object"
+						) {
+							// It's an object - recurse
+							extract(currentJson[key], currentSchema[key], [...path, key]);
+						}
 					}
 				}
 			}
-			return result;
 		}
 
-		return json as I18nSchema;
+		/**
+		 * Handles arrays in JSON and schema
+		 * @param {Array} jsonArray - The JSON array
+		 * @param {Array} schemaArray - The schema array
+		 * @param {Array} path - The current path
+		 * @param {string} filename - The name of the file
+		 * @param {boolean} addReferences - whenever to add references
+		 */
+		function handleArrays(
+			jsonArray,
+			schemaArray,
+			path,
+			filename,
+			addReferences,
+		) {
+			// If the schema has at least one element, use it as a template
+			if (schemaArray.length > 0) {
+				const schemaTemplate = schemaArray[0];
+
+				// For each element in the JSON array
+				for (const jsonItem of jsonArray) {
+					if (typeof jsonItem === "string") {
+						// If the JSON element is a string, add it directly
+						addTranslation(jsonItem, schemaTemplate, filename, addReferences);
+					} else if (typeof jsonItem === "object") {
+						// If it's an object, recurse
+						if (typeof schemaTemplate === "object") {
+							extract(jsonItem, schemaTemplate, path);
+						} else {
+							// Edge case: handles cases like keywords: ["string1", "string2"]
+							// when the schema has keywords: ["keyword context"]
+							for (const key of Object.keys(jsonItem)) {
+								if (typeof jsonItem[key] === "string") {
+									addTranslation(
+										jsonItem[key],
+										schemaTemplate,
+										filename,
+										addReferences,
+									);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		/**
+		 * Adds a translation to the translations array
+		 * @param {string} msgid - The string to translate
+		 * @param {string} msgctxt - The context of the string
+		 * @param {string} filename - The name of the file for references
+		 * @param {boolean} addReferences - Whether to add references
+		 */
+		function addTranslation(msgid, msgctxt, filename, addReferences) {
+			if (!msgid) return; // Do not add empty strings
+
+			const translation = {
+				msgctxt,
+				msgid,
+			} as Block;
+
+			if (addReferences) {
+				translation.comments = {
+					reference: [filename],
+				};
+			}
+
+			translations.push(translation);
+		}
+
+		// Start extraction from the root
+		extract(json, schema);
+
+		return translations;
 	}
 }

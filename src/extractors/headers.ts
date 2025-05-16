@@ -6,7 +6,7 @@ import type { Args, I18nHeaders, PotHeaders } from "../types.js";
 import { getPkgJsonData } from "../utils/common";
 import { extractCssThemeData } from "./css.js";
 import { extractPhpPluginData } from "./php.js";
-import { gentranslation } from "./utils.js";
+import { buildBlock } from "./utils.js";
 
 /**
  * Checks if required fields are missing and logs a clear error message
@@ -289,10 +289,10 @@ export function translationsHeaders(args: Args): SetOfBlocks {
 	const fakePath = domain === "plugin" ? `${args.slug}.php` : "style.css";
 
 	return new SetOfBlocks([
-		gentranslation(`Name of the ${domain}`, name, fakePath),
-		gentranslation(`Url of the ${domain}`, url, fakePath),
-		gentranslation(`Description of the ${domain}`, description, fakePath),
-		gentranslation(`Author of the ${domain}`, author, fakePath),
-		gentranslation(`Author URI of the ${domain}`, authorUri, fakePath),
+		buildBlock(`Name of the ${domain}`, name, [fakePath]),
+		buildBlock(`Url of the ${domain}`, url, [fakePath]),
+		buildBlock(`Description of the ${domain}`, description, [fakePath]),
+		buildBlock(`Author of the ${domain}`, author, [fakePath]),
+		buildBlock(`Author URI of the ${domain}`, authorUri, [fakePath]),
 	]);
 }

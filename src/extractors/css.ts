@@ -8,11 +8,15 @@ import { getKeyByValue } from "./utils.js";
 
 /**
  * Extracts the theme data from the style.css file.
- * @param args
+ * @param args - The command line arguments.
+ * @param filename - The name of the style.css file.
  */
-export function extractCssThemeData(args: Args) {
+export function extractCssThemeData(
+	args: Args,
+	filename = "style.css",
+): Record<string, string> {
 	let fileData: Record<string, string> = {};
-	const styleCssFile = path.join(args.paths.cwd, "style.css");
+	const styleCssFile = path.join(args.paths.cwd, filename);
 
 	if (fs.existsSync(styleCssFile)) {
 		const fileContent = fs.readFileSync(styleCssFile, "utf8");

@@ -27,112 +27,106 @@ describe("should parse json", () => {
 
 	describe("should parse theme.json", () => {
 		it("theme.json", async () => {
-			const expected = {
-				settings: {
-					typography: {
-						fontSizes: [
-							{
-								name: "Font size name",
-							},
-						],
-						fontFamilies: [
-							{
-								name: "Font family name",
-							},
-						],
-					},
-					color: {
-						palette: [
-							{
-								name: "Color name",
-							},
-						],
-						gradients: [
-							{
-								name: "Gradient name",
-							},
-						],
-						duotone: [
-							{
-								name: "Duotone name",
-							},
-						],
-					},
-					spacing: {
-						spacingSizes: [
-							{
-								name: "Space size name",
-							},
-						],
-					},
-					dimensions: {
-						aspectRatios: [
-							{
-								name: "Aspect ratio name",
-							},
-						],
-					},
-					shadow: {
-						presets: [
-							{
-								name: "Shadow name",
-							},
-						],
-					},
-					blocks: {
-						"*": {
-							typography: {
-								fontSizes: [
-									{
-										name: "Font size name",
-									},
-								],
-								fontFamilies: [
-									{
-										name: "Font family name",
-									},
-								],
-							},
-							color: {
-								palette: [
-									{
-										name: "Color name",
-									},
-								],
-								gradients: [
-									{
-										name: "Gradient name",
-									},
-								],
-								duotone: [
-									{
-										name: "Duotone name",
-									},
-								],
-							},
-							dimensions: {
-								aspectRatios: [
-									{
-										name: "Aspect ratio name",
-									},
-								],
-							},
-							spacing: {
-								spacingSizes: [
-									{
-										name: "Space size name",
-									},
-								],
-							},
-						},
+			const expected = [
+				{
+					msgctxt: "Font size name",
+					msgid: "Extra small",
+					comments: {
+						reference: ["block.json"],
 					},
 				},
-				templateParts: [
-					{
-						title: "Template part name",
+				{
+					msgctxt: "Font size name",
+					msgid: "Small",
+					comments: {
+						reference: ["block.json"],
 					},
-				],
-			};
+				},
+				{
+					msgctxt: "Font size name",
+					msgid: "Medium",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Font size name",
+					msgid: "Large",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Font size name",
+					msgid: "Extra large",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Font family name",
+					msgid: "System Fonts",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Color name",
+					msgid: "Base",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Color name",
+					msgid: "Contrast",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Color name",
+					msgid: "Accent",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Color name",
+					msgid: "Accent Two",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Color name",
+					msgid: "Accent Three",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Gradient name",
+					msgid: "Accent Two to Contrast",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Template part name",
+					msgid: "Header",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+				{
+					msgctxt: "Template part name",
+					msgid: "Footer",
+					comments: {
+						reference: ["block.json"],
+					},
+				},
+			];
 
 			const result = await parseJsonFile({
 				fileContent: fs.readFileSync("tests/fixtures/fse/theme.json", "utf8"),

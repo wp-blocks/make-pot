@@ -19,7 +19,7 @@ function validateRequiredFields(headerData: I18nHeaders): boolean {
 		{ key: "author", name: "Author name", placeholder: "AUTHOR" },
 		{ key: "version", name: "Version", placeholder: "" },
 		{ key: "email", name: "Author email", placeholder: "AUTHOR EMAIL" },
-		{ key: "domain", name: "Text domain", placeholder: "PLUGIN TEXTDOMAIN" },
+		{ key: "xDomain", name: "Text domain", placeholder: "PLUGIN TEXTDOMAIN" },
 	];
 
 	const missingFields = requiredFields.filter(
@@ -154,7 +154,7 @@ function getAuthorFromPackage(pkgJsonData: PackageI18n): {
  * @return {Record<string, string>} the consolidated headers data object
  */
 function consolidateUserHeaderData(args: Args): I18nHeaders {
-	const { author, textDomain } = args.headers as {
+	const headers = args.headers as {
 		[key in PotHeaders]: string;
 	};
 
@@ -175,7 +175,7 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 	const authorName = args.headers?.author || pkgAuthor?.name;
 	const email = pkgAuthor?.email;
 	// this is the author with email address in this format: author <email>
-	const authorString = `${author} <${email}>`;
+	const authorString = `${headers?.author} <${email}>`;
 	// get the current directory name as slug
 	const currentDir = process
 		.cwd()
@@ -198,9 +198,7 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		license: args.headers?.license || "gpl-2.0 or later",
 		version: args.headers?.version || pkgJsonData.version || "0.0.1",
 		language: "en",
-		domain:
-			args.headers?.textDomain || args.headers?.slug || "PLUGIN TEXTDOMAIN",
-		xDomain: textDomain,
+		xDomain: args.headers?.textDomain || args.headers?.slug || "TEXTDOMAIN",
 	};
 }
 
@@ -224,7 +222,7 @@ export async function generateHeader(args: Args) {
 	const headerData = consolidateUserHeaderData(args);
 
 	// the makepot module name and version
-	const { name, version } = getPkgJsonData("name", "version");
+	const { name = "", version = "0.0.1" } = getPkgJsonData("name", "version");
 
 	// Validate required fields - exit early if validation fails
 	if (!validateRequiredFields(headerData)) {
@@ -245,11 +243,8 @@ export async function generateHeader(args: Args) {
 		"Language-Team": headerData.authorString,
 		"X-Generator": `${name} ${version}`,
 		Language: `${headerData.language}`,
+		"x-Domain": headerData.xDomain,
 	};
-
-	if (headerData.xDomain) {
-		header["X-Domain"] = headerData.xDomain;
-	}
 
 	return header;
 }

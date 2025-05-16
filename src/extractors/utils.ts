@@ -16,26 +16,29 @@ export function getKeyByValue(
 }
 
 /**
- * returns a gettext translation object
+ * Returns a gettext translation object
  *
  * @param label the label of the translation
  * @param string the string of the translation
  * @param filePath the file path of the translation
  */
-export const gentranslation = (
+export const buildBlock = (
 	label: string,
 	string: string,
-	filePath: string,
+	filePath: string[] | undefined = undefined,
 ): Block => {
 	const block = new Block([]);
 	block.msgctxt = undefined;
 	block.msgid = string;
 	block.msgid_plural = "";
 	block.msgstr = [];
-	block.comments = {
-		extracted: [label],
-		reference: [filePath],
-	};
+	block.comments = {};
+	if (label) {
+		block.comments.extracted = [label];
+	}
+	if (filePath?.length) {
+		block.comments.reference = filePath;
+	}
 	return block;
 };
 
@@ -48,52 +51,28 @@ export const gentranslation = (
  * @return {SetOfBlocks} An array of translation strings.
  */
 export function yieldParsedData(
-	parsed: Record<string, string | string[]>,
-	filename: "block.json" | "theme.json" | "readme.txt",
+	parsed: Block[],
+	filename: "block.json" | "theme.json",
 	filepath: string,
 ): SetOfBlocks {
 	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath);
 
-	if (!parsed) {
+	if (parsed.length === 0) {
 		return gettextTranslations;
 	}
 
 	// set the path of the translation
 	gettextTranslations.path = filepath;
 
-	for (const [term, item] of Object.entries(parsed)) {
-		/**
-		 * Stores a translation in the gettextTranslations object
-		 *
-		 * @param value The translation string to store
-		 * @param valueKey The key of the translation
-		 */
-		function storeTranslation(value: string, valueKey: string = term) {
-			const block = gentranslation(
-				getJsonComment(term, filename),
-				valueKey,
-				filepath,
-			);
+	for (const item of parsed) {
+		const block = buildBlock(
+			item.msgid,
+			item.msgctxt as string,
+			item.comments?.reference,
+		);
 
-			gettextTranslations.add(block);
-		}
-
-		if (!item) {
-			continue;
-		}
-
-		if (typeof item === "string") {
-			storeTranslation(item);
-		} else if (Array.isArray(item)) {
-			for (const value of item) {
-				storeTranslation(value);
-			}
-		} else {
-			for (const [key, value] of Object.entries(item)) {
-				if (typeof value === "string") {
-					storeTranslation(value, key);
-				}
-			}
+		if (block) {
+			gettextTranslations.blocks.push(block);
 		}
 	}
 

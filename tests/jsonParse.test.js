@@ -1,7 +1,7 @@
 const fs = require("node:fs");
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const { parseJsonFile } = require("../lib/extractors/json.js");
+const { parseJsonFile } = require("../lib");
 
 describe("should parse json", () => {
 	describe("should parse block.json", () => {

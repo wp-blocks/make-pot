@@ -1,3 +1,4 @@
+import path from "node:path";
 import { SetOfBlocks } from "gettext-merger";
 import { boolean } from "yargs";
 import type PackageI18n from "../assets/package-i18n";
@@ -104,7 +105,7 @@ function extractAuthorData(authorData: string | object): {
  * @param pkgJsonData The package.json data object
  * @returns Author data with name, email and website
  */
-function getAuthorFromPackage(pkgJsonData: PackageI18n): {
+export function getAuthorFromPackage(pkgJsonData: PackageI18n): {
 	name: string;
 	email?: string;
 	website?: string;
@@ -172,15 +173,13 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 	// get author data from package.json
 	const pkgAuthor = getAuthorFromPackage(pkgJsonData);
 	// Use command line author name if provided, fallback to package.json
-	const authorName = args.headers?.author || pkgAuthor?.name;
+	const authorName = args?.headers?.author || pkgAuthor?.name;
 	const email = pkgAuthor?.email;
 	// this is the author with email address in this format: author <email>
-	const authorString = `${headers?.author} <${email}>`;
+	const authorString = `${authorName} <${email}>`;
 	// get the current directory name as slug
-	const currentDir = process
-		.cwd()
-		.split("/")
-		.pop()
+	const currentDir = path
+		.basename(args.paths?.cwd || process.cwd())
 		?.toLowerCase()
 		.replace(" ", "-");
 	const slug =
@@ -198,7 +197,7 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		license: args.headers?.license || "gpl-2.0 or later",
 		version: args.headers?.version || pkgJsonData.version || "0.0.1",
 		language: "en",
-		xDomain: args.headers?.textDomain || args.headers?.slug || "TEXTDOMAIN",
+		xDomain: args.headers?.textDomain || slug,
 	};
 }
 

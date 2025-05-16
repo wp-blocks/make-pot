@@ -32,7 +32,7 @@ npm install -g @wp-blocks/make-pot
 ```bash
 # without installation
 npx @wp-blocks/make-pot [sourceDirectory] [destination] [options]
-npx @wp-blocks/make-pot --makejson [sourceDirectory] [destination] [options]
+npx -p @wp-blocks/make-pot makejson [sourceDirectory] [destination] [options]
 
 # installed
 npx makepot [sourceDirectory] [destination] [options]
@@ -170,8 +170,8 @@ translate the pot file into your language and then run `makejson`:
 
 ```bash
 npx makejson
-# OR
-npx @wp-blocks/make-pot --makejson,
+# OR if you don't want to install the module
+npx -p @wp-blocks/make-pot makejson,
 ```
 It Will create a file for each po file in the `languages` directory with the md5 hash with the name of the file.
 In this case, the file will be named my-frontend-script-en_US-79431f0eb8deb8221f24df5112e15095.json because the md5 hash of "build/frontend.js" is 79431f0eb8deb8221f24df5112e15095.

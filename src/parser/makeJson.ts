@@ -7,9 +7,9 @@ import {
 	po,
 } from "gettext-parser";
 import { glob } from "glob";
-import { IsoCodeRegex, defaultLocale, modulePath } from "../const";
-import type { JedData, MakeJson, MakeJsonArgs } from "../types";
-import { getPkgJsonData } from "../utils/common";
+import { IsoCodeRegex, modulePath } from "../const.js";
+import type { JedData, MakeJson, MakeJsonArgs } from "../types.js";
+import { getPkgJsonData } from "../utils/common.js";
 
 export class MakeJsonCommand {
 	/**

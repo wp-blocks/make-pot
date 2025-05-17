@@ -1,6 +1,6 @@
-import MakeJsonCommand from "./parser/makeJson";
-import type { MakeJsonArgs } from "./types";
-import { printMakePotModuleInfo, printTimeElapsed } from "./utils/common";
+import MakeJsonCommand from "./parser/makeJson.js";
+import type { MakeJsonArgs } from "./types.js";
+import { printMakePotModuleInfo, printTimeElapsed } from "./utils/common.js";
 
 export default function makeJsonCommand(args: MakeJsonArgs) {
 	const makeJsonCommand = new MakeJsonCommand(args);

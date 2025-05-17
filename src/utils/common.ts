@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { cpus, totalmem } from "node:os";
 import path from "node:path";
-import { modulePath } from "../const";
+import { modulePath } from "../const.js";
 
 /**
  * A function that removes comment markup from a given string.

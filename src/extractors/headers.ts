@@ -1,11 +1,11 @@
 import path from "node:path";
 import { SetOfBlocks } from "gettext-merger";
 import { boolean } from "yargs";
-import type PackageI18n from "../assets/package-i18n";
-import { modulePath } from "../const";
-import { getEncodingCharset } from "../fs/fs";
+import type PackageI18n from "../assets/package-i18n.js";
+import { modulePath } from "../const.js";
+import { getEncodingCharset } from "../fs/fs.js";
 import type { Args, I18nHeaders, PotHeaders } from "../types.js";
-import { getPkgJsonData } from "../utils/common";
+import { getPkgJsonData } from "../utils/common.js";
 import { buildBlock } from "../utils/extractors.js";
 import { extractCssThemeData } from "./css.js";
 import { extractPhpPluginData } from "./php.js";

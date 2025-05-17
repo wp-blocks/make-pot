@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { pkgJsonHeaders } from "../const";
-import type { Args } from "../types";
+import { pkgJsonHeaders } from "../const.js";
+import type { Args } from "../types.js";
 
 /**
  * Extracts package data from the given arguments and returns a record

@@ -4,10 +4,10 @@ import process from "node:process";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { getArgs } from "./cli/getArgs.js";
-import { getJsonArgs } from "./cli/getJsonArgs";
-import makeJsonCommand from "./jsonCommand";
-import makepotCommand from "./potCommand";
-import type { Args, MakeJsonArgs } from "./types";
+import { getJsonArgs } from "./cli/getJsonArgs.js";
+import makeJsonCommand from "./jsonCommand.js";
+import makepotCommand from "./potCommand.js";
+import type { Args, MakeJsonArgs } from "./types.js";
 
 /** Main execution */
 // Get the selected command

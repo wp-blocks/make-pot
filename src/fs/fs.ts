@@ -1,7 +1,7 @@
 import fs, { writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import type { Args } from "../types";
+import type { Args } from "../types.js";
 
 /**
  * Ensures that a folder exists at the specified path.

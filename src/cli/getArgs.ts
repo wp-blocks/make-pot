@@ -1,7 +1,7 @@
 import process from "node:process";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import type { Args, MakeJsonArgs } from "../types";
+import type { Args, MakeJsonArgs } from "../types.js";
 import { parseCliArgs } from "./parseCli.js";
 
 /**

@@ -1,8 +1,8 @@
 import process from "node:process";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import type { MakeJsonArgs } from "../types";
-import { parseJsonArgs } from "./parseCli";
+import type { MakeJsonArgs } from "../types.js";
+import { parseJsonArgs } from "./parseCli.js";
 
 /**
  * Parses the command line arguments for the JSON command.

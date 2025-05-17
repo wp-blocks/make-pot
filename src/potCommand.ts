@@ -1,7 +1,7 @@
 import { makePot } from "./parser/makePot.js";
 
 import type { Args } from "./types.js";
-import { printMakePotModuleInfo, printTimeElapsed } from "./utils/common";
+import { printMakePotModuleInfo, printTimeElapsed } from "./utils/common.js";
 
 export default function potCommand(args: Args) {
 	if (Object.keys(args).length > 0) {

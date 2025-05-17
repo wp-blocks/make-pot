@@ -8,15 +8,15 @@ describe("should parse json", () => {
 		it("block.json", async () => {
 			const expected = [
 				{
-					msgid: "my block title",
-					msgctxt: "block title",
+					msgid: "block title",
+					msgctxt: "my block title",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "my block description",
-					msgctxt: "block description",
+					msgid: "block description",
+					msgctxt: "my block description",
 					comments: {
 						reference: ["block.json"],
 					},
@@ -57,99 +57,99 @@ describe("should parse json", () => {
 		it("theme.json", async () => {
 			const expected = [
 				{
-					msgid: "Extra small",
-					msgctxt: "Font size name",
+					msgid: "Font size name",
+					msgctxt: "Extra small",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Small",
-					msgctxt: "Font size name",
+					msgid: "Font size name",
+					msgctxt: "Small",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Medium",
-					msgctxt: "Font size name",
+					msgid: "Font size name",
+					msgctxt: "Medium",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Large",
-					msgctxt: "Font size name",
+					msgid: "Font size name",
+					msgctxt: "Large",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Extra large",
-					msgctxt: "Font size name",
+					msgid: "Font size name",
+					msgctxt: "Extra large",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "System Fonts",
-					msgctxt: "Font family name",
+					msgid: "Font family name",
+					msgctxt: "System Fonts",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Base",
-					msgctxt: "Color name",
+					msgid: "Color name",
+					msgctxt: "Base",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Contrast",
-					msgctxt: "Color name",
+					msgid: "Color name",
+					msgctxt: "Contrast",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Accent",
-					msgctxt: "Color name",
+					msgid: "Color name",
+					msgctxt: "Accent",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Accent Two",
-					msgctxt: "Color name",
+					msgid: "Color name",
+					msgctxt: "Accent Two",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Accent Three",
-					msgctxt: "Color name",
+					msgid: "Color name",
+					msgctxt: "Accent Three",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Accent Two to Contrast",
-					msgctxt: "Gradient name",
+					msgid: "Gradient name",
+					msgctxt: "Accent Two to Contrast",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Header",
-					msgctxt: "Template part name",
+					msgid: "Template part name",
+					msgctxt: "Header",
 					comments: {
 						reference: ["block.json"],
 					},
 				},
 				{
-					msgid: "Footer",
-					msgctxt: "Template part name",
+					msgid: "Template part name",
+					msgctxt: "Footer",
 					comments: {
 						reference: ["block.json"],
 					},

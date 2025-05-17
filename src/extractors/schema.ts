@@ -162,8 +162,8 @@ export class JsonSchemaExtractor {
 						if (typeof currentJson[key] === "string") {
 							// It's a string - add it to translations
 							addTranslation(
-								currentJson[key],
 								currentSchema[key],
+								currentJson[key],
 								filename,
 								addReferences,
 							);
@@ -240,17 +240,17 @@ export class JsonSchemaExtractor {
 
 		/**
 		 * Adds a translation to the translations array
-		 * @param {string} msgid - The string to translate
-		 * @param {string} msgctxt - The context of the string
+		 * @param {string} msgctxt - The context of the text to be translated
+		 * @param {string} msgid - The text to be translated
 		 * @param {string} filename - The name of the file for references
 		 * @param {boolean} addReferences - Whether to add references
 		 */
-		function addTranslation(msgid, msgctxt, filename, addReferences) {
-			if (!msgid) return; // Do not add empty strings
+		function addTranslation(msgctxt, msgid, filename, addReferences) {
+			if (!msgctxt) return; // Do not add empty strings
 
 			const translation = {
-				msgctxt,
 				msgid,
+				msgctxt,
 			} as Block;
 
 			if (addReferences) {

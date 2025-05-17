@@ -3,13 +3,13 @@ import type { MakeJsonArgs } from "./types.js";
 import { printMakePotModuleInfo, printTimeElapsed } from "./utils/common.js";
 
 export default function makeJsonCommand(args: MakeJsonArgs) {
-	const makeJsonCommand = new MakeJsonCommand(args);
+	const makeJson = new MakeJsonCommand(args);
 
 	if (Object.keys(args).length > 0) {
 		printMakePotModuleInfo();
 		/* capture the start time */
 		const timeStart = new Date();
-		makeJsonCommand
+		makeJson
 			.exec()
 			.then((result) => {
 				if (args.debug) {

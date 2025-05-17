@@ -40,11 +40,11 @@ describe("Header generation", () => {
 				"Content-Transfer-Encoding": "8bit",
 				"content-type": "text/plain; charset=iso-8859-1",
 				"plural-forms": "nplurals=2; plural=(n!=1);",
-				"POT-Creation-Date": undefined,
-				"PO-Revision-Date": undefined,
+				"POT-Creation-Date": undefined, // because the date is going to change every test
+				"PO-Revision-Date": undefined, // because the date is going to change every test
 				"Last-Translator": "John Doe <bbb@ccc.ddd>",
 				"Language-Team": "John Doe <bbb@ccc.ddd>",
-				"X-Generator": "@wp-blocks/make-pot 1.5.1",
+				"X-Generator": undefined, // because the version changes
 				Language: "en",
 				"X-Domain": "plugin",
 			};
@@ -67,6 +67,7 @@ describe("Header generation", () => {
 			// remove the date "POT-Creation-Date"
 			result["POT-Creation-Date"] = undefined;
 			result["PO-Revision-Date"] = undefined;
+			result["X-Generator"] = undefined;
 
 			assert.deepStrictEqual(result, expected);
 		});

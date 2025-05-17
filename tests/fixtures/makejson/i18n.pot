@@ -1,0 +1,71 @@
+# Copyright (C) 2025 live-search-block
+# This file is distributed under the GPLv2 or later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: live-search-block 1.0.0\n"
+"Report-Msgid-Bugs-To: codekraft, johnhooks <erik@codekraft.it>\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"POT-Creation-Date: 2025-05-17T11:11:02.792Z\n"
+"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
+"Last-Translator: codekraft, johnhooks <erik@codekraft.it>\n"
+"Language-Team: codekraft, johnhooks <erik@codekraft.it>\n"
+"X-Generator: @wp-blocks/make-pot 1.5.1\n"
+"Language: en\n"
+"X-Domain: live-search-block\n"
+
+#: live-search-block.php
+#. Name of the plugin
+msgid "Live Search Block"
+msgstr ""
+
+#: live-search-block.php
+#. Url of the plugin
+msgid "https://github.com/wp-blocks/live-search-blockl"
+msgstr ""
+
+#: live-search-block.php
+#. Description of the plugin
+msgid "WordPress block search in typescript"
+msgstr ""
+
+#: live-search-block.php
+#. Author of the plugin
+msgid "codekraft, johnhooks"
+msgstr ""
+
+#: live-search-block.php
+#. Author URI of the plugin
+msgid ""
+msgstr ""
+
+#: src/search.ts:46
+#: inc/variation.php:17
+#: inc/variation.php:18
+#: inc/variation.php:40
+#: src/components/LiveSearch.tsx:22
+msgid "Search"
+msgstr ""
+
+#: src/search.ts:66
+msgid "Type to search…"
+msgstr ""
+
+# 1: Number of characters, 2: Number of characters
+#: src/search.ts:140
+#: src/search.ts:242
+#: src/search.ts:337
+msgid "Please add %s more characters"
+msgid_plural "Please add %s more character"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/search.ts:232
+msgid "Sorry, no results found"
+msgstr ""
+
+#: inc/variation.php:155
+msgid "Live Search"
+msgstr ""

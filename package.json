@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "1.5.1",
+	"version": "1.6.0",
 	"license": "GPL-3.0-or-later",
 	"homepage": "https://wp-blocks.github.io/make-pot/",
 	"description": "A Node.js script for generating a POT file from source code",
@@ -53,12 +53,14 @@
 		"rm": "rmdir /s /q lib",
 		"test:build": "npx esbuild ./src/**/* --format=cjs --sourcemap --outdir=lib --platform=node",
 		"test": "npm run test:build && node --test",
-		"build:build-ci": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --platform=node",
+		"build:build-ci": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --external:@babel/preset-typescript --platform=node",
 		"test:ci": "npm run build:build-ci && npm run test",
 		"test:watch": "node --test --watch",
 		"test:coverage": "node --test --experimental-test-coverage"
 	},
 	"dependencies": {
+		"@babel/core": "^7.27.1",
+		"@babel/preset-env": "^7.27.2",
 		"cli-progress": "^3.12.0",
 		"gettext-merger": "^1.2.1",
 		"gettext-parser": "^4.0.4",

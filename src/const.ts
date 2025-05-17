@@ -58,6 +58,11 @@ export const defaultLocale = "en_US";
 export const allowedFormats = ["php", "js", "jsx", "ts", "tsx", "mjs", "cjs"];
 
 /**
+ * The functions that are allowed to be "converted" using babel during the make-json process
+ */
+export const allowedFunctions = new Set(["__", "_x", "_n", "_nx"]);
+
+/**
  * The default functions to use for i18n.
  */
 export const i18nFunctions = {

@@ -8,7 +8,7 @@ import { exec } from "./exec.js";
  * Generates a pot file for localization.
  *
  * @param args - the command line arguments
- * @return {Promise<void>} - a promise that resolves when the pot file is generated
+ * @return {string} - a promise that resolves when the pot file is generated
  */
 export async function makePot(args: Args): Promise<string> {
 	/** Collect metadata from the get package json */
@@ -25,7 +25,7 @@ export async function makePot(args: Args): Promise<string> {
 	} as Args["headers"];
 
 	/** Generate the pot file */
-	exec(args)
+	return await exec(args)
 		.then((jsonTranslations) => {
 			writeFile(jsonTranslations, args);
 

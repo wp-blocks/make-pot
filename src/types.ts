@@ -187,7 +187,6 @@ export interface I18nHeaders {
 	bugs: string;
 	license: string;
 	author?: string;
-	domain: string;
 	xDomain: string;
 	language: string;
 	version: string;

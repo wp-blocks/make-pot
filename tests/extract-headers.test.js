@@ -37,7 +37,7 @@ describe("should parse theme main file", () => {
 				paths: {
 					cwd: join(process.cwd(), "tests/fixtures/theme"),
 				},
-				slug: "my-theme",
+				slug: "fabled-sunset",
 			});
 			assert.deepStrictEqual(fileParsed, {
 				name: "Theme name",

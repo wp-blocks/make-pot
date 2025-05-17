@@ -1,5 +1,4 @@
 import { Block, SetOfBlocks } from "gettext-merger";
-import { getJsonComment } from "./json.js";
 
 /**
  * Returns the key of an object based on its value

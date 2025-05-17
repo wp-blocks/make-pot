@@ -8,13 +8,9 @@ import type { Args } from "../types.js";
  * @param {number} filesCount - An array of file names.
  * @return {cliProgress.SingleBar} The progress bar element.
  */
-export function initProgress(
-	args: Args,
-	filesCount: number,
-): SingleBar | undefined {
-	if (args.options?.silent) return undefined;
+export function initProgress(args: Args, filesCount: number): SingleBar {
 	// Set up the progress bar
-	const progressBar = new cliProgress.SingleBar(
+	return new cliProgress.SingleBar(
 		{
 			clearOnComplete: true,
 			etaBuffer: 1000,
@@ -24,9 +20,4 @@ export function initProgress(
 		},
 		cliProgress.Presets.shades_classic,
 	);
-
-	progressBar.start(filesCount, 0);
-
-	// Return the progress bar element
-	return progressBar;
 }

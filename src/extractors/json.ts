@@ -1,9 +1,8 @@
 import path from "node:path";
 import type { Block, SetOfBlocks } from "gettext-merger";
-import { blockJson, themeJson } from "../const.js";
 import type { I18nSchema } from "../types.js";
+import { yieldParsedData } from "../utils/extractors.js";
 import { JsonSchemaExtractor } from "./schema.js";
-import { yieldParsedData } from "./utils.js";
 
 /**
  * Parses a JSON file and returns an array of parsed data.
@@ -44,23 +43,6 @@ export async function parseJsonFile(opts: {
 	);
 
 	return jsonTranslations ?? [];
-}
-
-/**
- * Retrieves the schema associated with the given type.
- *
- * @param {string} type - The type of schema to retrieve. Defaults to 'block.json'.
- * @return {I18nSchema} - The schema associated with the given type.
- */
-function getSchema(type?: string) {
-	switch (type) {
-		case "block.json":
-			return blockJson;
-		case "theme.json":
-			return themeJson;
-		default:
-			return {};
-	}
 }
 
 /**

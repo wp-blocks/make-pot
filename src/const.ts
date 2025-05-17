@@ -1,6 +1,5 @@
-import blocki18n from "./assets/block-i18n.js";
+import path from "node:path";
 import packagei18n from "./assets/package-i18n.js";
-import themei18n from "./assets/theme-i18n.js";
 import wpPlugini18n from "./assets/wp-plugin-i18n.js";
 import wpThemei18n from "./assets/wp-theme-i18n.js";
 
@@ -8,8 +7,6 @@ import wpThemei18n from "./assets/wp-theme-i18n.js";
  * Theme Json metadata headers
  *
  */
-export const themeJson = themei18n;
-export const blockJson = blocki18n;
 export const pkgJsonHeaders = packagei18n;
 /**
  * The Plugin metadata headers
@@ -91,3 +88,8 @@ export const i18nFunctions = {
 	__ngettext: ["msgid", "msgid_plural", "number", "text_domain"],
 	__ngettext_noop: ["msgid", "msgid_plural", "text_domain"],
 };
+
+/**
+ * @var modulePath The path to the module folder containing this file
+ */
+export const modulePath = path.resolve(__dirname, "..");

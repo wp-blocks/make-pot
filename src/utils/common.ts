@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { cpus, totalmem } from "node:os";
 import path from "node:path";
+import { modulePath } from "../const";
 
 /**
  * A function that removes comment markup from a given string.
@@ -105,19 +106,20 @@ export function reverseSlashes(filePath: string): string {
 
 /**
  *  The makepot package.json file data
+ *  @arguments {string[]} fields - The fields to extract
  *  @return {Record<string, unknown>} - The package.json data
  */
-export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
+export function getPkgJsonData(
+	location?: string,
+	...fields: string[]
+): Record<string, unknown> {
 	const requested: Record<string, unknown> = {};
 	// read the package.json file the is in the root directory
-	const pkgJsonPath = path.join(__dirname, "..", "..", "package.json");
+	const pkgJsonPath = path.join(location || process.cwd(), "package.json");
 	// read the package.json file or return an empty object
 	const pkgJson: Record<string, unknown> = fs.existsSync(pkgJsonPath)
 		? require(pkgJsonPath)
-		: {
-				name: "makepot",
-				version: "",
-			};
+		: {};
 	// extract the requested fields from the package.json
 	for (const field of fields) {
 		if (pkgJson[field]) {
@@ -131,7 +133,7 @@ export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
  * Print the module header with the current version and name
  */
 export function printMakePotModuleInfo() {
-	const { version, name } = getPkgJsonData("name", "version");
+	const { version, name } = getPkgJsonData(modulePath, "name", "version");
 	/* print the version */
 	console.log(`${name} version: ${version}`);
 }
@@ -148,7 +150,7 @@ export function printTimeElapsed(
 	timeEnd: Date = new Date(),
 ) {
 	console.log(
-		`🚀 ${scriptName}: Job completed! ${scriptName.split("-")[1]} file created in ${
+		`\n🚀 ${scriptName}: Job completed! ${scriptName.split("-")[1]} file created in ${
 			timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);

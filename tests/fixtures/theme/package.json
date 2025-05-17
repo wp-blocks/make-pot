@@ -1,0 +1,8 @@
+{
+	"name": "@wp-blocks/theme",
+	"version": "1.0.0",
+	"private": true,
+	"license": "GPL-2.0-or-later",
+	"description": "WordPress block theme",
+	"author": "aaaaaa <bbb@ccc.ddd> (https://codekraft.it/)"
+}

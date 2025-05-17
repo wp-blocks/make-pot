@@ -106,19 +106,20 @@ export function reverseSlashes(filePath: string): string {
 
 /**
  *  The makepot package.json file data
+ *  @arguments {string[]} fields - The fields to extract
  *  @return {Record<string, unknown>} - The package.json data
  */
-export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
+export function getPkgJsonData(
+	location?: string,
+	...fields: string[]
+): Record<string, unknown> {
 	const requested: Record<string, unknown> = {};
 	// read the package.json file the is in the root directory
 	const pkgJsonPath = path.join(location || process.cwd(), "package.json");
 	// read the package.json file or return an empty object
 	const pkgJson: Record<string, unknown> = fs.existsSync(pkgJsonPath)
 		? require(pkgJsonPath)
-		: {
-				name: "makepot",
-				version: "",
-			};
+		: {};
 	// extract the requested fields from the package.json
 	for (const field of fields) {
 		if (pkgJson[field]) {
@@ -149,7 +150,7 @@ export function printTimeElapsed(
 	timeEnd: Date = new Date(),
 ) {
 	console.log(
-		`🚀 ${scriptName}: Job completed! ${scriptName.split("-")[1]} file created in ${
+		`\n🚀 ${scriptName}: Job completed! ${scriptName.split("-")[1]} file created in ${
 			timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);

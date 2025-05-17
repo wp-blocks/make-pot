@@ -3,8 +3,8 @@ import path from "node:path";
 import { themeHeaders } from "../const.js";
 import type { Args } from "../types.js";
 import { getCommentBlock } from "../utils/common.js";
+import { getKeyByValue } from "../utils/extractors.js";
 import { extractFileData } from "./text.js";
-import { getKeyByValue } from "./utils.js";
 
 /**
  * Extracts the theme data from the style.css file.

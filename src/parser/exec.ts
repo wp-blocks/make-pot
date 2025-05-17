@@ -11,10 +11,15 @@ import { processFiles } from "./process.js";
 import { initProgress } from "./progress.js";
 import { taskRunner } from "./taskRunner.js";
 
-function outputPathRecap(cwd: string, patterns: Patterns) {
-	console.log(
-		`\nScript Path: ${cwd}\nfor ${patterns.include.join()}\nignoring patterns: ${patterns.exclude.join()}\n`,
-	);
+/**
+ * Returns the output path recap
+ *
+ * @param {string} cwd - The current working directory
+ * @param {Patterns} patterns - The patterns to be used for the extraction process
+ * @return {string} - The output path recap
+ */
+function outputPathRecap(cwd: string, patterns: Patterns): string {
+	return `\nScript Path: ${cwd}\nfor ${patterns.include.join()}\nignoring patterns: ${patterns.exclude.join()}\n`;
 }
 
 /**
@@ -48,22 +53,30 @@ export async function exec(args: Args): Promise<string> {
 	/** We need to find the main file data so that the definitions are extracted from the plugin or theme files */
 	let translationsUnion = translationsHeaders(args);
 
-	/**
-	 * Extract the strings from the files
-	 */
-	const patterns = getPatterns(args);
 	if (!args.options?.silent)
-		outputPathRecap(path.resolve(args.paths.cwd), patterns);
+		outputPathRecap(path.resolve(args.paths.cwd), args.patterns);
 
 	/**
 	 * The progress bar that is used to show the progress of the extraction process.
 	 */
-	const progressBar: SingleBar | undefined = initProgress(args, 0) ?? undefined;
+	const progressBar: SingleBar = initProgress(args, 0);
 
-	const tasks = await processFiles(patterns, args, progressBar);
+	progressBar.start(3, 1, {
+		filename: `Resolving files in ${path.resolve(args.paths.cwd)}`,
+	});
+
+	/**
+	 * Extract the strings from the files
+	 */
+	const patterns = getPatterns(args);
+	const files = await processFiles(patterns, args);
+
+	progressBar.update(2, {
+		filename: `Found ${files.length} files`,
+	});
 
 	translationsUnion = await taskRunner(
-		tasks,
+		files,
 		translationsUnion,
 		args,
 		progressBar,

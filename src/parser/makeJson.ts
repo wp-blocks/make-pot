@@ -91,7 +91,7 @@ export class MakeJsonCommand {
 	/**
 	 * The main function. Parses the PO files and generates the JSON files.
 	 */
-	public async invoke(): Promise<Record<string, MakeJson>> {
+	public async exec(): Promise<Record<string, MakeJson>> {
 		// get all the files in the source directory
 		const files = await glob("**/*.po", { cwd: this.destination, nodir: true });
 

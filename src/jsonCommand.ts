@@ -10,7 +10,7 @@ export default function makeJsonCommand(args: MakeJsonArgs) {
 		/* capture the start time */
 		const timeStart = new Date();
 		makeJsonCommand
-			.invoke()
+			.exec()
 			.then((result) => {
 				if (args.debug) {
 					console.log(result);

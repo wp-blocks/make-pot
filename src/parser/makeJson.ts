@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import * as fs from "node:fs";
 import path from "node:path";
+import { transformSync } from "@babel/core";
 import type { SetOfBlocks } from "gettext-merger";
 import {
 	type GetTextTranslation,
@@ -8,10 +9,10 @@ import {
 	po,
 } from "gettext-parser";
 import { glob } from "glob";
-import { doTree } from "./tree";
-import { IsoCodeRegex, modulePath } from "../const.js";
+import { IsoCodeRegex, allowedFunctions, modulePath } from "../const.js";
 import type { JedData, MakeJson, MakeJsonArgs } from "../types.js";
 import { getPkgJsonData } from "../utils/common.js";
+import { doTree } from "./tree";
 
 export class MakeJsonCommand {
 	/**
@@ -177,31 +178,24 @@ export class MakeJsonCommand {
 		// Read the source file
 		const content = fs.readFileSync(filePath, encoding) as string;
 
-		// Extract the ISO code
-		const languageIsoCode = this.extractIsoCode(filePath);
-
 		// Parse the source file
 		const poContent = this.parsePoFile(content);
 
 		// get the strings used in the script
-		const fileContent = fs.readFileSync(path.join(this.source, script), "utf8");
-		const stringsUsedInScript = doTree(fileContent, filePath);
+		const scriptContent = this.parseScript(script);
 
 		// compare the strings used in the script with the strings in the po file
 		const stringsNotInPoFile = this.compareStrings(
-			stringsUsedInScript,
+			scriptContent.blocks,
 			poContent,
-		);
-		console.log(
-			`Remaining Strings not in PO file: ${[...stringsNotInPoFile].join(", ")}`,
 		);
 
 		// Convert to Jed json dataset
 		return this.convertToJed(
 			poContent.headers,
-			poContent.translations,
+			stringsNotInPoFile.translations,
 			script,
-			languageIsoCode,
+			this.extractIsoCode(filePath), // extract the ISO code from the po filename
 		);
 	}
 
@@ -377,43 +371,93 @@ export class MakeJsonCommand {
 
 	/**
 	 * Compares the strings used in the script with the strings in the po file.
-	 * @param stringsUsedInScript - The strings used in the script.
-	 * @param poContent - The content of the po file.
+	 * @param jsArray - The strings used in the script.
+	 * @param poObject - The content of the po file.
 	 * @private
 	 */
 	private compareStrings(
-		stringsUsedInScript: SetOfBlocks,
-		poContent: GetTextTranslations,
+		jsArray: SetOfBlocks["blocks"],
+		poObject: GetTextTranslations,
 	) {
-		// compare the strings used in the script with the strings in the po file
-		const stringsInPoFile = new Set(Object.keys(poContent));
-		const stringsNotInPoFile = new Set(
-			[...stringsUsedInScript].filter((str) => !stringsInPoFile.has(str)),
-		);
-		const stringsNotUsedInScript = new Set(
-			[...poContent].filter((str) => !stringsUsedInScript.blocks[str]),
-		);
-		if (stringsNotInPoFile.size > 0) {
-			console.log(
-				`Strings not in PO file: ${[...stringsNotInPoFile].join(", ")}`,
-			);
-		}
-		if (stringsNotUsedInScript.size > 0) {
-			console.log(
-				`Strings not used in script: ${[...stringsNotUsedInScript].join(", ")}`,
-			);
+		// The copy of the po file with only the strings used in the script
+		const filteredPo = {
+			charset: poObject.charset,
+			headers: { ...poObject.headers },
+			translations: { "": {} },
+		};
+
+		// copy the original header
+		if (poObject.translations[""][""]) {
+			filteredPo.translations[""][""] = { ...poObject.translations[""][""] };
 		}
 
-		if (stringsNotInPoFile.size > 0 || stringsNotUsedInScript.size > 0) {
-			console.log("Please check the strings in the script and the PO file.");
+		// Create a set of message ids from the JS file
+		const jsMessageIds = new Set(jsArray.map((item) => item.msgid));
+
+		// Iterate over the po file and keep only the strings used in the script
+		for (const domain in poObject.translations) {
+			if (domain !== "") continue; // handle only the main domain
+
+			for (const msgid in poObject.translations[domain]) {
+				if (msgid === "") continue; // Skip the header
+
+				if (jsMessageIds.has(msgid)) {
+					// ok the msgid is used
+					if (!filteredPo.translations[domain]) {
+						filteredPo.translations[domain] = {};
+					}
+					filteredPo.translations[domain][msgid] = {
+						...poObject.translations[domain][msgid],
+					};
+				}
+			}
 		}
 
-		if (stringsNotInPoFile.size === 0 && stringsNotUsedInScript.size === 0) {
-			console.log("All strings are in the PO file and used in the script.");
+		// check if the po file is empty
+		// TODO: if the json file is empty, we should delete it?
+		if (Object.keys(filteredPo.translations[""][""]).length === 0) {
+			console.log("The po file has no translations strings used in the script");
 		}
 
-		// return the strings in the po file that are not used in the script
-		return stringsNotUsedInScript;
+		return filteredPo;
+	}
+
+	private parseScript(script: string): SetOfBlocks {
+		const fileContent = fs.readFileSync(path.join(this.source, script), "utf8");
+		const transformedScript = transformSync(fileContent, {
+			configFile: false,
+			presets: ["@babel/preset-env"],
+			compact: false,
+			comments: true,
+			sourceMaps: false,
+			plugins: [
+				({ types: t }) => ({
+					visitor: {
+						CallExpression(path) {
+							const callee = path.node.callee;
+
+							// Check for pattern like: (fn)("...")
+							if (
+								t.isSequenceExpression(callee) &&
+								t.isMemberExpression(callee.expressions[1])
+							) {
+								const property = callee.expressions[1].property;
+
+								if (
+									t.isIdentifier(property) &&
+									allowedFunctions.has(property.name)
+								) {
+									// Replace with direct function call: __("..."), _n(...), etc.
+									path.node.callee = t.identifier(property.name);
+								}
+							}
+						},
+					},
+				}),
+			],
+		}).code as string;
+
+		return doTree(transformedScript, script);
 	}
 }
 

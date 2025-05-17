@@ -1,12 +1,14 @@
 import crypto from "node:crypto";
 import * as fs from "node:fs";
 import path from "node:path";
+import type { SetOfBlocks } from "gettext-merger";
 import {
 	type GetTextTranslation,
 	type GetTextTranslations,
 	po,
 } from "gettext-parser";
 import { glob } from "glob";
+import { doTree } from "./tree";
 import { IsoCodeRegex, modulePath } from "../const.js";
 import type { JedData, MakeJson, MakeJsonArgs } from "../types.js";
 import { getPkgJsonData } from "../utils/common.js";
@@ -110,8 +112,6 @@ export class MakeJsonCommand {
 				);
 			}
 
-			// TODO: tree the script to get the translations used in there, then use reduce to filter the translations
-
 			if (typeof this.scriptName === "string") {
 				const pot = this.addPot(file, this.scriptName);
 				output[pot.filename] = pot.data;
@@ -153,7 +153,7 @@ export class MakeJsonCommand {
 
 			const destinationPath = path.join(this.destination, filename);
 			fs.writeFileSync(destinationPath, contentString);
-			console.log(`JSON file written to ${destinationPath}`);
+			console.log(`JSON file written to ${destinationPath} with ${filename}`);
 		}
 
 		// return the output
@@ -182,6 +182,19 @@ export class MakeJsonCommand {
 
 		// Parse the source file
 		const poContent = this.parsePoFile(content);
+
+		// get the strings used in the script
+		const fileContent = fs.readFileSync(path.join(this.source, script), "utf8");
+		const stringsUsedInScript = doTree(fileContent, filePath);
+
+		// compare the strings used in the script with the strings in the po file
+		const stringsNotInPoFile = this.compareStrings(
+			stringsUsedInScript,
+			poContent,
+		);
+		console.log(
+			`Remaining Strings not in PO file: ${[...stringsNotInPoFile].join(", ")}`,
+		);
 
 		// Convert to Jed json dataset
 		return this.convertToJed(
@@ -291,6 +304,44 @@ export class MakeJsonCommand {
 		return match ? match[1] : undefined;
 	}
 
+	/**
+	 * Takes the header content and extracts the plural forms.
+	 * @param headerContent - The header content to extract the plural forms from.
+	 * @private
+	 *
+	 * @returns The plural forms extracted from the header. Defaults to 'nplurals=2; plural=(n != 1);' if not found
+	 */
+	private getPluralForms(headerContent: string): string {
+		const match = headerContent.match(/Plural-Forms:\s*(.*?)\n/);
+		return match ? match[1] : "nplurals=2; plural=(n != 1);";
+	}
+
+	/**
+	 * Takes the header content and extracts the language.
+	 * @param headerContent - The header content to extract the language from.
+	 * @private
+	 *
+	 * @returns The language code extracted from the header.
+	 */
+	private getLanguage(headerContent: string): string {
+		const match = headerContent.match(/Language:\s*(.*?)\n/);
+		return match ? match[1] : defaultLocale;
+	}
+
+	/**
+	 * Checks if the given files are compatible with the allowed formats.
+	 * @param files The files array to check.
+	 * @private
+	 *
+	 * @returns True if the files are compatible, false otherwise.
+	 */
+	private isCompatibleFile(files: string[]): boolean {
+		if (!this.allowedFormats) return true;
+		return files.some((file) =>
+			this.allowedFormats.some((format) => file.endsWith(format)),
+		);
+	}
+
 	private md5(text: string): string {
 		return crypto.createHash("md5").update(text).digest("hex");
 	}
@@ -317,11 +368,52 @@ export class MakeJsonCommand {
 			path.join(this.source, script).replace(/\\/g, "/"),
 			potFile,
 		);
-		// build the output object
+		// the processed file is added to the output object
 		return {
 			filename,
 			data: this.processFile(potFile, script),
 		};
+	}
+
+	/**
+	 * Compares the strings used in the script with the strings in the po file.
+	 * @param stringsUsedInScript - The strings used in the script.
+	 * @param poContent - The content of the po file.
+	 * @private
+	 */
+	private compareStrings(
+		stringsUsedInScript: SetOfBlocks,
+		poContent: GetTextTranslations,
+	) {
+		// compare the strings used in the script with the strings in the po file
+		const stringsInPoFile = new Set(Object.keys(poContent));
+		const stringsNotInPoFile = new Set(
+			[...stringsUsedInScript].filter((str) => !stringsInPoFile.has(str)),
+		);
+		const stringsNotUsedInScript = new Set(
+			[...poContent].filter((str) => !stringsUsedInScript.blocks[str]),
+		);
+		if (stringsNotInPoFile.size > 0) {
+			console.log(
+				`Strings not in PO file: ${[...stringsNotInPoFile].join(", ")}`,
+			);
+		}
+		if (stringsNotUsedInScript.size > 0) {
+			console.log(
+				`Strings not used in script: ${[...stringsNotUsedInScript].join(", ")}`,
+			);
+		}
+
+		if (stringsNotInPoFile.size > 0 || stringsNotUsedInScript.size > 0) {
+			console.log("Please check the strings in the script and the PO file.");
+		}
+
+		if (stringsNotInPoFile.size === 0 && stringsNotUsedInScript.size === 0) {
+			console.log("All strings are in the PO file and used in the script.");
+		}
+
+		// return the strings in the po file that are not used in the script
+		return stringsNotUsedInScript;
 	}
 }
 

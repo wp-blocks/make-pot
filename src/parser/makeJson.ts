@@ -7,7 +7,7 @@ import {
 	po,
 } from "gettext-parser";
 import { glob } from "glob";
-import { IsoCodeRegex, defaultLocale } from "../const";
+import { IsoCodeRegex, defaultLocale, modulePath } from "../const";
 import type { JedData, MakeJson, MakeJsonArgs } from "../types";
 import { getPkgJsonData } from "../utils/common";
 
@@ -106,13 +106,11 @@ export class MakeJsonCommand {
 					nodir: true,
 				});
 				console.log(
-					"Found script:",
-					this.scriptName,
-					"in",
-					this.source,
-					"folder",
+					`Found script: ${this.scriptName} in ${this.source} folder`,
 				);
 			}
+
+			// TODO: tree the script to get the translations used in there, then use reduce to filter the translations
 
 			if (typeof this.scriptName === "string") {
 				const pot = this.addPot(file, this.scriptName);
@@ -223,7 +221,7 @@ export class MakeJsonCommand {
 		source: string,
 		languageIsoCode?: string,
 	): MakeJson {
-		const packageJson = getPkgJsonData("name", "version") as {
+		const packageJson = getPkgJsonData(modulePath, "name", "version") as {
 			name: string;
 			version: string;
 		};

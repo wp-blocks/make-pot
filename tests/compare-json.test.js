@@ -21,14 +21,25 @@ describe("MakeJson", () => {
 			});
 
 			const result = await makeJson.processFile(
-				"tests/fixtures/makejson/i18n.pot",
+				"tests/fixtures/makejson/live-search-block-it_IT.po",
 				"tests/fixtures/makejson/script.js",
 			);
 
-			assert.deepStrictEqual(result, {
-				name: "John Doe",
-				email: "1dHsK@example.com",
-				website: "http://example.com",
+			result["translation-revision-date"] = undefined;
+
+			assert.deepStrictEqual(result.locale_data.messages, {
+				"": {
+					domain: "messages",
+					lang: "it_IT",
+					plural_forms: "nplurals=2; plural=(n != 1);",
+				},
+				Search: ["Cerca"],
+				"Type to search…": ["Digita per cercare…"],
+				"Please add %s more characters": [
+					"Aggiungere %s altri caratteri",
+					"Aggiungere %s caratteri in più",
+				],
+				"Sorry, no results found": ["Spiacente, nessun risultato trovato"],
 			});
 		});
 	});

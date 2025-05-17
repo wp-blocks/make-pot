@@ -1,3 +1,4 @@
+import * as os from "node:os";
 import type { SingleBar } from "cli-progress";
 import type { SetOfBlocks } from "gettext-merger";
 import type { Args } from "../types.js";
@@ -14,8 +15,9 @@ export async function taskRunner(
 	tasks: Promise<SetOfBlocks>[],
 	destination: SetOfBlocks,
 	args: Args,
-	progressBar?: SingleBar,
+	progressBar: SingleBar,
 ) {
+	const messages = [];
 	await Promise.allSettled(tasks)
 		.then((strings) => {
 			/**
@@ -23,11 +25,9 @@ export async function taskRunner(
 			 */
 			return strings
 				.map((block) => block.status === "fulfilled" && block.value)
-				.filter(Boolean) as SetOfBlocks[]; // remove false 👆
+				.filter(Boolean) as SetOfBlocks[]; // remove nullish
 		})
 		.then((consolidated) => {
-			/** Stop the progress bar */
-			progressBar?.stop();
 			/** Log the results */
 			if (args.options?.silent !== true) {
 				for (const result of consolidated) {
@@ -37,24 +37,25 @@ export async function taskRunner(
 						 */
 						destination.addArray(result.blocks);
 						/* Log the results */
-						console.log(
+						messages.push(
 							`✅ ${result.path} [${result.blocks.map((b) => b.msgid).join(", ")}]`,
 						);
-					} else console.log("❌ ", `${result.path} has no strings`);
+					} else messages.push(`❌ ${result.path} has no strings`);
 				}
 			}
 		})
 		.catch((err) => {
-			console.log("❌ Failed!", err);
-			process.exit(1);
+			return new Error(err);
 		});
 
-	if (!args.options?.silent) {
-		console.log("🎉 Done!");
-		console.log(
-			`📝 Found ${Object.values(destination.blocks).length} translation strings in ${args.paths.cwd}`,
-		);
-	}
+	progressBar?.stop();
+
+	console.log("\n🎉 Done!");
+	console.log(
+		`📝 Found ${Object.values(destination.blocks).length} translation strings in ${args.paths.cwd}`,
+	);
+
+	console.log(messages.join(os.EOL));
 
 	return destination;
 }

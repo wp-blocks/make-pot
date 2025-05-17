@@ -2,6 +2,7 @@ import path from "node:path";
 import { SetOfBlocks } from "gettext-merger";
 import { boolean } from "yargs";
 import type PackageI18n from "../assets/package-i18n";
+import { modulePath } from "../const";
 import { getEncodingCharset } from "../fs/fs";
 import type { Args, I18nHeaders, PotHeaders } from "../types.js";
 import { getPkgJsonData } from "../utils/common";
@@ -35,7 +36,7 @@ function validateRequiredFields(headerData: I18nHeaders): boolean {
 
 		for (const field of missingFields) {
 			console.error(
-				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1, author: AUTHOR EMAIL)`,
+				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1, author: "AUTHOR <EMAIL>")`,
 			);
 		}
 
@@ -155,11 +156,8 @@ export function getAuthorFromPackage(pkgJsonData: PackageI18n): {
  * @return {Record<string, string>} the consolidated headers data object
  */
 function consolidateUserHeaderData(args: Args): I18nHeaders {
-	const headers = args.headers as {
-		[key in PotHeaders]: string;
-	};
-
 	const pkgJsonData = getPkgJsonData(
+		args.paths?.cwd,
 		"name",
 		"version",
 		"author",
@@ -221,7 +219,7 @@ export async function generateHeader(args: Args) {
 	const headerData = consolidateUserHeaderData(args);
 
 	// the makepot module name and version
-	const { name, version } = getPkgJsonData("name", "version");
+	const { name, version } = getPkgJsonData(modulePath, "name", "version");
 
 	// Validate required fields - exit early if validation fails
 	if (!validateRequiredFields(headerData)) {
@@ -242,7 +240,7 @@ export async function generateHeader(args: Args) {
 		"Language-Team": headerData.authorString,
 		"X-Generator": `${name} ${version}`,
 		Language: `${headerData.language}`,
-		"x-Domain": headerData.xDomain,
+		"X-Domain": headerData.xDomain,
 	};
 
 	return header;

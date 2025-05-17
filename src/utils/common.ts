@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { cpus, totalmem } from "node:os";
 import path from "node:path";
+import { modulePath } from "../const";
 
 /**
  * A function that removes comment markup from a given string.
@@ -110,7 +111,7 @@ export function reverseSlashes(filePath: string): string {
 export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
 	const requested: Record<string, unknown> = {};
 	// read the package.json file the is in the root directory
-	const pkgJsonPath = path.join(__dirname, "..", "..", "package.json");
+	const pkgJsonPath = path.join(location || process.cwd(), "package.json");
 	// read the package.json file or return an empty object
 	const pkgJson: Record<string, unknown> = fs.existsSync(pkgJsonPath)
 		? require(pkgJsonPath)
@@ -131,7 +132,7 @@ export function getPkgJsonData(...fields: string[]): Record<string, unknown> {
  * Print the module header with the current version and name
  */
 export function printMakePotModuleInfo() {
-	const { version, name } = getPkgJsonData("name", "version");
+	const { version, name } = getPkgJsonData(modulePath, "name", "version");
 	/* print the version */
 	console.log(`${name} version: ${version}`);
 }

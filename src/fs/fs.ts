@@ -101,7 +101,7 @@ export function writeFile(fileContent: string, args: Args): void {
 	if (ensureFolderExists(path.dirname(dest))) {
 		// get the encoding charset
 		const encodingCharset = getCharset(args.options?.charset);
-		console.log(`File created at ${dest}`);
+		console.log(`\nFile created at ${dest}`);
 
 		// write the file
 		const potBuffer = Buffer.from(fileContent);

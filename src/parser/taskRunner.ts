@@ -1,4 +1,5 @@
 import * as os from "node:os";
+import path from "node:path";
 import type { SingleBar } from "cli-progress";
 import type { SetOfBlocks } from "gettext-merger";
 import type { Args } from "../types.js";
@@ -48,11 +49,11 @@ export async function taskRunner(
 			return new Error(err);
 		});
 
-	progressBar?.stop();
+	progressBar.stop();
 
 	console.log("\n🎉 Done!");
 	console.log(
-		`📝 Found ${Object.values(destination.blocks).length} translation strings in ${args.paths.cwd}`,
+		`📝 Found ${Object.values(destination.blocks).length} translation strings in ${path.resolve(args.paths.cwd)}.`,
 	);
 
 	console.log(messages.join(os.EOL));

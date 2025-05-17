@@ -153,7 +153,7 @@ export class MakeJsonCommand {
 
 			const destinationPath = path.join(this.destination, filename);
 			fs.writeFileSync(destinationPath, contentString);
-			console.log(`JSON file written to ${destinationPath} with ${filename}`);
+			console.log(`JSON file written to ${destinationPath}`);
 		}
 
 		// return the output

@@ -49,7 +49,7 @@
 		"postinstall": "npm rebuild tree-sitter tree-sitter-typescript tree-sitter-php tree-sitter-javascript --force",
 		"build": "npx esbuild ./src/**/* --format=cjs --minify --outdir=lib --platform=node",
 		"watch": "tsc --watch",
-		"lint": "npx @biomejs/biome check --apply src",
+		"lint": "npx @biomejs/biome check --write src",
 		"rm": "rmdir /s /q lib",
 		"test:build": "npx esbuild ./src/**/* --format=cjs --sourcemap --outdir=lib --platform=node",
 		"test": "npm run test:build && node --test",

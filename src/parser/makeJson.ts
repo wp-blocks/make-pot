@@ -291,44 +291,6 @@ export class MakeJsonCommand {
 		return match ? match[1] : undefined;
 	}
 
-	/**
-	 * Takes the header content and extracts the plural forms.
-	 * @param headerContent - The header content to extract the plural forms from.
-	 * @private
-	 *
-	 * @returns The plural forms extracted from the header. Defaults to 'nplurals=2; plural=(n != 1);' if not found
-	 */
-	private getPluralForms(headerContent: string): string {
-		const match = headerContent.match(/Plural-Forms:\s*(.*?)\n/);
-		return match ? match[1] : "nplurals=2; plural=(n != 1);";
-	}
-
-	/**
-	 * Takes the header content and extracts the language.
-	 * @param headerContent - The header content to extract the language from.
-	 * @private
-	 *
-	 * @returns The language code extracted from the header.
-	 */
-	private getLanguage(headerContent: string): string {
-		const match = headerContent.match(/Language:\s*(.*?)\n/);
-		return match ? match[1] : defaultLocale;
-	}
-
-	/**
-	 * Checks if the given files are compatible with the allowed formats.
-	 * @param files The files array to check.
-	 * @private
-	 *
-	 * @returns True if the files are compatible, false otherwise.
-	 */
-	private isCompatibleFile(files: string[]): boolean {
-		if (!this.allowedFormats) return true;
-		return files.some((file) =>
-			this.allowedFormats.some((format) => file.endsWith(format)),
-		);
-	}
-
 	private md5(text: string): string {
 		return crypto.createHash("md5").update(text).digest("hex");
 	}

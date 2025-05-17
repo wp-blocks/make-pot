@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pluginHeaders } from "../const.js";
 import type { Args } from "../types.js";
-import { getKeyByValue } from "./utils.js";
+import { getKeyByValue } from "../utils/extractors.js";
 
 export function extractPhpPluginData(args: Args): Record<string, string> {
 	let fileData: Record<string, string> = {};

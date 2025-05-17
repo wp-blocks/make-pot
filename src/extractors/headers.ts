@@ -6,9 +6,9 @@ import { modulePath } from "../const";
 import { getEncodingCharset } from "../fs/fs";
 import type { Args, I18nHeaders, PotHeaders } from "../types.js";
 import { getPkgJsonData } from "../utils/common";
+import { buildBlock } from "../utils/extractors.js";
 import { extractCssThemeData } from "./css.js";
 import { extractPhpPluginData } from "./php.js";
-import { buildBlock } from "./utils.js";
 
 /**
  * Checks if required fields are missing and logs a clear error message

@@ -162,8 +162,8 @@ export class JsonSchemaExtractor {
 						if (typeof currentJson[key] === "string") {
 							// It's a string - add it to translations
 							addTranslation(
-								currentSchema[key],
 								currentJson[key],
+								currentSchema[key],
 								filename,
 								addReferences,
 							);

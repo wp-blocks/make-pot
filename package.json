@@ -53,7 +53,7 @@
 		"rm": "rmdir /s /q lib",
 		"test:build": "npx esbuild ./src/**/* --format=cjs --sourcemap --outdir=lib --platform=node",
 		"test": "npm run test:build && node --test",
-		"build:build-ci": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --platform=node",
+		"build:build-ci": "npx esbuild ./src/index.ts --format=cjs --outdir=lib --bundle --external:tree-sitter --external:tree-sitter-typescript --external:tree-sitter-php --external:tree-sitter-javascript --external:@babel/preset-typescript --platform=node",
 		"test:ci": "npm run build:build-ci && npm run test",
 		"test:watch": "node --test --watch",
 		"test:coverage": "node --test --experimental-test-coverage"

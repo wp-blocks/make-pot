@@ -110,7 +110,7 @@ export class MakeJsonCommand {
 		const output: Record<string, MakeJson> = {};
 		for (const file of files) {
 			if (!this.scriptName) {
-				this.scriptName = await glob("*.js", {
+				this.scriptName = await glob("**/*.js", {
 					cwd: this.source,
 					nodir: true,
 				});

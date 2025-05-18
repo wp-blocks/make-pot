@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { SingleBar } from "cli-progress";
 import { type GetTextTranslations, po } from "gettext-parser";
-import Tannin from "tannin";
+import { audit } from "../extractors/auditStrings.js";
 import { generateHeader, translationsHeaders } from "../extractors/headers.js";
 import { getCharset, getEncodingCharset } from "../fs/fs";
 import type { Args, Patterns } from "../types.js";
@@ -32,19 +32,6 @@ export async function exec(args: Args): Promise<string> {
 	if (!args.options?.silent) {
 		console.log("📝 Starting makePot for", args?.slug);
 		printStats();
-	}
-
-	// audit
-	if (args.options?.skip.audit) {
-		console.log("\nAudit strings...");
-		console.log("TODO");
-		/**
-		 * TODO audit strings
-		 *
-		 * Skips string audit where it tries to find possible mistakes in translatable strings. Useful when running in an automated environment.
-		 *
-		 **/
-		console.log("✅ Done");
 	}
 
 	/** The pot file header contains the data about the plugin or theme */
@@ -82,6 +69,14 @@ export async function exec(args: Args): Promise<string> {
 		progressBar,
 	);
 
+	/**
+	 * Audit Strings: Strings are validated and reported to the user if they are not compliant.
+	 * --skip-audit flag turns this off
+	 **/
+	if (!args.options?.skip.audit) {
+		console.log("\nAudit strings...");
+		audit(args, translationsUnion);
+	}
 	if (args.options?.json) {
 		// generate the json file
 		const jedData: {

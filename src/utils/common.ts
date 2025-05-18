@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { cpus, totalmem } from "node:os";
 import path from "node:path";
 import { modulePath } from "../const.js";
+import type { Patterns } from "../types";
 
 /**
  * A function that removes comment markup from a given string.
@@ -174,4 +175,15 @@ export function printStats() {
 		cpus().length,
 		"cores",
 	);
+}
+
+/**
+ * Returns the output path recap
+ *
+ * @param {string} cwd - The current working directory
+ * @param {Patterns} patterns - The patterns to be used for the extraction process
+ * @return {string} - The output path recap
+ */
+export function outputPathRecap(cwd: string, patterns: Patterns): string {
+	return `\nScript Path: ${cwd}\nfor ${patterns.include.join()}\nignoring patterns: ${patterns.exclude.join()}\n`;
 }

@@ -121,11 +121,23 @@ export class MakeJsonCommand {
 
 			if (typeof this.scriptName === "string") {
 				const pot = this.addPot(file, this.scriptName);
-				output[pot.filename] = pot.data;
+				if (pot.data) {
+					output[pot.filename] = pot.data;
+				} else {
+					console.log(
+						`❌ Translation strings not found in Script ${this.scriptName} in ${file} po file`,
+					);
+				}
 			} else if (Array.isArray(this.scriptName)) {
 				for (const script of this.scriptName) {
 					const pot = this.addPot(file, script);
-					output[pot.filename] = pot.data;
+					if (pot.data) {
+						output[pot.filename] = pot.data;
+					} else {
+						console.log(
+							`❌ Translation strings not found in Script ${script} in ${file} po file`,
+						);
+					}
 				}
 			}
 		}
@@ -160,7 +172,9 @@ export class MakeJsonCommand {
 
 			const destinationPath = path.join(this.destination, filename);
 			fs.writeFileSync(destinationPath, contentString);
-			console.log(`JSON file written to ${destinationPath} with ${filename}`);
+			console.log(
+				`✅ JSON file written to ${destinationPath} with ${filename}`,
+			);
 		}
 
 		// return the output
@@ -428,10 +442,10 @@ export class MakeJsonCommand {
 			}
 		}
 
-		// check if the po file is empty
+		// check if the po file is empty, 1 means that the header is the only string available
 		// TODO: if the json file is empty, we should delete it?
-		if (Object.keys(filteredPo.translations[""][""]).length === 0) {
-			console.log("The po file has no translations strings used in the script");
+		if (Object.keys(filteredPo.translations[""]).length <= 1) {
+			return null;
 		}
 
 		return filteredPo;

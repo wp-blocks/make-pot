@@ -166,8 +166,6 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		"maintainers",
 	) as Record<[keyof PackageI18n], string>;
 
-	const bugs = `https://wordpress.org/support/${args.domain === "theme" ? "themes" : "plugins"}/${args.slug}`;
-
 	// get author data from package.json
 	const pkgAuthor = getAuthorFromPackage(pkgJsonData);
 	// Use command line author name if provided, fallback to package.json
@@ -183,10 +181,14 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 	const slug =
 		args.slug ||
 		currentDir ||
+		args.headers?.name?.toString().replace(/ /g, "-") ||
 		(args.domain === "theme" ? "THEME NAME" : "PLUGIN NAME");
+
+	const bugs = `https://wordpress.org/support/${args.domain === "theme" ? "themes" : "plugins"}/${slug}`;
 
 	return {
 		...args.headers,
+		name: args.headers?.name || slug,
 		author: authorName,
 		authorString: authorString, // this is the author with email address in this format: author <email>
 		slug,
@@ -214,7 +216,9 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
  * @param args - The argument object containing the headers and their values.
  * @return The generated POT header.
  */
-export async function generateHeader(args: Args) {
+export async function generateHeader(
+	args: Args,
+): Promise<Record<string, string> | null> {
 	// Consolidate the user headers data into a single object
 	const headerData = consolidateUserHeaderData(args);
 
@@ -227,9 +231,9 @@ export async function generateHeader(args: Args) {
 		return null; // This is never reached but helps with TypeScript
 	}
 
-	const header = {
-		"Project-Id-Version": `${headerData.slug} ${headerData.version}`,
-		"Report-Msgid-Bugs-To": headerData.authorString,
+	return {
+		"Project-Id-Version": `${headerData.name} ${headerData.version}`,
+		"Report-Msgid-Bugs-To": headerData.bugs,
 		"MIME-Version": "1.0",
 		"Content-Transfer-Encoding": "8bit",
 		"content-type": `text/plain; charset=${getEncodingCharset(args.options?.charset)}`,
@@ -242,8 +246,6 @@ export async function generateHeader(args: Args) {
 		Language: `${headerData.language}`,
 		"X-Domain": headerData.xDomain,
 	};
-
-	return header;
 }
 
 /**

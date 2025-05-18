@@ -77,6 +77,8 @@ export async function exec(args: Args): Promise<string> {
 		console.log("\nAudit strings...");
 		audit(args, translationsUnion);
 	}
+
+	/** generate the json file based on the --json flag passed */
 	if (args.options?.json) {
 		// generate the json file
 		const jedData: {

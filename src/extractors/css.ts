@@ -24,7 +24,7 @@ export function extractCssThemeData(
 		fileData = extractFileData(commentBlock);
 
 		if ("Theme Name" in fileData) {
-			console.log(`🔵 Theme stylesheet detected. ${styleCssFile}`);
+			console.log(`🔵 Theme stylesheet detected. (${styleCssFile})`);
 			args.domain = "theme";
 
 			const themeInfo: Record<string, string> = {};

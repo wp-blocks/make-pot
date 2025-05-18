@@ -49,6 +49,11 @@ export function getJsonArgs(additionalArgs = {}): MakeJsonArgs {
 				type: "boolean",
 				default: false,
 			},
+			stripUnused: {
+				describe: "Strip unused translations in js files",
+				type: "boolean",
+				default: true,
+			},
 		})
 		.parseSync();
 	return parseJsonArgs({ ...additionalArgs, ...args });

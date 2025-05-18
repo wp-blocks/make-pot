@@ -62,6 +62,11 @@ export class MakeJsonCommand {
 	 * @private
 	 */
 	private readonly sourceDir: string;
+	/**
+	 * Whenever to strip unused translations from js files
+	 * @private
+	 */
+	private stripUnused: boolean;
 
 	/**
 	 * The constructor.
@@ -74,6 +79,7 @@ export class MakeJsonCommand {
 			throw new Error(`Source directory ${this.sourceDir} not found`);
 		}
 
+		this.stripUnused = args.stripUnused;
 		this.scriptName = args.scriptName;
 		this.source = args.source;
 		this.destination = args.destination;
@@ -181,8 +187,9 @@ export class MakeJsonCommand {
 		// Parse the source file
 		const poContent = this.parsePoFile(content);
 
-		// get the strings used in the script
-		const scriptContent = this.parseScript(script);
+		if (this.stripUnused) {
+			// get the strings used in the script
+			const scriptContent = this.parseScript(script);
 
 		// compare the strings used in the script with the strings in the po file
 		const stringsNotInPoFile = this.compareStrings(
@@ -190,10 +197,18 @@ export class MakeJsonCommand {
 			poContent,
 		);
 
+			if (!stringsNotInPoFile) {
+				return null;
+			}
+
+			// replace the po file strings with the strings used in the script
+			poContent.translations = stringsNotInPoFile.translations;
+		}
+
 		// Convert to Jed json dataset
 		return this.convertToJed(
 			poContent.headers,
-			stringsNotInPoFile.translations,
+			poContent.translations,
 			script,
 			this.extractIsoCode(filePath), // extract the ISO code from the po filename
 		);

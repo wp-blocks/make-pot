@@ -170,6 +170,7 @@ export function parseJsonArgs(
 		scriptName,
 		allowedFormats: args.allowedFormats as string[],
 		purge: !!args.purge,
+		stripUnused: !!args.stripUnused,
 		prettyPrint: !!args.prettyPrint,
 		debug: !!args.debug,
 		paths: {

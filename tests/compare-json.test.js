@@ -18,6 +18,7 @@ describe("MakeJson", () => {
 					source: cwd,
 					destination: cwd,
 				},
+				stripUnused: true,
 			});
 
 			const result = await makeJson.processFile(
@@ -40,6 +41,40 @@ describe("MakeJson", () => {
 					"Aggiungere %s caratteri in più",
 				],
 				"Sorry, no results found": ["Spiacente, nessun risultato trovato"],
+			});
+		});
+
+		it("compare js translations with pot file", async () => {
+			const { MakeJsonCommand } = await require("../lib");
+			// the current working directory
+			const path = "tests/fixtures/makejson-2";
+			const cwd = join(process.cwd(), path);
+			const makeJson = new MakeJsonCommand({
+				source: "",
+				destination: "",
+				paths: {
+					cwd: cwd,
+					source: cwd,
+					destination: cwd,
+				},
+				stripUnused: true,
+			});
+
+			const result = await makeJson.processFile(
+				"tests/fixtures/makejson-2/plugin2-it_IT.po",
+				"tests/fixtures/makejson-2/unminified.js",
+			);
+
+			result["translation-revision-date"] = undefined;
+
+			assert.deepStrictEqual(result.locale_data.messages, {
+				"": {
+					domain: "messages",
+					lang: "it_IT",
+					plural_forms: "nplurals=2; plural=(n != 1);",
+				},
+				"Grid view": ["Vista a griglia"],
+				"List view": ["Visualizzazione elenco"],
 			});
 		});
 	});

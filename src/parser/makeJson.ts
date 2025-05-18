@@ -62,6 +62,10 @@ export class MakeJsonCommand {
 	 * @private
 	 */
 	private readonly sourceDir: string;
+	/**
+	 * Whenever to strip unused translations from js files
+	 * @private
+	 */
 	private stripUnused: boolean;
 
 	/**

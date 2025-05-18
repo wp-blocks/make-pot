@@ -191,7 +191,7 @@ export class MakeJsonCommand {
 		file: string,
 		script: string,
 		encoding: BufferEncoding = "utf8",
-	): MakeJson {
+	): MakeJson | null {
 		// Get the file path
 		const filePath = path.join(this.destination, file);
 
@@ -205,11 +205,11 @@ export class MakeJsonCommand {
 			// get the strings used in the script
 			const scriptContent = this.parseScript(script);
 
-		// compare the strings used in the script with the strings in the po file
-		const stringsNotInPoFile = this.compareStrings(
-			scriptContent.blocks,
-			poContent,
-		);
+			// compare the strings used in the script with the strings in the po file
+			const stringsNotInPoFile = this.compareStrings(
+				scriptContent.blocks,
+				poContent,
+			);
 
 			if (!stringsNotInPoFile) {
 				return null;
@@ -328,47 +328,20 @@ export class MakeJsonCommand {
 	}
 
 	/**
-	 * Takes the header content and extracts the plural forms.
-	 * @param headerContent - The header content to extract the plural forms from.
+	 * Takes a string and returns its md5 hash.
+	 * @param text
 	 * @private
-	 *
-	 * @returns The plural forms extracted from the header. Defaults to 'nplurals=2; plural=(n != 1);' if not found
 	 */
-	private getPluralForms(headerContent: string): string {
-		const match = headerContent.match(/Plural-Forms:\s*(.*?)\n/);
-		return match ? match[1] : "nplurals=2; plural=(n != 1);";
-	}
-
-	/**
-	 * Takes the header content and extracts the language.
-	 * @param headerContent - The header content to extract the language from.
-	 * @private
-	 *
-	 * @returns The language code extracted from the header.
-	 */
-	private getLanguage(headerContent: string): string {
-		const match = headerContent.match(/Language:\s*(.*?)\n/);
-		return match ? match[1] : defaultLocale;
-	}
-
-	/**
-	 * Checks if the given files are compatible with the allowed formats.
-	 * @param files The files array to check.
-	 * @private
-	 *
-	 * @returns True if the files are compatible, false otherwise.
-	 */
-	private isCompatibleFile(files: string[]): boolean {
-		if (!this.allowedFormats) return true;
-		return files.some((file) =>
-			this.allowedFormats.some((format) => file.endsWith(format)),
-		);
-	}
-
 	private md5(text: string): string {
 		return crypto.createHash("md5").update(text).digest("hex");
 	}
 
+	/**
+	 * Generates the filename for the json file.
+	 * @param script
+	 * @param file
+	 * @private
+	 */
 	private generateFilename(script: string, file: string): string {
 		const scriptName = this.md5(script);
 		//build the filename for the json file using the po files
@@ -386,7 +359,7 @@ export class MakeJsonCommand {
 	private addPot(
 		potFile: string,
 		script: string,
-	): { filename: string; data: MakeJson } {
+	): { filename: string; data: MakeJson | null } {
 		const filename = this.generateFilename(
 			path.join(this.source, script).replace(/\\/g, "/"),
 			potFile,
@@ -407,13 +380,13 @@ export class MakeJsonCommand {
 	private compareStrings(
 		jsArray: SetOfBlocks["blocks"],
 		poObject: GetTextTranslations,
-	) {
+	): GetTextTranslations | null {
 		// The copy of the po file with only the strings used in the script
 		const filteredPo = {
 			charset: poObject.charset,
 			headers: { ...poObject.headers },
 			translations: { "": {} },
-		};
+		} as GetTextTranslations;
 
 		// copy the original header
 		if (poObject.translations[""][""]) {

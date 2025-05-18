@@ -132,7 +132,7 @@ export function getPkgJsonData(
 /**
  * Print the module header with the current version and name
  */
-export function printMakePotModuleInfo() {
+export function printModuleInfo() {
 	const { version, name } = getPkgJsonData(modulePath, "name", "version");
 	/* print the version */
 	console.log(`${name} version: ${version}`);
@@ -150,7 +150,7 @@ export function printTimeElapsed(
 	timeEnd: Date = new Date(),
 ) {
 	console.log(
-		`\n🚀 ${scriptName}: Job completed! ${scriptName.split("-")[1]} file created in ${
+		`\n🚀 ${scriptName}: Task completed! ${scriptName.split("-")[1]} file created in ${
 			timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);

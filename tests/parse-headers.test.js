@@ -34,8 +34,8 @@ describe("Header generation", () => {
 
 		it("from package.json data", async () => {
 			const expected = {
-				"Project-Id-Version": "plugin 1.0.0",
-				"Report-Msgid-Bugs-To": "John Doe <bbb@ccc.ddd>",
+				"Project-Id-Version": "My Plugin Name 1.0.0",
+				"Report-Msgid-Bugs-To": "https://wordpress.org/support/plugins/plugin",
 				"MIME-Version": "1.0",
 				"Content-Transfer-Encoding": "8bit",
 				"content-type": "text/plain; charset=iso-8859-1",
@@ -51,7 +51,7 @@ describe("Header generation", () => {
 
 			const result = await generateHeader({
 				headers: {
-					name: "my-block",
+					name: "My Plugin Name",
 					author: "John Doe",
 					version: "1.0.0",
 					license: "MIT",

@@ -55,6 +55,7 @@ export function getArgs(userArgs = {}): Args | MakeJsonArgs {
 			"skip-audit": {
 				describe: "Skip auditing of strings",
 				type: "boolean",
+				default: false,
 			},
 			headers: {
 				describe: "Headers",

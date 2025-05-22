@@ -1,4 +1,5 @@
 import path from "node:path";
+import { debug } from "node:util";
 import { SetOfBlocks } from "gettext-merger";
 import { boolean } from "yargs";
 import type PackageI18n from "../assets/package-i18n.js";
@@ -15,7 +16,10 @@ import { extractPhpPluginData } from "./php.js";
  * @param {object} headerData - The header data to validate
  * @returns {boolean} - true if all required fields are present, false otherwise
  */
-function validateRequiredFields(headerData: I18nHeaders): boolean {
+function validateRequiredFields(
+	headerData: I18nHeaders,
+	debug: boolean,
+): boolean {
 	const requiredFields = [
 		{ key: "slug", name: "Plugin/Theme slug", placeholder: "PLUGIN NAME" },
 		{ key: "author", name: "Author name", placeholder: "AUTHOR" },
@@ -36,7 +40,7 @@ function validateRequiredFields(headerData: I18nHeaders): boolean {
 
 		for (const field of missingFields) {
 			console.error(
-				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1, author: "AUTHOR <EMAIL>")`,
+				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1")`,
 			);
 		}
 
@@ -44,6 +48,25 @@ function validateRequiredFields(headerData: I18nHeaders): boolean {
 			"\nPlease provide this information adding the missing fields inside the headers object of the plugin/theme declaration or to the package.json file.",
 			"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
 		);
+
+		if (missingFields.some((field) => field.key === "email")) {
+			console.error(
+				"\nWordpress didn't require an email field in the headers object but it's required for the pot file.",
+				"\nPlease add the email field to the headers object of the plugin/theme declaration or to the package.json file",
+				'\nor add those information using the --headers flag (eg. --headers={"email":"YOUR EMAIL"}) to the "makePot" command.',
+				"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
+			);
+		}
+
+		if (missingFields && debug) {
+			console.error(
+				"\nDebug information:",
+				"\nMissing fields:",
+				missingFields,
+				"\nHeader data:",
+				headerData,
+			);
+		}
 
 		console.error("\n");
 
@@ -165,19 +188,20 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		"contributors",
 		"maintainers",
 	) as Record<[keyof PackageI18n], string>;
-
 	// get author data from package.json
 	const pkgAuthor = getAuthorFromPackage(pkgJsonData);
-	// Use command line author name if provided, fallback to package.json
-	const authorName = args?.headers?.author || pkgAuthor?.name;
-	const email = pkgAuthor?.email;
-	// this is the author with email address in this format: author <email>
-	const authorString = `${authorName} <${email}>`;
+
 	// get the current directory name as slug
 	const currentDir = path
 		.basename(args.paths?.cwd || process.cwd())
 		?.toLowerCase()
 		.replace(" ", "-");
+
+	// Use command line author name if provided, fallback to package.json
+	const authorName = args?.headers?.author || pkgAuthor?.name;
+	const email = args?.headers?.email || pkgAuthor?.email;
+	// this is the author with email address in this format: author <email>
+	const authorString = `${authorName} <${email}>`;
 	const slug =
 		args.slug ||
 		currentDir ||

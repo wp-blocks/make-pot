@@ -100,6 +100,7 @@ export interface Args {
 		json?: boolean;
 		location?: boolean;
 		packageName?: string;
+		headers: { [key in PotHeaders]: string };
 		output?: boolean;
 		fileComment?: string;
 		charset?: string;

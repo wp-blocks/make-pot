@@ -58,8 +58,9 @@ export function getArgs(userArgs = {}): Args | MakeJsonArgs {
 				default: false,
 			},
 			headers: {
-				describe: "Headers",
-				type: "string",
+				describe: "Additional Headers",
+				type: "array",
+				default: [],
 			},
 			"file-comment": {
 				describe: "File comment",
@@ -115,6 +116,11 @@ export function getArgs(userArgs = {}): Args | MakeJsonArgs {
 				describe: "Charset",
 				type: "string",
 				default: "latin1",
+			},
+			debug: {
+				describe: "Debug mode",
+				type: "boolean",
+				default: false,
 			},
 		})
 		.parseSync();

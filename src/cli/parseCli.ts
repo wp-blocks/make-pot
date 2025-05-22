@@ -5,6 +5,7 @@ import type * as yargs from "yargs";
 import { DEFAULT_EXCLUDED_PATH } from "../const.js";
 import { getEncodingCharset } from "../fs/fs";
 import type { Args, DomainType, MakeJsonArgs } from "../types.js";
+import type { PotHeaders } from "../types.js";
 import { stringstring } from "../utils/common.js";
 
 /**
@@ -101,8 +102,16 @@ export function parseCliArgs(
 		}
 	}
 
+	// Collect the headers passed via cli
+	const headers = {};
+	for (const header of args.headers) {
+		const [key, value] = header.split(":") as Record<PotHeaders, string>;
+		headers[key.trim()] = value.trim();
+	}
+
 	const parsedArgs: Args = {
 		slug: slug,
+		debug: !!args.debug,
 		domain: args.domain as DomainType,
 		paths: { cwd: cwd, out: out },
 		options: {
@@ -111,6 +120,8 @@ export function parseCliArgs(
 			silent: args.silent === true, // default is false
 			json: !!args.json,
 			location: !!args?.location,
+			headers: headers as Record<PotHeaders, string>,
+			theme: !!args?.theme,
 			output: !!args?.output,
 			fileComment: args.fileComment ? String(args.fileComment) : undefined,
 			charset: getEncodingCharset(args?.charset as string | undefined),

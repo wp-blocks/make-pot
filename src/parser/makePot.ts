@@ -19,7 +19,7 @@ export async function makePot(args: Args): Promise<string> {
 
 	/** Merge the metadata to get a single object with all the headers */
 	args.headers = {
-		...args.headers,
+		...args?.options?.headers,
 		...pkgData,
 		...metadata,
 	} as Args["headers"];

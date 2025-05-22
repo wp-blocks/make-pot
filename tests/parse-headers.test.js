@@ -34,24 +34,24 @@ describe("Header generation", () => {
 
 		it("from package.json data", async () => {
 			const expected = {
-				"Project-Id-Version": "plugin 1.0.0",
-				"Report-Msgid-Bugs-To": "John Doe <bbb@ccc.ddd>",
+				"Project-Id-Version": "My Plugin Name 1.0.0",
+				"Report-Msgid-Bugs-To": "https://wordpress.org/support/plugins/plugin",
 				"MIME-Version": "1.0",
 				"Content-Transfer-Encoding": "8bit",
 				"content-type": "text/plain; charset=iso-8859-1",
 				"plural-forms": "nplurals=2; plural=(n!=1);",
-				"POT-Creation-Date": undefined,
-				"PO-Revision-Date": undefined,
+				"POT-Creation-Date": undefined, // because the date is going to change every test
+				"PO-Revision-Date": undefined, // because the date is going to change every test
 				"Last-Translator": "John Doe <bbb@ccc.ddd>",
 				"Language-Team": "John Doe <bbb@ccc.ddd>",
-				"X-Generator": "@wp-blocks/make-pot 1.5.1",
+				"X-Generator": undefined, // because the version changes
 				Language: "en",
 				"X-Domain": "plugin",
 			};
 
 			const result = await generateHeader({
 				headers: {
-					name: "my-block",
+					name: "My Plugin Name",
 					author: "John Doe",
 					version: "1.0.0",
 					license: "MIT",
@@ -67,6 +67,7 @@ describe("Header generation", () => {
 			// remove the date "POT-Creation-Date"
 			result["POT-Creation-Date"] = undefined;
 			result["PO-Revision-Date"] = undefined;
+			result["X-Generator"] = undefined;
 
 			assert.deepStrictEqual(result, expected);
 		});

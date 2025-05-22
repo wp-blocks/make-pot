@@ -1,15 +1,18 @@
 import crypto from "node:crypto";
 import * as fs from "node:fs";
 import path from "node:path";
+import { transformSync } from "@babel/core";
+import type { SetOfBlocks } from "gettext-merger";
 import {
 	type GetTextTranslation,
 	type GetTextTranslations,
 	po,
 } from "gettext-parser";
 import { glob } from "glob";
-import { IsoCodeRegex, modulePath } from "../const.js";
+import { IsoCodeRegex, allowedFunctions, modulePath } from "../const.js";
 import type { JedData, MakeJson, MakeJsonArgs } from "../types.js";
 import { getPkgJsonData } from "../utils/common.js";
+import { doTree } from "./tree";
 
 export class MakeJsonCommand {
 	/**
@@ -59,6 +62,11 @@ export class MakeJsonCommand {
 	 * @private
 	 */
 	private readonly sourceDir: string;
+	/**
+	 * Whenever to strip unused translations from js files
+	 * @private
+	 */
+	private stripUnused: boolean;
 
 	/**
 	 * The constructor.
@@ -71,6 +79,7 @@ export class MakeJsonCommand {
 			throw new Error(`Source directory ${this.sourceDir} not found`);
 		}
 
+		this.stripUnused = args.stripUnused;
 		this.scriptName = args.scriptName;
 		this.source = args.source;
 		this.destination = args.destination;
@@ -101,7 +110,7 @@ export class MakeJsonCommand {
 		const output: Record<string, MakeJson> = {};
 		for (const file of files) {
 			if (!this.scriptName) {
-				this.scriptName = await glob("*.js", {
+				this.scriptName = await glob("**/*.js", {
 					cwd: this.source,
 					nodir: true,
 				});
@@ -110,15 +119,25 @@ export class MakeJsonCommand {
 				);
 			}
 
-			// TODO: tree the script to get the translations used in there, then use reduce to filter the translations
-
 			if (typeof this.scriptName === "string") {
 				const pot = this.addPot(file, this.scriptName);
-				output[pot.filename] = pot.data;
+				if (pot.data) {
+					output[pot.filename] = pot.data;
+				} else {
+					console.log(
+						`❌ Translation strings not found in Script ${this.scriptName} in ${file} po file`,
+					);
+				}
 			} else if (Array.isArray(this.scriptName)) {
 				for (const script of this.scriptName) {
 					const pot = this.addPot(file, script);
-					output[pot.filename] = pot.data;
+					if (pot.data) {
+						output[pot.filename] = pot.data;
+					} else {
+						console.log(
+							`❌ Translation strings not found in Script ${script} in ${file} po file`,
+						);
+					}
 				}
 			}
 		}
@@ -153,7 +172,9 @@ export class MakeJsonCommand {
 
 			const destinationPath = path.join(this.destination, filename);
 			fs.writeFileSync(destinationPath, contentString);
-			console.log(`JSON file written to ${destinationPath}`);
+			console.log(
+				`✅ JSON file written to ${destinationPath} with ${filename}`,
+			);
 		}
 
 		// return the output
@@ -170,25 +191,40 @@ export class MakeJsonCommand {
 		file: string,
 		script: string,
 		encoding: BufferEncoding = "utf8",
-	): MakeJson {
+	): MakeJson | null {
 		// Get the file path
 		const filePath = path.join(this.destination, file);
 
 		// Read the source file
 		const content = fs.readFileSync(filePath, encoding) as string;
 
-		// Extract the ISO code
-		const languageIsoCode = this.extractIsoCode(filePath);
-
 		// Parse the source file
 		const poContent = this.parsePoFile(content);
+
+		if (this.stripUnused) {
+			// get the strings used in the script
+			const scriptContent = this.parseScript(script);
+
+			// compare the strings used in the script with the strings in the po file
+			const stringsNotInPoFile = this.compareStrings(
+				scriptContent.blocks,
+				poContent,
+			);
+
+			if (!stringsNotInPoFile) {
+				return null;
+			}
+
+			// replace the po file strings with the strings used in the script
+			poContent.translations = stringsNotInPoFile.translations;
+		}
 
 		// Convert to Jed json dataset
 		return this.convertToJed(
 			poContent.headers,
 			poContent.translations,
 			script,
-			languageIsoCode,
+			this.extractIsoCode(filePath), // extract the ISO code from the po filename
 		);
 	}
 
@@ -291,10 +327,21 @@ export class MakeJsonCommand {
 		return match ? match[1] : undefined;
 	}
 
+	/**
+	 * Takes a string and returns its md5 hash.
+	 * @param text
+	 * @private
+	 */
 	private md5(text: string): string {
 		return crypto.createHash("md5").update(text).digest("hex");
 	}
 
+	/**
+	 * Generates the filename for the json file.
+	 * @param script
+	 * @param file
+	 * @private
+	 */
 	private generateFilename(script: string, file: string): string {
 		const scriptName = this.md5(script);
 		//build the filename for the json file using the po files
@@ -312,16 +359,107 @@ export class MakeJsonCommand {
 	private addPot(
 		potFile: string,
 		script: string,
-	): { filename: string; data: MakeJson } {
+	): { filename: string; data: MakeJson | null } {
 		const filename = this.generateFilename(
 			path.join(this.source, script).replace(/\\/g, "/"),
 			potFile,
 		);
-		// build the output object
+		// the processed file is added to the output object
 		return {
 			filename,
 			data: this.processFile(potFile, script),
 		};
+	}
+
+	/**
+	 * Compares the strings used in the script with the strings in the po file.
+	 * @param jsArray - The strings used in the script.
+	 * @param poObject - The content of the po file.
+	 * @private
+	 */
+	private compareStrings(
+		jsArray: SetOfBlocks["blocks"],
+		poObject: GetTextTranslations,
+	): GetTextTranslations | null {
+		// The copy of the po file with only the strings used in the script
+		const filteredPo = {
+			charset: poObject.charset,
+			headers: { ...poObject.headers },
+			translations: { "": {} },
+		} as GetTextTranslations;
+
+		// copy the original header
+		if (poObject.translations[""][""]) {
+			filteredPo.translations[""][""] = { ...poObject.translations[""][""] };
+		}
+
+		// Create a set of message ids from the JS file
+		const jsMessageIds = new Set(jsArray.map((item) => item.msgid));
+
+		// Iterate over the po file and keep only the strings used in the script
+		for (const domain in poObject.translations) {
+			if (domain !== "") continue; // handle only the main domain
+
+			for (const msgid in poObject.translations[domain]) {
+				if (msgid === "") continue; // Skip the header
+
+				if (jsMessageIds.has(msgid)) {
+					// ok the msgid is used
+					if (!filteredPo.translations[domain]) {
+						filteredPo.translations[domain] = {};
+					}
+					filteredPo.translations[domain][msgid] = {
+						...poObject.translations[domain][msgid],
+					};
+				}
+			}
+		}
+
+		// check if the po file is empty, 1 means that the header is the only string available
+		// TODO: if the json file is empty, we should delete it?
+		if (Object.keys(filteredPo.translations[""]).length <= 1) {
+			return null;
+		}
+
+		return filteredPo;
+	}
+
+	private parseScript(script: string): SetOfBlocks {
+		const fileContent = fs.readFileSync(path.join(this.source, script), "utf8");
+		const transformedScript = transformSync(fileContent, {
+			configFile: false,
+			presets: ["@babel/preset-env"],
+			compact: false,
+			comments: true,
+			sourceMaps: false,
+			plugins: [
+				({ types: t }) => ({
+					visitor: {
+						CallExpression(path) {
+							const callee = path.node.callee;
+
+							// Check for pattern like: (fn)("...")
+							if (
+								t.isSequenceExpression(callee) &&
+								t.isMemberExpression(callee.expressions[1])
+							) {
+								const property = callee.expressions[1].property;
+
+								if (
+									t.isIdentifier(property) &&
+									allowedFunctions.has(property.name)
+								) {
+									// Replace with direct function call: __("..."), _n(...), etc.
+									path.node.callee = t.identifier(property.name);
+								}
+							}
+						},
+					},
+				}),
+			],
+		}).code as string;
+
+		return doTree(transformedScript, script);
 	}
 }
 

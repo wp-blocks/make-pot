@@ -22,13 +22,20 @@ export async function processFiles(
 	progressBar?: SingleBar,
 ): Promise<Promise<SetOfBlocks>[]> {
 	const tasks: Promise<SetOfBlocks>[] = [];
-	let filesCount = 0;
+	let processedFilesCount = 0;
 
 	const files = getFiles(args, patterns);
 
+	if (progressBar) {
+		progressBar.setTotal(Object.values(files).length);
+		progressBar.update(0, {
+			filename: `Found ${Object.values(files).length} files`,
+		});
+	}
+
 	// loop through the files and parse them
 	for await (const file of files) {
-		filesCount++;
+		processedFilesCount++;
 		const filename = path.basename(file);
 		const ext = path.extname(file).replace(/^./, "");
 		const fileRealPath = path.resolve(args.paths.cwd, file);
@@ -46,8 +53,7 @@ export async function processFiles(
 		}
 
 		if (progressBar) {
-			progressBar.update(filesCount, { filename: filename });
-			progressBar.setTotal(Object.values(files).length);
+			progressBar.update(processedFilesCount, { filename: filename });
 			progressBar.render();
 		}
 	}

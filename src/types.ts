@@ -88,6 +88,7 @@ export interface Patterns {
  */
 export interface Args {
 	slug: string;
+	debug: boolean;
 	domain: DomainType;
 	paths: {
 		cwd: string;
@@ -100,6 +101,7 @@ export interface Args {
 		json?: boolean;
 		location?: boolean;
 		packageName?: string;
+		headers: { [key in PotHeaders]: string };
 		output?: boolean;
 		fileComment?: string;
 		charset?: string;
@@ -132,6 +134,7 @@ export interface MakeJsonArgs {
 	destination: string;
 	scriptName?: string;
 	purge: boolean;
+	stripUnused: boolean;
 	source: string;
 	slug: string;
 	allowedFormats?: string[];
@@ -183,6 +186,7 @@ export interface MakeJson {
  * The header data of the current plugin / theme as returned by the `extractHeaders` command.
  */
 export interface I18nHeaders {
+	name: string;
 	authorString: string;
 	bugs: string;
 	license: string;

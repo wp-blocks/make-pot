@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { cpus, totalmem } from "node:os";
 import path from "node:path";
 import { modulePath } from "../const.js";
+import type { Patterns } from "../types.js";
 
 /**
  * A function that removes comment markup from a given string.
@@ -132,7 +133,7 @@ export function getPkgJsonData(
 /**
  * Print the module header with the current version and name
  */
-export function printMakePotModuleInfo() {
+export function printModuleInfo() {
 	const { version, name } = getPkgJsonData(modulePath, "name", "version");
 	/* print the version */
 	console.log(`${name} version: ${version}`);
@@ -150,7 +151,7 @@ export function printTimeElapsed(
 	timeEnd: Date = new Date(),
 ) {
 	console.log(
-		`\n🚀 ${scriptName}: Job completed! ${scriptName.split("-")[1]} file created in ${
+		`\n🚀 ${scriptName}: Task completed! ${scriptName.split("-")[1]} file created in ${
 			timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);
@@ -174,4 +175,15 @@ export function printStats() {
 		cpus().length,
 		"cores",
 	);
+}
+
+/**
+ * Returns the output path recap
+ *
+ * @param {string} cwd - The current working directory
+ * @param {Patterns} patterns - The patterns to be used for the extraction process
+ * @return {string} - The output path recap
+ */
+export function outputPathRecap(cwd: string, patterns: Patterns): string {
+	return `\nScript Path: ${cwd}\nfor ${patterns.include.join()}\nignoring patterns: ${patterns.exclude.join()}\n`;
 }

@@ -1,11 +1,11 @@
 import { makePot } from "./parser/makePot.js";
 
 import type { Args } from "./types.js";
-import { printMakePotModuleInfo, printTimeElapsed } from "./utils/common.js";
+import { printModuleInfo, printTimeElapsed } from "./utils/common.js";
 
 export default function potCommand(args: Args) {
 	if (Object.keys(args).length > 0) {
-		printMakePotModuleInfo();
+		printModuleInfo();
 		/* capture the start time */
 		const timeStart = new Date();
 		/** make the pot file */

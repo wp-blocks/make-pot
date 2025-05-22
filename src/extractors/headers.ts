@@ -13,9 +13,13 @@ import { extractPhpPluginData } from "./php.js";
 /**
  * Checks if required fields are missing and logs a clear error message
  * @param {object} headerData - The header data to validate
+ * @param {boolean} debug - Debug mode flag
  * @returns {boolean} - true if all required fields are present, false otherwise
  */
-function validateRequiredFields(headerData: I18nHeaders): boolean {
+function validateRequiredFields(
+	headerData: I18nHeaders,
+	debug: boolean,
+): boolean {
 	const requiredFields = [
 		{ key: "slug", name: "Plugin/Theme slug", placeholder: "PLUGIN NAME" },
 		{ key: "author", name: "Author name", placeholder: "AUTHOR" },
@@ -36,7 +40,7 @@ function validateRequiredFields(headerData: I18nHeaders): boolean {
 
 		for (const field of missingFields) {
 			console.error(
-				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1, author: "AUTHOR <EMAIL>")`,
+				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1")`,
 			);
 		}
 
@@ -44,6 +48,25 @@ function validateRequiredFields(headerData: I18nHeaders): boolean {
 			"\nPlease provide this information adding the missing fields inside the headers object of the plugin/theme declaration or to the package.json file.",
 			"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
 		);
+
+		if (missingFields.some((field) => field.key === "email")) {
+			console.error(
+				"\n\nWordpress didn't require an email field in the headers object but it's required in order to generate a valid pot file.",
+				'\nPlease add the email field to the package.json file (author field eg. author: "AUTHOR <EMAIL>")',
+				'\nor inject those information using the --headers flag to the "makePot" command (eg. --headers=email:erik@ck.it).',
+				"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
+			);
+		}
+
+		if (missingFields && debug) {
+			console.error(
+				"\nDebug information:",
+				"\nMissing fields:",
+				missingFields,
+				"\nHeader data:",
+				headerData,
+			);
+		}
 
 		console.error("\n");
 
@@ -165,28 +188,31 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		"contributors",
 		"maintainers",
 	) as Record<[keyof PackageI18n], string>;
-
-	const bugs = `https://wordpress.org/support/${args.domain === "theme" ? "themes" : "plugins"}/${args.slug}`;
-
 	// get author data from package.json
 	const pkgAuthor = getAuthorFromPackage(pkgJsonData);
-	// Use command line author name if provided, fallback to package.json
-	const authorName = args?.headers?.author || pkgAuthor?.name;
-	const email = pkgAuthor?.email;
-	// this is the author with email address in this format: author <email>
-	const authorString = `${authorName} <${email}>`;
+
 	// get the current directory name as slug
 	const currentDir = path
 		.basename(args.paths?.cwd || process.cwd())
 		?.toLowerCase()
 		.replace(" ", "-");
+
+	// Use command line author name if provided, fallback to package.json
+	const authorName = args?.headers?.author || pkgAuthor?.name;
+	const email = args?.headers?.email || pkgAuthor?.email;
+	// this is the author with email address in this format: author <email>
+	const authorString = `${authorName} <${email}>`;
 	const slug =
 		args.slug ||
 		currentDir ||
+		args.headers?.name?.toString().replace(/ /g, "-") ||
 		(args.domain === "theme" ? "THEME NAME" : "PLUGIN NAME");
+
+	const bugs = `https://wordpress.org/support/${args.domain === "theme" ? "themes" : "plugins"}/${slug}`;
 
 	return {
 		...args.headers,
+		name: args.headers?.name || slug,
 		author: authorName,
 		authorString: authorString, // this is the author with email address in this format: author <email>
 		slug,
@@ -214,7 +240,9 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
  * @param args - The argument object containing the headers and their values.
  * @return The generated POT header.
  */
-export async function generateHeader(args: Args) {
+export async function generateHeader(
+	args: Args,
+): Promise<Record<string, string> | null> {
 	// Consolidate the user headers data into a single object
 	const headerData = consolidateUserHeaderData(args);
 
@@ -222,14 +250,14 @@ export async function generateHeader(args: Args) {
 	const { name, version } = getPkgJsonData(modulePath, "name", "version");
 
 	// Validate required fields - exit early if validation fails
-	if (!validateRequiredFields(headerData)) {
+	if (!validateRequiredFields(headerData, args.debug)) {
 		process.exit(1); // Exit with error code
 		return null; // This is never reached but helps with TypeScript
 	}
 
-	const header = {
-		"Project-Id-Version": `${headerData.slug} ${headerData.version}`,
-		"Report-Msgid-Bugs-To": headerData.authorString,
+	return {
+		"Project-Id-Version": `${headerData.name} ${headerData.version}`,
+		"Report-Msgid-Bugs-To": headerData.bugs,
 		"MIME-Version": "1.0",
 		"Content-Transfer-Encoding": "8bit",
 		"content-type": `text/plain; charset=${getEncodingCharset(args.options?.charset)}`,
@@ -242,8 +270,6 @@ export async function generateHeader(args: Args) {
 		Language: `${headerData.language}`,
 		"X-Domain": headerData.xDomain,
 	};
-
-	return header;
 }
 
 /**

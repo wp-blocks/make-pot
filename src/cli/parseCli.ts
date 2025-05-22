@@ -4,8 +4,7 @@ import * as process from "node:process";
 import type * as yargs from "yargs";
 import { DEFAULT_EXCLUDED_PATH } from "../const.js";
 import { getEncodingCharset } from "../fs/fs";
-import type { Args, DomainType, MakeJsonArgs } from "../types.js";
-import type { PotHeaders } from "../types.js";
+import type { Args, DomainType, MakeJsonArgs, PotHeaders } from "../types.js";
 import { stringstring } from "../utils/common.js";
 
 /**

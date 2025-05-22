@@ -1,7 +1,7 @@
 import { unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Block, SetOfBlocks } from "gettext-merger";
-import type { Args } from "../types";
+import type { Args } from "../types.js";
 
 export function audit(args: Args, translationsUnion: SetOfBlocks) {
 	/** Run the audit process */

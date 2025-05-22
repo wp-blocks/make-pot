@@ -1,5 +1,4 @@
 import path from "node:path";
-import { debug } from "node:util";
 import { SetOfBlocks } from "gettext-merger";
 import { boolean } from "yargs";
 import type PackageI18n from "../assets/package-i18n.js";

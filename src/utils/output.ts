@@ -1,6 +1,6 @@
 import type { SetOfBlocks } from "gettext-merger";
 import Tannin from "tannin";
-import type { Args } from "../types";
+import type { Args } from "../types.js";
 
 /**
  * Outputs the pot file in json format based on the command line arguments --json option

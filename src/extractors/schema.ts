@@ -1,8 +1,8 @@
 import type { Block } from "gettext-merger";
-import * as blocki18n from "../assets/block-i18n.js";
 import type BlockI18n from "../assets/block-i18n.js";
-import * as themei18n from "../assets/theme-i18n.js";
+import * as blocki18n from "../assets/block-i18n.js";
 import type ThemeI18n from "../assets/theme-i18n.js";
+import * as themei18n from "../assets/theme-i18n.js";
 import type { I18nSchema } from "../types.js";
 
 /**

@@ -16,9 +16,9 @@ import { extractPhpPluginData } from "./php.js";
  * @param {object} headerData - The header data to validate
  * @returns {boolean} - true if all required fields are present, false otherwise
  */
-function validateRequiredFields(headerData: I18nHeaders): boolean {
 function validateRequiredFields(
 	headerData: I18nHeaders,
+	debug: boolean,
 ): boolean {
 	const requiredFields = [
 		{ key: "slug", name: "Plugin/Theme slug", placeholder: "PLUGIN NAME" },
@@ -40,7 +40,7 @@ function validateRequiredFields(
 
 		for (const field of missingFields) {
 			console.error(
-				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1, author: "AUTHOR <EMAIL>")`,
+				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1")`,
 			);
 		}
 
@@ -58,6 +58,15 @@ function validateRequiredFields(
 			);
 		}
 
+		if (missingFields && debug) {
+			console.error(
+				"\nDebug information:",
+				"\nMissing fields:",
+				missingFields,
+				"\nHeader data:",
+				headerData,
+			);
+		}
 
 		console.error("\n");
 

@@ -158,6 +158,7 @@ Unlike traditional PO/MO files, JavaScript translations use JSON. This format is
 - `--allowedFormats`: The allowed formats of the translation file (e.g. `js` or `tsx`).
 - `--purge`: if enabled, removes the existing translation file. Otherwise, the old translation file will be merged with the new.
 - `--prettyPrint`: Pretty prints the translation file.
+- `--stripUnused`: strips unused translations from the translation file (default: true).
 - `--debug`: Enables debug mode.
 
 ## How to Generate Json translations

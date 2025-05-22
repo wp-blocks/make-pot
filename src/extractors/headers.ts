@@ -14,6 +14,7 @@ import { extractPhpPluginData } from "./php.js";
 /**
  * Checks if required fields are missing and logs a clear error message
  * @param {object} headerData - The header data to validate
+ * @param {boolean} debug - Debug mode flag
  * @returns {boolean} - true if all required fields are present, false otherwise
  */
 function validateRequiredFields(
@@ -51,9 +52,9 @@ function validateRequiredFields(
 
 		if (missingFields.some((field) => field.key === "email")) {
 			console.error(
-				"\nWordpress didn't require an email field in the headers object but it's required for the pot file.",
-				"\nPlease add the email field to the headers object of the plugin/theme declaration or to the package.json file",
-				'\nor add those information using the --headers flag (eg. --headers={"email":"YOUR EMAIL"}) to the "makePot" command.',
+				"\n\nWordpress didn't require an email field in the headers object but it's required in order to generate a valid pot file.",
+				'\nPlease add the email field to the package.json file (author field eg. author: "AUTHOR <EMAIL>")',
+				'\nor inject those information using the --headers flag to the "makePot" command (eg. --headers=email:erik@ck.it).',
 				"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
 			);
 		}
@@ -250,7 +251,7 @@ export async function generateHeader(
 	const { name, version } = getPkgJsonData(modulePath, "name", "version");
 
 	// Validate required fields - exit early if validation fails
-	if (!validateRequiredFields(headerData)) {
+	if (!validateRequiredFields(headerData, args.debug)) {
 		process.exit(1); // Exit with error code
 		return null; // This is never reached but helps with TypeScript
 	}

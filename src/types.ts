@@ -88,6 +88,7 @@ export interface Patterns {
  */
 export interface Args {
 	slug: string;
+	debug: boolean;
 	domain: DomainType;
 	paths: {
 		cwd: string;

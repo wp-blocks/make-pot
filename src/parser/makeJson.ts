@@ -120,24 +120,17 @@ export class MakeJsonCommand {
 			}
 
 			if (typeof this.scriptName === "string") {
-				const pot = this.addPot(file, this.scriptName);
+				this.scriptName = [this.scriptName];
+			}
+
+			for (const script of this.scriptName) {
+				const pot = this.addPot(file, script);
 				if (pot.data) {
 					output[pot.filename] = pot.data;
 				} else {
 					console.log(
-						`❌ Translation strings not found in Script ${this.scriptName} in ${file} po file`,
+						`❌ Translation strings not found in Script ${script} in ${file} po file`,
 					);
-				}
-			} else if (Array.isArray(this.scriptName)) {
-				for (const script of this.scriptName) {
-					const pot = this.addPot(file, script);
-					if (pot.data) {
-						output[pot.filename] = pot.data;
-					} else {
-						console.log(
-							`❌ Translation strings not found in Script ${script} in ${file} po file`,
-						);
-					}
 				}
 			}
 		}
@@ -459,7 +452,7 @@ export class MakeJsonCommand {
 			],
 		}).code as string;
 
-		return doTree(transformedScript, script);
+		return doTree(transformedScript, script, this.debug);
 	}
 }
 

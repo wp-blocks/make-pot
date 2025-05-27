@@ -35,9 +35,14 @@ function collectComments(node: SyntaxNode): string | undefined {
  *
  * @param {string} sourceCode - The source code to be parsed.
  * @param {string} filepath - The path to the file being parsed.
+ * @param {boolean} debugEnabled - Whether debug mode is enabled.
  * @return {SetOfBlocks} An array of translation strings.
  */
-export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
+export function doTree(
+	sourceCode: string,
+	filepath: string,
+	debugEnabled?: boolean,
+): SetOfBlocks {
 	// set up the parser
 	const parser = new Parser();
 	const parserExt = getParser(filepath);
@@ -139,10 +144,12 @@ export function doTree(sourceCode: string, filepath: string): SetOfBlocks {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1);
 				} else {
-					// unexpected node type this string is not translatable and should be skipped
-					console.warn(
-						`Unexpected node type: ${node?.type} is ${translationKeys[translationKeyIndex]} for  ${nodeValue} in ${filepath}`,
-					);
+					if (debugEnabled) {
+						// Whenever we get an unexpected node type this string is not translatable and should be skipped
+						console.warn(
+							`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
+						);
+					}
 					continue;
 				}
 

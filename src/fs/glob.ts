@@ -31,7 +31,7 @@ export function getParser(
 		case "cjs":
 			return Javascript.default;
 		case "php":
-			return php.default;
+			return php.php;
 		default:
 			return null;
 	}

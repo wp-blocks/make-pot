@@ -8,7 +8,7 @@ import * as php from "tree-sitter-php";
 // @ts-ignore
 import * as ts from "tree-sitter-typescript";
 import type { Args, Patterns } from "../types.js";
-import { detectPatternType } from "../utils/common.js";
+import { detectPatternType, getFileExtension } from "../utils/common.js";
 
 /**
  * Return the parser based on the file extension
@@ -19,7 +19,7 @@ import { detectPatternType } from "../utils/common.js";
 export function getParser(
 	file: string,
 ): string | { name: string; language: unknown } | null {
-	const ext = file.split(".").pop();
+	const ext = getFileExtension(file);
 	switch (ext) {
 		case "ts":
 			return ts.typescript;

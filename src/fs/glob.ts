@@ -32,6 +32,8 @@ export function getParser(
 			return Javascript.default;
 		case "php":
 			return php.php;
+		case "blade.php":
+			return php.php_only;
 		default:
 			return null;
 	}

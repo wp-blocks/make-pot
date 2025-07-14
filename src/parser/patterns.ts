@@ -18,7 +18,7 @@ export function getPatterns(args: Args) {
 	if (args.options) {
 		// js typescript mjs cjs etc
 		if (args.options.skip.blade) {
-			pattern.exclude.push("**/blade.php");
+			pattern.exclude.push("**/*.blade.php");
 		} else if (args.options.skip.php) {
 			pattern.exclude.push("**/*.php", "**/*.blade.php");
 		}

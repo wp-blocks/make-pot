@@ -2,7 +2,7 @@ import path from "node:path";
 import { Glob, type Path } from "glob";
 import { minimatch } from "minimatch";
 // @ts-ignore
-import * as Javascript from "tree-sitter-javascript";
+import * as javascript from "tree-sitter-javascript";
 // @ts-ignore
 import * as php from "tree-sitter-php";
 // @ts-ignore
@@ -29,7 +29,7 @@ export function getParser(
 		case "jsx":
 		case "mjs":
 		case "cjs":
-			return Javascript.default;
+			return javascript;
 		case "php":
 			return php.php;
 		case "blade.php":

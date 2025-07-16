@@ -2,13 +2,13 @@ import path from "node:path";
 import { Glob, type Path } from "glob";
 import { minimatch } from "minimatch";
 // @ts-ignore
-import * as Javascript from "tree-sitter-javascript";
+import * as javascript from "tree-sitter-javascript";
 // @ts-ignore
 import * as php from "tree-sitter-php";
 // @ts-ignore
 import * as ts from "tree-sitter-typescript";
 import type { Args, Patterns } from "../types.js";
-import { detectPatternType } from "../utils/common.js";
+import { detectPatternType, getFileExtension } from "../utils/common.js";
 
 /**
  * Return the parser based on the file extension
@@ -19,7 +19,7 @@ import { detectPatternType } from "../utils/common.js";
 export function getParser(
 	file: string,
 ): string | { name: string; language: unknown } | null {
-	const ext = file.split(".").pop();
+	const ext = getFileExtension(file);
 	switch (ext) {
 		case "ts":
 			return ts.typescript;
@@ -29,9 +29,11 @@ export function getParser(
 		case "jsx":
 		case "mjs":
 		case "cjs":
-			return Javascript.default;
+			return javascript;
 		case "php":
-			return php.default;
+			return php.php;
+		case "blade.php":
+			return php.php_only;
 		default:
 			return null;
 	}

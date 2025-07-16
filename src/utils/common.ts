@@ -78,6 +78,18 @@ export function detectPatternType(
 }
 
 /**
+ * Gets the file extension from a filename.
+ * @param filename - The name of the file to extract the extension from.
+ * @returns The file extension, or 'blade.php' for Blade templates.
+ */
+export function getFileExtension(filename: string): string {
+	if (filename.endsWith(".blade.php")) {
+		return "blade.php";
+	}
+	return filename.split(".").pop() || "";
+}
+
+/**
  * Generates a copyright comment for the specified slug and license.
  *
  * @param slug - The slug to include in the copyright comment

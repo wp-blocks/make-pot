@@ -58,6 +58,44 @@ describe("getStrings", () => {
 		assert.deepStrictEqual(result.blocks[0].toJson(), expected.toJson());
 	});
 
+	it("should extract translations from blade", () => {
+		const content = `<h1>{{ __('Hello World', 'greeting') }}</h1>`;
+
+		const filename = "filename.blade.php";
+
+		const result = doTree(content, filename);
+
+		const expected = new Block([]);
+		expected.msgid = "Hello World";
+		expected.msgstr = [""];
+		expected.comments = {
+			reference: ["filename.blade.php:1"],
+			translator: [""],
+		};
+
+		assert.deepStrictEqual(result.blocks[0].toJson(), expected.toJson());
+	});
+
+	it("should extract translations from blade @php block", () => {
+		const content = `@php
+			$greeting = __('Hello World', 'greeting');
+		@endphp`;
+
+		const filename = "filename.blade.php";
+
+		const result = doTree(content, filename);
+
+		const expected = new Block([]);
+		expected.msgid = "Hello World";
+		expected.msgstr = [""];
+		expected.comments = {
+			reference: ["filename.blade.php:2"],
+			translator: [""],
+		};
+
+		assert.deepStrictEqual(result.blocks[0].toJson(), expected.toJson());
+	});
+
 	it("should extract translations with context", () => {
 		const content = `<?php __('Hello World', 'greeting'); ?>`;
 		const filename = "filename.php";

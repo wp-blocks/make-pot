@@ -47,7 +47,7 @@
 	],
 	"scripts": {
 		"postinstall": "npm rebuild tree-sitter tree-sitter-typescript tree-sitter-php tree-sitter-javascript --force",
-		"build": "npx esbuild ./src/**/* --format=cjs --minify --outdir=lib --platform=node",
+		"build": "npx esbuild ./src/**/* ./src/*.ts --format=cjs --minify --outdir=lib --platform=node",
 		"watch": "tsc --watch",
 		"lint": "npx @biomejs/biome check --write src",
 		"rm": "rmdir /s /q lib",
@@ -66,10 +66,10 @@
 		"gettext-parser": "^4.0.4",
 		"glob": "^11.0.2",
 		"tannin": "^1.2.0",
-		"tree-sitter": "^0.20.6",
-		"tree-sitter-javascript": "^0.20.4",
-		"tree-sitter-php": "^0.20.0",
-		"tree-sitter-typescript": "^0.20.5",
+		"tree-sitter": "^0.21.1",
+		"tree-sitter-javascript": "^0.23.1",
+		"tree-sitter-php": "^0.23.12",
+		"tree-sitter-typescript": "^0.23.2",
 		"yargs": "^17.7.1"
 	},
 	"devDependencies": {

@@ -51,9 +51,6 @@ export function doTree(
 	// set the parser language
 	parser.setLanguage(parserExt);
 
-	// parse the file
-	const tree = parser.parse(sourceCode);
-
 	// set up the translation object
 	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath);
 
@@ -165,7 +162,6 @@ export function doTree(
 				translationKeyIndex += 1;
 			}
 
-			// TODO: Alert about wrong translation domain?
 			const comments = collectComments(argsNode);
 
 			// Get the translation data
@@ -186,7 +182,17 @@ export function doTree(
 		}
 	}
 
-	traverse(tree.rootNode);
+	// parse the file
+	try {
+		if (sourceCode) {
+			const tree = parser.parse(sourceCode);
+			if (tree) {
+				traverse(tree.rootNode);
+			}
+		}
+	} catch (e) {
+		console.error(`Failed to parse ${filepath}: ${e}`);
+	}
 
 	// Return both matches and entries
 	return gettextTranslations;

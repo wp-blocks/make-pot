@@ -161,7 +161,7 @@ describe("doTree large file", () => {
 	const filepath = "tests/fixtures/php.php";
 	const filePath = path.join(process.cwd(), filepath);
 	const fileContent = fs.readFileSync(filePath, "utf8");
-	it("should extract translations and comments from large files", () => {
+	it("should parse and extract strings from large files", () => {
 		let content = fileContent;
 
 		// Duplicate content to go over 32 kb

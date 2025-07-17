@@ -163,14 +163,22 @@ export interface TranslationStrings {
 	[msgctxt: string]: { [msgId: string]: GetTextTranslation };
 }
 
+/** The header of the JED file. */
+export interface JedHeader {
+	domain: string;
+	lang: string;
+	plural_forms: string;
+	[key: string]: string;
+}
+
 /**
  * The JSON data returned by the `makeJson` command.
  * @param {string} domain
- * @param {Record<string, unknown>} locale_data
+ * @param {Record<string, string | string[] | JedHeader>} locale_data
  */
 export interface JedData {
 	[domain: string]: {
-		[key: string]: string | string[];
+		[key: string]: string | string[] | JedHeader;
 	};
 }
 

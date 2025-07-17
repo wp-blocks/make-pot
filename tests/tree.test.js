@@ -156,3 +156,24 @@ describe("doTree php test file", async () => {
 		assert.strictEqual(r.filter((block) => block.comments).length, 11);
 	});
 });
+
+describe("doTree large file", () => {
+	const filepath = "tests/fixtures/php.php";
+	const filePath = path.join(process.cwd(), filepath);
+	const fileContent = fs.readFileSync(filePath, "utf8");
+	it("should extract translations and comments from large files", () => {
+		let content = fileContent;
+
+		// Duplicate content to go over 32 kb
+		while (content.length < 1024 * 32) {
+			content += fileContent;
+		}
+
+		const filename = "filename.php";
+
+		const r = doTree(content, filename).blocks;
+
+		assert.strictEqual(r.map((block) => block).length, 19);
+		assert.strictEqual(r.filter((block) => block.comments).length, 19);
+	});
+});

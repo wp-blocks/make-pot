@@ -182,10 +182,21 @@ export function doTree(
 		}
 	}
 
-	// parse the file
 	try {
 		if (sourceCode) {
-			const tree = parser.parse(sourceCode);
+			const fileSize = Buffer.byteLength(sourceCode, "utf8");
+			let bufferSize = 1024 * 32; // 32 KB default buffer size
+
+			if (fileSize >= bufferSize) {
+				bufferSize = fileSize + 32; // dynamic buffer size with 32 bytes of padding
+			}
+
+			if (fileSize >= 1024 * 1024 * 2) {
+				console.warn(`File size warning: ${filepath} exceeds 2 MB.`);
+			}
+
+			// parse the file
+			const tree = parser.parse(sourceCode, undefined, { bufferSize });
 			if (tree) {
 				traverse(tree.rootNode);
 			}

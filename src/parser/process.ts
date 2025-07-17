@@ -47,11 +47,12 @@ export async function processFiles(
 				),
 			);
 		} else if (allowedFormats.includes(ext)) {
-			tasks.push(
-				readFileAsync(fileRealPath).then((content) =>
-					doTree(content, file, args.debug),
-				),
+			const fileTree = readFileAsync(fileRealPath).then((content) =>
+				doTree(content, file, args.debug),
 			);
+			if (fileTree) {
+				tasks.push(fileTree as Promise<SetOfBlocks>);
+			}
 		}
 
 		if (progressBar) {

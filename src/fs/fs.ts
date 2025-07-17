@@ -66,15 +66,6 @@ export function getEncodingCharset(charset: string | undefined): string {
 
 /**
  * The output path for the pot file.
- * @param outpath - the output path for the pot/json files
- * @return {string} - the output path
- */
-export function getOutputPath(outpath?: string): string {
-	return path.join(process.cwd(), outpath ?? "languages");
-}
-
-/**
- * The output path for the pot file.
  * @param args - the command line arguments
  */
 function getOutputFilePath(args: Args): string {

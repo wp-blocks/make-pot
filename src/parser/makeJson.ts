@@ -198,6 +198,10 @@ export class MakeJsonCommand {
 			// get the strings used in the script
 			const scriptContent = this.parseScript(script);
 
+			if (!scriptContent) {
+				return null;
+			}
+
 			// compare the strings used in the script with the strings in the po file
 			const stringsNotInPoFile = this.compareStrings(
 				scriptContent.blocks,
@@ -256,7 +260,7 @@ export class MakeJsonCommand {
 		};
 
 		// Domain name to use for the Jed format
-		const domain = "messages";
+		const domain: string = "messages";
 
 		const generator = `${packageJson.name}/${packageJson.version}`;
 
@@ -264,7 +268,7 @@ export class MakeJsonCommand {
 		const jedData: JedData = {
 			[domain]: {
 				"": {
-					domain: domain,
+					domain,
 					lang: languageIsoCode || header.Language || "en",
 					plural_forms:
 						header["Plural-Forms"] || "nplurals=2; plural=(n != 1);",
@@ -417,7 +421,7 @@ export class MakeJsonCommand {
 		return filteredPo;
 	}
 
-	private parseScript(script: string): SetOfBlocks {
+	private parseScript(script: string): SetOfBlocks | undefined {
 		const fileContent = fs.readFileSync(path.join(this.source, script), "utf8");
 		const transformedScript = transformSync(fileContent, {
 			configFile: false,

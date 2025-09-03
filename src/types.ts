@@ -113,6 +113,7 @@ export interface Args {
 			themeJson?: boolean;
 			audit?: boolean;
 		};
+		translationDomains?: string[];
 	};
 	headers?: { [key in PotHeaders]: string };
 	patterns: Patterns;

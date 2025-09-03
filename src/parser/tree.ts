@@ -41,6 +41,7 @@ function collectComments(node: SyntaxNode): string | undefined {
 export function doTree(
 	sourceCode: string,
 	filepath: string,
+	translationDomains?: string[],
 	debugEnabled?: boolean,
 ): SetOfBlocks {
 	// set up the parser
@@ -113,6 +114,7 @@ export function doTree(
 				msgid: string;
 				msgid_plural: string;
 				msgstr: string;
+				text_domain: string;
 			}> = {};
 
 			const translationKeys =
@@ -160,6 +162,10 @@ export function doTree(
 
 				// increment the index of the translation key
 				translationKeyIndex += 1;
+			}
+
+			if (Array.isArray(translationDomains) && !translationDomains.includes(translation.text_domain as string)) {
+				return;
 			}
 
 			const comments = collectComments(argsNode);

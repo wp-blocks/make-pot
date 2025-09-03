@@ -117,6 +117,10 @@ export function getArgs(userArgs = {}): Args | MakeJsonArgs {
 				type: "string",
 				default: "latin1",
 			},
+			"translation-domains": {
+				describe: "Restrict to specific translation domains",
+				type: "array",
+			},
 			debug: {
 				describe: "Debug mode",
 				type: "boolean",

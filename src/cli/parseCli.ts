@@ -132,6 +132,7 @@ export function parseCliArgs(
 				themeJson: !!args.skipThemeJson,
 				audit: !!args.skipAudit,
 			},
+			translationDomains: args.translationDomains ? Array.isArray(args.translationDomains) ? args.translationDomains.map(String) : [String(args.translationDomains)] : undefined,
 		},
 		// Patterns
 		patterns: {

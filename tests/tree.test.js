@@ -177,3 +177,20 @@ describe("doTree large file", () => {
 		assert.strictEqual(r.filter((block) => block.comments).length, 19);
 	});
 });
+
+describe("doTree php filtered by translation domain", async () => {
+	it("should extract translations filtered by translation domain", () => {
+		const content = `<?php
+
+      __( 'hello, world' );
+      __( 'hello, foo', 'foo-plugin' );
+      __( 'hello, bar', 'bar-plugin' );
+      `;
+
+		const filename = "filename.php";
+
+		const r = doTree(content, filename, ['foo-plugin']).blocks;
+
+		assert.strictEqual(r.map((block) => block).length, 1);
+	});
+});

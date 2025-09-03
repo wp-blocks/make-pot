@@ -113,9 +113,13 @@ export function doTree(
 				msgctxt: string;
 				msgid: string;
 				msgid_plural: string;
+				number: string;
 				msgstr: string;
 				text_domain: string;
-			}> = {};
+			}> = {
+				// WordPress default text domain is 'default'
+				text_domain: 'default',
+			};
 
 			const translationKeys =
 				i18nFunctions[functionName as keyof typeof i18nFunctions];
@@ -139,23 +143,24 @@ export function doTree(
 					continue;
 				}
 
-				if (node?.type && stringType.includes(node.type)) {
-					// unquote the strings
-					nodeValue = nodeValue.slice(1, -1);
-				} else {
-					if (debugEnabled) {
-						// Whenever we get an unexpected node type this string is not translatable and should be skipped
-						console.warn(
-							`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
-						);
-					}
-					continue;
-				}
-
 				// the translation key (eg. msgid)
 				const currentKey = translationKeys[
 					translationKeyIndex
 				] as keyof typeof translation;
+
+				if (node?.type && stringType.includes(node.type)) {
+					// unquote the strings
+					nodeValue = nodeValue.slice(1, -1);
+				} else if (currentKey === 'number'){
+					// `number` accepts any value, this will not be provided in the POT file
+					nodeValue = node.text;
+				} else {
+					// Whenever we get an unexpected node type this string is not translatable and should be skipped
+					console.error(
+						`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
+					);
+					return;  // Parse error, skip this translation.
+				}
 
 				// the value of that key
 				translation[currentKey] = nodeValue;

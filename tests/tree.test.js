@@ -194,3 +194,22 @@ describe("doTree php filtered by translation domain", async () => {
 		assert.strictEqual(r.map((block) => block).length, 1);
 	});
 });
+
+describe("doTree php _n, _nx", async () => {
+	it("should extract translations and comments from code content", () => {
+		const content = `<?php
+
+      // translators: %d a number of years
+      _n( '%d year ago', '%d years go', 1, 'foo-plugin' );
+
+      // translators: %d a number of years
+      _nx( '%d year ago', '%d years go', 1, 'context', 'foo-plugin' );
+      `;
+
+		const filename = "filename.php";
+
+		const r = doTree(content, filename).blocks;
+
+		assert.strictEqual(r.filter((block) => block.msgctxt === 'context').length, 1);
+	});
+});

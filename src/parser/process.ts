@@ -48,7 +48,7 @@ export async function processFiles(
 			);
 		} else if (allowedFormats.includes(ext)) {
 			const fileTree = readFileAsync(fileRealPath).then((content) =>
-				doTree(content, file, args.options?.translationDomains, args.debug),
+				doTree(content, file, args.debug, args),
 			);
 			if (fileTree) {
 				tasks.push(fileTree as Promise<SetOfBlocks>);

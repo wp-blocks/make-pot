@@ -189,9 +189,10 @@ describe("doTree php filtered by translation domain", async () => {
 
 		const filename = "filename.php";
 
-		const r = doTree(content, filename, ['foo-plugin']).blocks;
-
-		assert.strictEqual(r.map((block) => block).length, 1);
+		for (const translationDomain of ['default', 'foo-plugin', 'bar-plugin']) {
+			const r = doTree(content, filename, undefined, { options: { translationDomains: [translationDomain] } }).blocks;
+			assert.strictEqual(r.map((block) => block).length, 1);
+		}
 	});
 });
 

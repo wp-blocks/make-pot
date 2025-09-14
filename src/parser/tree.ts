@@ -4,6 +4,7 @@ import { i18nFunctions } from "../const.js";
 import { Block, SetOfBlocks } from "gettext-merger";
 import { getParser } from "../fs/glob.js";
 import { reverseSlashes, stripTranslationMarkup } from "../utils/common.js";
+import { Args } from "../types.js";
 
 /**
  * Collect comments from the AST node and its preceding siblings.
@@ -36,13 +37,14 @@ function collectComments(node: SyntaxNode): string | undefined {
  * @param {string} sourceCode - The source code to be parsed.
  * @param {string} filepath - The path to the file being parsed.
  * @param {boolean} debugEnabled - Whether debug mode is enabled.
+ * @param {Args} args - The command line arguments, optional.
  * @return {SetOfBlocks} An array of translation strings.
  */
 export function doTree(
 	sourceCode: string,
 	filepath: string,
-	translationDomains?: string[],
 	debugEnabled?: boolean,
+	args?: Args,
 ): SetOfBlocks {
 	// set up the parser
 	const parser = new Parser();
@@ -169,7 +171,7 @@ export function doTree(
 				translationKeyIndex += 1;
 			}
 
-			if (Array.isArray(translationDomains) && !translationDomains.includes(translation.text_domain as string)) {
+			if (Array.isArray(args?.options?.translationDomains) && !args.options.translationDomains.includes(translation.text_domain as string)) {
 				return;
 			}
 

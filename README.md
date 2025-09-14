@@ -58,7 +58,7 @@ npx @wp-blocks/make-pot src languages --charset='utf-8' --include="src/**/*.{ts,
 - `--version`: Displays the version number of `make-pot`.
 - `-h`, `--help`: Displays help information.
 - `--slug <slug>`: Specifies the plugin or theme slug.
-- `--domain <domain>`: Specifies the text domain to look for in the source code.
+- `--domain <domain>`: Specifies the text domain to look for in the source code, you can choose "plugin", "theme", "block", "theme-block", "generic".
 - `--skip-js`: Skips JavaScript files during processing.
 - `--skip-php`: Skips PHP files during processing.
 - `--skip-blade`: Skips Blade files during processing.
@@ -78,6 +78,7 @@ npx @wp-blocks/make-pot src languages --charset='utf-8' --include="src/**/*.{ts,
 - `--silent`: Suppresses output to stdout.
 - `--json`: Outputs the JSON gettext data.
 - `--charset`: Defines the encoding charset of the pot file, you can choose "iso-8859-1" and "uft-8" (defaults to iso-8859-1)
+- `--translation-domains`: Restrict to specific translation domains.
 - `--output`: Outputs the gettext data.
 
 ### Example usage

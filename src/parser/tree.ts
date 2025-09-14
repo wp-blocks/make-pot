@@ -4,6 +4,7 @@ import { i18nFunctions } from "../const.js";
 import { Block, SetOfBlocks } from "gettext-merger";
 import { getParser } from "../fs/glob.js";
 import { reverseSlashes, stripTranslationMarkup } from "../utils/common.js";
+import { Args } from "../types.js";
 
 /**
  * Collect comments from the AST node and its preceding siblings.
@@ -36,12 +37,14 @@ function collectComments(node: SyntaxNode): string | undefined {
  * @param {string} sourceCode - The source code to be parsed.
  * @param {string} filepath - The path to the file being parsed.
  * @param {boolean} debugEnabled - Whether debug mode is enabled.
+ * @param {Args} args - The command line arguments, optional.
  * @return {SetOfBlocks} An array of translation strings.
  */
 export function doTree(
 	sourceCode: string,
 	filepath: string,
 	debugEnabled?: boolean,
+	args?: Args,
 ): SetOfBlocks {
 	// set up the parser
 	const parser = new Parser();
@@ -112,8 +115,13 @@ export function doTree(
 				msgctxt: string;
 				msgid: string;
 				msgid_plural: string;
+				number: string;
 				msgstr: string;
-			}> = {};
+				text_domain: string;
+			}> = {
+				// WordPress default text domain is 'default'
+				text_domain: 'default',
+			};
 
 			const translationKeys =
 				i18nFunctions[functionName as keyof typeof i18nFunctions];
@@ -137,29 +145,34 @@ export function doTree(
 					continue;
 				}
 
-				if (node?.type && stringType.includes(node.type)) {
-					// unquote the strings
-					nodeValue = nodeValue.slice(1, -1);
-				} else {
-					if (debugEnabled) {
-						// Whenever we get an unexpected node type this string is not translatable and should be skipped
-						console.warn(
-							`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
-						);
-					}
-					continue;
-				}
-
 				// the translation key (eg. msgid)
 				const currentKey = translationKeys[
 					translationKeyIndex
 				] as keyof typeof translation;
+
+				if (node?.type && stringType.includes(node.type)) {
+					// unquote the strings
+					nodeValue = nodeValue.slice(1, -1);
+				} else if (currentKey === 'number'){
+					// `number` accepts any value, this will not be provided in the POT file
+					nodeValue = node.text;
+				} else {
+					// Whenever we get an unexpected node type this string is not translatable and should be skipped
+					console.error(
+						`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
+					);
+					return;  // Parse error, skip this translation.
+				}
 
 				// the value of that key
 				translation[currentKey] = nodeValue;
 
 				// increment the index of the translation key
 				translationKeyIndex += 1;
+			}
+
+			if (Array.isArray(args?.options?.translationDomains) && !args.options.translationDomains.includes(translation.text_domain as string)) {
+				return;
 			}
 
 			const comments = collectComments(argsNode);

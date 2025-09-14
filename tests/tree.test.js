@@ -177,3 +177,40 @@ describe("doTree large file", () => {
 		assert.strictEqual(r.filter((block) => block.comments).length, 19);
 	});
 });
+
+describe("doTree php filtered by translation domain", async () => {
+	it("should extract translations filtered by translation domain", () => {
+		const content = `<?php
+
+      __( 'hello, world' );
+      __( 'hello, foo', 'foo-plugin' );
+      __( 'hello, bar', 'bar-plugin' );
+      `;
+
+		const filename = "filename.php";
+
+		for (const translationDomain of ['default', 'foo-plugin', 'bar-plugin']) {
+			const r = doTree(content, filename, undefined, { options: { translationDomains: [translationDomain] } }).blocks;
+			assert.strictEqual(r.map((block) => block).length, 1);
+		}
+	});
+});
+
+describe("doTree php _n, _nx", async () => {
+	it("should extract translations and comments from code content", () => {
+		const content = `<?php
+
+      // translators: %d a number of years
+      _n( '%d year ago', '%d years go', 1, 'foo-plugin' );
+
+      // translators: %d a number of years
+      _nx( '%d year ago', '%d years go', 1, 'context', 'foo-plugin' );
+      `;
+
+		const filename = "filename.php";
+
+		const r = doTree(content, filename).blocks;
+
+		assert.strictEqual(r.filter((block) => block.msgctxt === 'context').length, 1);
+	});
+});

@@ -29,7 +29,8 @@ export function getArgs(userArgs = {}): Args | MakeJsonArgs {
 				type: "string",
 			},
 			domain: {
-				describe: "Text domain to look for in the source code",
+				describe: "Text domain to look for in the source code. Valid domains are: plugin, theme, block, theme-block, generic.",
+				choices: ["plugin", "theme", "block", "theme-block", "generic"],
 				type: "string",
 			},
 			"skip-js": {

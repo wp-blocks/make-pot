@@ -58,7 +58,7 @@ npx @wp-blocks/make-pot src languages --charset='utf-8' --include="src/**/*.{ts,
 - `--version`: Displays the version number of `make-pot`.
 - `-h`, `--help`: Displays help information.
 - `--slug <slug>`: Specifies the plugin or theme slug.
-- `--domain <domain>`: Specifies the text domain to look for in the source code.
+- `--domain <domain>`: Specifies the text domain to look for in the source code, you can choose "plugin", "theme", "block", "theme-block", "generic".
 - `--skip-js`: Skips JavaScript files during processing.
 - `--skip-php`: Skips PHP files during processing.
 - `--skip-blade`: Skips Blade files during processing.

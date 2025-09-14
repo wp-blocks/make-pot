@@ -24,7 +24,7 @@ function isThemeOrPlugin(currentPath = "/", slug = "default"): DomainType {
 			fs.constants.R_OK,
 		);
 		return "plugin";
-	} catch (err) {
+	} catch (_err) {
 		// do nothing
 		console.log(
 			`the current working directory ${currentWorkingDirectory} does not contain a ${slug}.php file`,
@@ -40,7 +40,7 @@ function isThemeOrPlugin(currentPath = "/", slug = "default"): DomainType {
 			fs.constants.R_OK,
 		);
 		return "theme";
-	} catch (err) {
+	} catch (_err) {
 		// do nothing
 		console.log(
 			`the current working directory ${currentWorkingDirectory} does not contain a style.css file`,
@@ -132,7 +132,11 @@ export function parseCliArgs(
 				themeJson: !!args.skipThemeJson,
 				audit: !!args.skipAudit,
 			},
-			translationDomains: args.translationDomains ? Array.isArray(args.translationDomains) ? args.translationDomains.map(String) : [String(args.translationDomains)] : undefined,
+			translationDomains: args.translationDomains
+				? Array.isArray(args.translationDomains)
+					? args.translationDomains.map(String)
+					: [String(args.translationDomains)]
+				: undefined,
 		},
 		// Patterns
 		patterns: {
@@ -165,7 +169,7 @@ export function parseJsonArgs(
 	const currentWorkingDirectory = process.cwd();
 	const slug = path.basename(path.resolve(currentWorkingDirectory));
 
-	let scriptName = undefined;
+	let scriptName: string;
 	if (args.scriptName) {
 		scriptName = args.scriptName.split(",").map((s) => s.trim());
 		if (scriptName.length === 1) {

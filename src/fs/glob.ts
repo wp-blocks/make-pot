@@ -1,11 +1,11 @@
 import path from "node:path";
 import { Glob, type Path } from "glob";
 import { minimatch } from "minimatch";
-// @ts-ignore
+// @ts-expect-error
 import * as javascript from "tree-sitter-javascript";
-// @ts-ignore
+// @ts-expect-error
 import * as php from "tree-sitter-php";
-// @ts-ignore
+// @ts-expect-error
 import * as ts from "tree-sitter-typescript";
 import type { Args, Patterns } from "../types.js";
 import { detectPatternType, getFileExtension } from "../utils/common.js";

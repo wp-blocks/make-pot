@@ -8,8 +8,6 @@ import type { I18nSchema } from "../types.js";
 /**
  * Extracts strings from JSON files using the I18n schema.
  */
-
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class JsonSchemaExtractor {
 	private static schemaCache: { [url: string]: I18nSchema } = {};
 

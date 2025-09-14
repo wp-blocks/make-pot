@@ -4,7 +4,7 @@ import { i18nFunctions } from "../const.js";
 import { Block, SetOfBlocks } from "gettext-merger";
 import { getParser } from "../fs/glob.js";
 import { reverseSlashes, stripTranslationMarkup } from "../utils/common.js";
-import { Args } from "../types.js";
+import type { Args } from "../types.js";
 
 /**
  * Collect comments from the AST node and its preceding siblings.

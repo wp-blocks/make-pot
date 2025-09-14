@@ -36,9 +36,9 @@ export function audit(args: Args, translationsUnion: SetOfBlocks) {
  */
 class StringAuditor {
 	private readonly SPRINTF_PLACEHOLDER_REGEX =
-		/%(?:\d+\$)?[+-]?(?:[ 0]|\'.)?-?\d*(?:\.\d+)?[bcdeEfFgGhHosuxX]/g;
+		/%(?:\d+\$)?[+-]?(?:[ 0]|'.)?-?\d*(?:\.\d+)?[bcdeEfFgGhHosuxX]/g;
 	private readonly UNORDERED_SPRINTF_PLACEHOLDER_REGEX =
-		/%(?!(\d+)\$)[+-]?(?:[ 0]|\'.)?-?\d*(?:\.\d+)?[bcdeEfFgGhHosuxX]/g;
+		/%(?!(\d+)\$)[+-]?(?:[ 0]|'.)?-?\d*(?:\.\d+)?[bcdeEfFgGhHosuxX]/g;
 	private projectType: string;
 
 	/**

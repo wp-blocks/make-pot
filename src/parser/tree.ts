@@ -204,6 +204,9 @@ export function doTree(
 					translationKeyIndex
 				] as keyof typeof translation;
 
+				// Resolve the value using our new function (handles quotes and escapes)
+				let nodeValue: string = resolveStringValue(node);
+
 				if (node?.type && stringType.includes(node.type)) {
 					// unquote the strings
 					nodeValue = nodeValue.slice(1, -1);

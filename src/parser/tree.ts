@@ -29,6 +29,59 @@ function collectComments(node: SyntaxNode): string | undefined {
 		depth++;
 		currentNode = currentNode.parent as SyntaxNode;
 	}
+/**
+ * Resolves the actual string value from a tree-sitter node,
+ * handling escape sequences in double-quoted strings.
+ *
+ * @param {SyntaxNode} node - The AST node.
+ * @return {string} The collected comment or undefined.
+ */
+function resolveStringValue(node: SyntaxNode): string {
+	// Handle double-quoted strings (PHP encapsed_string)
+	if (node.type === 'encapsed_string') {
+		return node.children
+			.map((child) => {
+				if (child.type === 'escape_sequence') {
+					// Unescape common sequences
+					switch (child.text) {
+						case '\\n': return '\n';
+						case '\\r': return '\r';
+						case '\\t': return '\t';
+						case '\\\\': return '\\';
+						case '\\"': return '"';
+						case '\\$': return '$';
+						case '\\e': return '\x1b';
+						case '\\f': return '\f';
+						case '\\v': return '\v';
+						default: return child.text;
+					}
+				}
+				// Return literal content
+				if (child.type === 'string_content') {
+					return child.text;
+				}
+				// Handle variables if they appear (preserve them as text)
+				if (child.type === 'variable_name') {
+					return child.text;
+				}
+				return '';
+			})
+			.join('');
+	}
+
+	// Handle single-quoted strings (PHP string) or JS strings
+	if (node.type === 'string') {
+		const text = node.text;
+		// Strip surrounding quotes if present
+		if ((text.startsWith("'") && text.endsWith("'")) ||
+			(text.startsWith('"') && text.endsWith('"'))) {
+			// Remove quotes and unescape escaped quotes
+			return text.slice(1, -1).replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+		}
+	}
+
+	// Fallback for other node types (identifiers, etc.)
+	return node.text;
 }
 
 /**

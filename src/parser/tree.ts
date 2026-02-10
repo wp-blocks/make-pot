@@ -10,25 +10,26 @@ import type { Args } from "../types.js";
  * Collect comments from the AST node and its preceding siblings.
  *
  * @param {SyntaxNode} node - The AST node.
- * @return {string[]} An array of collected comments.
+ * @return {string | undefined} The collected comment or undefined.
  */
 function collectComments(node: SyntaxNode): string | undefined {
-	let currentNode = node;
+	let currentNode: SyntaxNode | null = node;
 	let depth = 0;
 
 	// Check the node's preceding siblings for comments
 	while (currentNode && depth < 6) {
 		if (
-			currentNode?.previousSibling?.type === "comment" &&
-			currentNode?.previousSibling?.text.toLowerCase().includes("translators")
+			currentNode.previousSibling?.type === "comment" &&
+			currentNode.previousSibling.text.toLowerCase().includes("translators")
 		) {
-			return currentNode?.previousSibling?.text
-				? stripTranslationMarkup(currentNode.previousSibling.text)
-				: undefined;
+			return stripTranslationMarkup(currentNode.previousSibling.text);
 		}
 		depth++;
-		currentNode = currentNode.parent as SyntaxNode;
+		currentNode = currentNode.parent;
 	}
+	return undefined;
+}
+
 /**
  * Resolves the actual string value from a tree-sitter node,
  * handling escape sequences in double-quoted strings.

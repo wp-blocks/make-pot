@@ -180,10 +180,11 @@ export function doTree(
 			const translationKeys =
 				i18nFunctions[functionName as keyof typeof i18nFunctions];
 
+			// Slice the children to skip the opening and closing parentheses/brackets
 			const children = raw.children.slice(1, -1);
 			let translationKeyIndex = 0;
 
-			// Get the translation from the arguments (the quoted strings)
+			// Get the translation from the arguments
 			for (const child of children) {
 				let node = child;
 				let nodeValue: string | string[] = node.text;
@@ -197,6 +198,11 @@ export function doTree(
 				if (node?.type === ",") {
 					// skip the comma between arguments
 					continue;
+				}
+
+				// Stop if we have more arguments than keys defined
+				if (translationKeyIndex >= translationKeys.length) {
+					break;
 				}
 
 				// the translation key (eg. msgid)
@@ -228,11 +234,16 @@ export function doTree(
 				translationKeyIndex += 1;
 			}
 
-			if (Array.isArray(args?.options?.translationDomains) && !args.options.translationDomains.includes(translation.text_domain as string)) {
+			// Check if domain matches the requested domain filter
+			if (
+				Array.isArray(args?.options?.translationDomains) &&
+				translation.text_domain &&
+				!args.options.translationDomains.includes(translation.text_domain)
+			) {
 				return;
 			}
 
-			const comments = collectComments(argsNode);
+			const comments = collectComments(node); // Pass the CallExpression node, collectComments walks up
 
 			// Get the translation data
 			const block = new Block({

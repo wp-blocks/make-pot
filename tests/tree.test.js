@@ -35,7 +35,7 @@ describe("doTree php", () => {
 				translator: undefined,
 			},
 			msgctxt: undefined,
-			msgid: "You\\'re a silly monkey",
+			msgid: "You're a silly monkey",
 			msgid_plural: undefined,
 			msgstr: [""],
 		});
@@ -212,5 +212,78 @@ describe("doTree php _n, _nx", async () => {
 		const r = doTree(content, filename).blocks;
 
 		assert.strictEqual(r.filter((block) => block.msgctxt === 'context').length, 1);
+	});
+});
+
+describe("doTree php escape sequences", async () => {
+	it("should correctly unescape newlines, tabs, and quotes in double-quoted strings", () => {
+		const content = `<?php
+       // Double quotes with escape sequences
+       __("Line 1\\nLine 2", "text-domain");
+
+       // Double quotes with escaped quotes
+       _e("Hello \\"World\\"", "text-domain");
+
+       // Double quotes with tabs
+       __("Col1\\tCol2", "text-domain");
+       `;
+
+		const filename = "escapes.php";
+		const r = doTree(content, filename).blocks;
+
+		// 1. Verify newline
+		const newlineBlock = r.find(b => b.msgid.includes('Line 1'));
+		// The msgid should contain an actual newline character, not the literal characters '\' and 'n'
+		assert.strictEqual(newlineBlock?.msgid, "Line 1\nLine 2");
+
+		// 2. Verify escaped quotes
+		const quoteBlock = r.find(b => b.msgid.includes('Hello'));
+		assert.strictEqual(quoteBlock?.msgid, 'Hello "World"');
+
+		// 3. Verify tabs
+		const tabBlock = r.find(b => b.msgid.includes('Col1'));
+		assert.strictEqual(tabBlock?.msgid, "Col1\tCol2");
+	});
+});
+
+describe("doTree php single quotes", async () => {
+	it("should treat escape sequences as literals in single-quoted strings", () => {
+		const content = `<?php
+       // Single quotes should NOT interpret \\n as newline
+       __('Line 1\\nLine 2', 'text-domain');
+
+       // Single quotes SHOULD handle escaped single quotes
+       __('It\\'s a sunny day', 'text-domain');
+       `;
+
+		const filename = "single_quotes.php";
+		const r = doTree(content, filename).blocks;
+
+		// 1. Verify literal \\n
+		const literalBlock = r.find(b => b.msgid.includes('Line 1'));
+		// In single quotes, \\n is two characters: backslash and n
+		assert.strictEqual(literalBlock?.msgid, "Line 1\\nLine 2");
+
+		// 2. Verify escaped single quote
+		const quoteBlock = r.find(b => b.msgid.includes('sunny'));
+		assert.strictEqual(quoteBlock?.msgid, "It's a sunny day");
+	});
+});
+
+describe("doTree php variables in strings", async () => {
+	it("should preserve PHP variables inside double-quoted strings", () => {
+		const content = `<?php
+       $name = 'John';
+       // Variable interpolation
+       __("Hello $name, how are you?", "text-domain");
+       `;
+
+		const filename = "variables.php";
+		const r = doTree(content, filename).blocks;
+
+		const varBlock = r.find(b => b.msgid.startsWith('Hello'));
+
+		// We expect the variable name to be preserved in the msgid
+		assert.strictEqual(varBlock?.msgid, "Hello $name, how are you?");
 	});
 });

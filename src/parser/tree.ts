@@ -136,10 +136,11 @@ export function doTree(
 	 */
 	function traverse(node: SyntaxNode): void {
 		// Walk the tree
-		if (node?.children.length)
+		if (node?.children.length) {
 			for (const child of node.children) {
 				traverse(child);
 			}
+		}
 
 		// Check if the node matches
 		if (node?.type === typeToMatch) {
@@ -165,6 +166,10 @@ export function doTree(
 			// Get the whole gettext translation string
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const [_fn, raw] = node.children;
+
+			// Safety check: verify we actually have an arguments node
+			if (!raw) return;
+
 			const translation: Partial<{
 				msgctxt: string;
 				msgid: string;
@@ -187,7 +192,6 @@ export function doTree(
 			// Get the translation from the arguments
 			for (const child of children) {
 				let node = child;
-				let nodeValue: string | string[] = node.text;
 
 				// unwrap the argument node, which is used in PHP.
 				if (child.type === "argument") {
@@ -221,10 +225,12 @@ export function doTree(
 					nodeValue = node.text;
 				} else {
 					// Whenever we get an unexpected node type this string is not translatable and should be skipped
-					console.error(
-						`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
-					);
-					return;  // Parse error, skip this translation.
+					if (debugEnabled) {
+						console.error(
+							`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
+						);
+					}
+					return; // Parse error, skip this translation.
 				}
 
 				// the value of that key

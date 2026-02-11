@@ -1,6 +1,5 @@
 import Parser, { type SyntaxNode } from "tree-sitter";
 import { i18nFunctions } from "../const.js";
-
 import { Block, SetOfBlocks } from "gettext-merger";
 import { getParser } from "../fs/glob.js";
 import { reverseSlashes, stripTranslationMarkup } from "../utils/common.js";
@@ -103,8 +102,10 @@ export function doTree(
 	// set up the parser
 	const parser = new Parser();
 	const parserExt = getParser(filepath);
+
 	// if no parser is found return empty
 	if (!parserExt) return new SetOfBlocks([], filepath);
+
 	// set the parser language
 	parser.setLanguage(parserExt);
 
@@ -212,18 +213,15 @@ export function doTree(
 				// the translation key (eg. msgid)
 				const currentKey = translationKeys[
 					translationKeyIndex
-				] as keyof typeof translation;
+					] as keyof typeof translation;
 
 				// Resolve the value using our new function (handles quotes and escapes)
 				let nodeValue: string = resolveStringValue(node);
 
-				if (node?.type && stringType.includes(node.type)) {
-					// unquote the strings
-					nodeValue = nodeValue.slice(1, -1);
-				} else if (currentKey === 'number'){
+				if (currentKey === 'number') {
 					// `number` accepts any value, this will not be provided in the POT file
 					nodeValue = node.text;
-				} else {
+				} else if (!node?.type || !stringType.includes(node.type)) {
 					// Whenever we get an unexpected node type this string is not translatable and should be skipped
 					if (debugEnabled) {
 						console.error(

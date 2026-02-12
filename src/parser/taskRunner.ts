@@ -18,7 +18,7 @@ export async function taskRunner(
 	args: Args,
 	progressBar: SingleBar,
 ) {
-	const messages = [];
+	const messages: string[] = [];
 	await Promise.allSettled(tasks)
 		.then((strings) => {
 			/**
@@ -37,11 +37,12 @@ export async function taskRunner(
 						 * Add the strings to the destination set
 						 */
 						destination.addArray(result.blocks);
+						const strings = result.blocks.map((b) => b.msgid);
 						/* Log the results */
 						messages.push(
-							`✅ ${result.path} [${result.blocks.map((b) => b.msgid).join(", ")}]`,
+							`✅ ${result.path} - ${strings.length} strings found [${strings.join(", ")}]`,
 						);
-					} else messages.push(`❌ ${result.path} has no strings`);
+					} else messages.push(`❌ ${result.path} - has no strings`);
 				}
 			}
 		})

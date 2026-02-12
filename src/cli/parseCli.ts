@@ -177,9 +177,9 @@ export function parseJsonArgs(
 
 	let scriptName: string | undefined;
 	if (args.scriptName) {
-		scriptName = args.scriptName.split(",").map((s) => s.trim());
-		if (scriptName.length === 1) {
-			scriptName = scriptName[0];
+		const scripts = args.scriptName.toString().split(",").map((s) => s.trim());
+		if (scripts.length === 1) {
+			scriptName = scripts[0];
 		}
 	}
 

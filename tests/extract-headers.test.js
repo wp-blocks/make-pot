@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const { join } = require("node:path");
 const assert = require("node:assert");
-const { extractMainFileData } = require("../lib");
+const { extractMainFileData, getAuthorFromPackage } = require("../lib");
 
 describe("should parse plugin main file", () => {
 	describe("should parse plugin.php", () => {
@@ -49,6 +49,74 @@ describe("should parse theme main file", () => {
 				domainPath: "/assets/lang",
 				license: "GNU General Public License v2.0 or later",
 			});
+		});
+	});
+});
+
+describe("getAuthorFromPackage", () => {
+	it("extracts author from string with name and email", () => {
+		const pkgJson = {
+			author: "My Name <myname@example.com>",
+		};
+		const author = getAuthorFromPackage(pkgJson);
+		assert.deepStrictEqual(author, {
+			name: "My Name",
+			email: "myname@example.com",
+			website: undefined,
+		});
+	});
+
+	it("extracts author from string with specific user format", () => {
+		const pkgJson = {
+			author: "my name <myname@asdasdasdasd.it>",
+		};
+		const author = getAuthorFromPackage(pkgJson);
+		assert.deepStrictEqual(author, {
+			name: "my name",
+			email: "myname@asdasdasdasd.it",
+			website: undefined,
+		});
+	});
+
+	it("extracts author from string with name, email and url", () => {
+		const pkgJson = {
+			author: "My Name <myname@example.com> (https://example.com)",
+		};
+		const author = getAuthorFromPackage(pkgJson);
+		assert.deepStrictEqual(author, {
+			name: "My Name",
+			email: "myname@example.com",
+			website: "https://example.com",
+		});
+	});
+
+	it("extracts author from object", () => {
+		const pkgJson = {
+			author: {
+				name: "Object Author",
+				email: "obj@example.com",
+				website: "https://obj.example.com"
+			}
+		};
+		const author = getAuthorFromPackage(pkgJson);
+		assert.deepStrictEqual(author, {
+			name: "Object Author",
+			email: "obj@example.com",
+			website: "https://obj.example.com",
+		});
+	});
+
+	it("extracts author from array of strings", () => {
+		const pkgJson = {
+			authors: [
+				"Array Author <array@example.com>"
+			]
+		};
+		const author = getAuthorFromPackage(pkgJson);
+		assert.deepStrictEqual(author, {
+			name: "Array Author",
+			email: "array@example.com",
+			website: undefined
 		});
 	});
 });

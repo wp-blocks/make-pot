@@ -69,7 +69,8 @@ export function getEncodingCharset(charset: string | undefined): string {
  * @param args - the command line arguments
  */
 function getOutputFilePath(args: Args): string {
-	const { out, headers, options } = args.paths;
+	const { paths, headers, options } = args;
+	const out = paths.out
 	let i18nFolder = out ?? headers?.domainPath ?? "languages";
 
 	// Remove leading and trailing slashes

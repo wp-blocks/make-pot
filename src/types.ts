@@ -103,6 +103,7 @@ export interface Args {
 		packageName?: string;
 		headers: { [key in PotHeaders]: string };
 		output?: boolean;
+		theme?: boolean;
 		fileComment?: string;
 		charset?: string;
 		skip: {
@@ -205,4 +206,10 @@ export interface I18nHeaders {
 	version: string;
 	slug: string;
 	email: string | undefined;
+}
+
+export interface AuthorData {
+	name: string;
+	email?: string;
+	website?: string;
 }

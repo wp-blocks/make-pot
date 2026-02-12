@@ -50,13 +50,13 @@ export const buildBlock = (
  * @return {SetOfBlocks} An array of translation strings.
  */
 export function yieldParsedData(
-	parsed: Block[],
-	filename: "block.json" | "theme.json",
+	parsed: Block[] | undefined,
+	_filename: "block.json" | "theme.json",
 	filepath: string,
 ): SetOfBlocks {
 	const gettextTranslations: SetOfBlocks = new SetOfBlocks([], filepath);
 
-	if (parsed.length === 0) {
+	if (!parsed) {
 		return gettextTranslations;
 	}
 

@@ -30,19 +30,22 @@ export async function taskRunner(
 		})
 		.then((consolidated) => {
 			/** Log the results */
-			if (args.options?.silent !== true) {
-				for (const result of consolidated) {
-					if (result.blocks.length > 0) {
-						/**
-						 * Add the strings to the destination set
-						 */
-						destination.addArray(result.blocks);
-						const strings = result.blocks.map((b) => b.msgid);
-						/* Log the results */
+			for (const result of consolidated) {
+				if (result.blocks.length > 0) {
+					/**
+					 * Add the strings to the destination set
+					 */
+					destination.addArray(result.blocks);
+					const strings = result.blocks.map((b) => b.msgid);
+
+					/* Log the results */
+					if (args.options?.silent !== true) {
 						messages.push(
 							`✅ ${result.path} - ${strings.length} strings found [${strings.join(", ")}]`,
 						);
-					} else messages.push(`❌ ${result.path} - has no strings`);
+					}
+				} else if (args.options?.silent !== true) {
+					messages.push(`❌ ${result.path} - has no strings`);
 				}
 			}
 		})

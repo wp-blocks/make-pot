@@ -12,7 +12,7 @@ export function audit(args: Args, translationsUnion: SetOfBlocks) {
 	console.log("\nAudit Complete!");
 	if (auditor.getResults().length === 0) {
 		console.log("No issues found! 🎉");
-		//if there are no errors, we can remove the audit.log file
+		// if there are no errors, we can remove the audit.log file
 		try {
 			unlinkSync(path.join(args.paths.cwd, "audit.log"));
 		} catch (_error) {
@@ -20,10 +20,13 @@ export function audit(args: Args, translationsUnion: SetOfBlocks) {
 		}
 	} else {
 		console.log(`Found ${auditor.getResults().length} issues!`);
-		const results = auditor.getResults().join("\n");
-		console.log(results);
+		// Print the results if not in silent mode
+		if (args.options?.silent !== true) {
+			const results = auditor.getResults().join("\n");
+			console.log(results);
+		}
 		/** Write the audit results to a file */
-		writeFileSync(path.join(args.paths.cwd, "audit.log"), results);
+		writeFileSync(path.join(args.paths.cwd, "audit.log"), auditor.getResults().join("\n"));
 	}
 }
 

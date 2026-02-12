@@ -1,4 +1,6 @@
 import path from 'node:path'
+import process from 'node:process'
+import * as readline from 'node:readline'
 import { SetOfBlocks } from 'gettext-merger'
 import { modulePath } from '../const.js'
 import { getEncodingCharset } from '../fs/fs.js'
@@ -12,11 +14,13 @@ import { extractPhpPluginData } from './php.js'
  * Checks if required fields are missing and logs a clear error message
  * @param {object} headerData - The header data to validate
  * @param {boolean} debug - Debug mode flag
+ * @param {boolean} silent - Silent mode flag
  * @returns {boolean} - true if all required fields are present, false otherwise
  */
 function validateRequiredFields(
 	headerData: I18nHeaders,
 	debug: boolean,
+	silent = false,
 ): boolean {
 	// Define the required fields with strict key types
 	const requiredFields: {
@@ -40,39 +44,41 @@ function validateRequiredFields(
 	);
 
 	if (missingFields.length > 0) {
-		console.error("\n!  Missing required information for POT file header:\n");
+		if (!silent) {
+			console.error("\n!  Missing required information for POT file header:\n");
 
-		for (const field of missingFields) {
+			for (const field of missingFields) {
+				console.error(
+					`   - ${field.name} is missing or has a default value (eg. version: 0.0.1")`,
+				);
+			}
+
 			console.error(
-				`   - ${field.name} is missing or has a default value (eg. version: 0.0.1")`,
-			);
-		}
-
-		console.error(
-			"\nPlease provide this information adding the missing fields inside the headers object of the plugin/theme declaration or to the package.json file.",
-			"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
-		);
-
-		if (missingFields.some((field) => field.key === "email")) {
-			console.error(
-				"\n\nWordpress didn't require an email field in the headers object but it's required in order to generate a valid pot file.",
-				'\nPlease add the email field to the package.json file (author field eg. author: "AUTHOR <EMAIL>")',
-				'\nor inject those information using the --headers flag to the "makePot" command (eg. --headers=email:erik@ck.it).',
+				"\nPlease provide this information adding the missing fields inside the headers object of the plugin/theme declaration or to the package.json file.",
 				"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
 			);
-		}
 
-		if (missingFields && debug) {
-			console.error(
-				"\nDebug information:",
-				"\nMissing fields:",
-				missingFields,
-				"\nHeader data:",
-				headerData,
-			);
-		}
+			if (missingFields.some((field) => field.key === "email")) {
+				console.error(
+					"\n\nWordpress didn't require an email field in the headers object but it's required in order to generate a valid pot file.",
+					'\nPlease add the email field to the package.json file (author field eg. author: "AUTHOR <EMAIL>")',
+					'\nor inject those information using the --headers flag to the "makePot" command (eg. --headers=email:erik@ck.it).',
+					"\nFor more information check the documentation at https://github.com/wp-blocks/makePot",
+				);
+			}
 
-		console.error("\n");
+			if (missingFields && debug) {
+				console.error(
+					"\nDebug information:",
+					"\nMissing fields:",
+					missingFields,
+					"\nHeader data:",
+					headerData,
+				);
+			}
+
+			console.error("\n");
+		}
 
 		return false;
 	}
@@ -153,10 +159,7 @@ export function getAuthorFromPackage(
 			} else if (Array.isArray(value)) {
 				for (const author of value) {
 					if (!author) continue;
-					if (
-						typeof author === "string" ||
-						(typeof author === "object")
-					) {
+					if (typeof author === "string" || typeof author === "object") {
 						authorData = extractAuthorData(author as string | AuthorData);
 						if (authorData) break;
 					}
@@ -196,7 +199,9 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		"maintainers",
 	);
 	// get author data from package.json
-	const pkgAuthor = getAuthorFromPackage(pkgJsonData as unknown as Record<string, unknown>);
+	const pkgAuthor = getAuthorFromPackage(
+		pkgJsonData as unknown as Record<string, unknown>,
+	);
 
 	// get the current directory name as slug
 	const currentDir = path
@@ -215,7 +220,8 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		args.headers?.name?.toString().replace(/ /g, "-") ||
 		(args.domain === "theme" ? "THEME NAME" : "PLUGIN NAME");
 
-	const bugs = `https://wordpress.org/support/${args.domain === "theme" ? "themes" : "plugins"}/${slug}`;
+	const bugs = `https://wordpress.org/support/${args.domain === "theme" ? "themes" : "plugins"
+		}/${slug}`;
 
 	return {
 		...args.headers,
@@ -226,7 +232,8 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		email,
 		bugs,
 		license: args.headers?.license || "gpl-2.0 or later",
-		version: args.headers?.version || (pkgJsonData.version as string) || "0.0.1",
+		version:
+			args.headers?.version || (pkgJsonData.version as string) || "0.0.1",
 		language: "en",
 		xDomain: args.headers?.textDomain?.toString() || slug,
 	};
@@ -257,8 +264,32 @@ export async function generateHeader(
 	const { name, version } = getPkgJsonData(modulePath, "name", "version");
 
 	// Validate required fields - exit early if validation fails
-	if (!validateRequiredFields(headerData, args.debug)) {
-		process.exit(1); // Exit with error code
+	if (!validateRequiredFields(headerData, args.debug, args.options?.silent)) {
+		if (args.options?.silent) {
+			// In silent mode, we use defaults without asking
+		} else {
+			// Ask the user if default values should be used
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout,
+			});
+
+			const answer = await new Promise((resolve) => {
+				rl.question(
+					"\nMissing required fields. Use default values? (y/N) ",
+					resolve,
+				);
+			});
+			rl.close();
+
+			if (
+				typeof answer === "string" &&
+				answer.toLowerCase() !== "y" &&
+				answer.toLowerCase() !== "yes"
+			) {
+				process.exit(1); // Exit with error code
+			}
+		}
 	}
 
 	return {

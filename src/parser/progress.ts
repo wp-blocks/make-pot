@@ -4,11 +4,11 @@ import type { Args } from "../types.js";
 /**
  * Initializes a progress bar and returns the progress bar element.
  *
- * @param {Args} args - The argument object containing the source directory and other options.
- * @param {number} filesCount - An array of file names.
+ * @param {Args} _args - The argument object containing the source directory and other options.
+ * @param {number} _filesCount - An array of file names.
  * @return {cliProgress.SingleBar} The progress bar element.
  */
-export function initProgress(args: Args, filesCount: number): SingleBar {
+export function initProgress(_args: Args, _filesCount: number): SingleBar {
 	// Set up the progress bar
 	return new cliProgress.SingleBar(
 		{

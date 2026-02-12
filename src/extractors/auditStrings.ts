@@ -15,7 +15,7 @@ export function audit(args: Args, translationsUnion: SetOfBlocks) {
 		//if there are no errors, we can remove the audit.log file
 		try {
 			unlinkSync(path.join(args.paths.cwd, "audit.log"));
-		} catch (error) {
+		} catch (_error) {
 			//ignore
 		}
 	} else {

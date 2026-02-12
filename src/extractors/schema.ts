@@ -1,7 +1,5 @@
 import type { Block } from "gettext-merger";
-import type BlockI18n from "../assets/block-i18n.js";
 import * as blocki18n from "../assets/block-i18n.js";
-import type ThemeI18n from "../assets/theme-i18n.js";
 import * as themei18n from "../assets/theme-i18n.js";
 import type { I18nSchema } from "../types.js";
 
@@ -14,11 +12,11 @@ export class JsonSchemaExtractor {
 	/** Theme */
 	static themeJsonSource =
 		"http://develop.svn.wordpress.org/trunk/src/wp-includes/theme-i18n.json";
-	static themeJsonFallback = themei18n as ThemeI18n;
+	static themeJsonFallback = themei18n;
 	/** Block */
 	static blockJsonSource =
 		"http://develop.svn.wordpress.org/trunk/src/wp-includes/block-i18n.json";
-	static blockJsonFallback = blocki18n as BlockI18n;
+	static blockJsonFallback = blocki18n;
 
 	/**
 	 * Load the schema from the specified URL, with a fallback URL if needed.
@@ -56,12 +54,11 @@ export class JsonSchemaExtractor {
 				return fallback;
 			}
 
-			console.log("Schema loaded successfully");
 			JsonSchemaExtractor.schemaCache[url] = response;
 			return response;
 		} catch (error) {
 			console.error(
-				`\nFailed to load schema from ${url}. Using fallback. Error: ${error.message}`,
+				`\nFailed to load schema from ${url}. Using fallback. Error: ${(error as Error).message}`,
 			);
 			JsonSchemaExtractor.schemaCache[url] = fallback;
 			return fallback;
@@ -134,7 +131,7 @@ export class JsonSchemaExtractor {
 		},
 	): Block[] | undefined {
 		const { filename = "block.json", addReferences = false } = options;
-		const translations = [];
+		const translations: Block[] = [];
 
 		/**
 		 * Recursive function to extract translatable strings
@@ -161,7 +158,7 @@ export class JsonSchemaExtractor {
 							// It's a string - add it to translations
 							addTranslation(
 								currentJson[key],
-								currentSchema[key],
+								currentSchema[key] as string,
 								filename,
 								addReferences,
 							);
@@ -179,6 +176,7 @@ export class JsonSchemaExtractor {
 							);
 						} else if (
 							typeof currentJson[key] === "object" &&
+							currentJson[key] !== null &&
 							typeof currentSchema[key] === "object"
 						) {
 							// It's an object - recurse
@@ -191,18 +189,18 @@ export class JsonSchemaExtractor {
 
 		/**
 		 * Handles arrays in JSON and schema
-		 * @param {Array} jsonArray - The JSON array
-		 * @param {Array} schemaArray - The schema array
-		 * @param {Array} path - The current path
+		 * @param {unknown[]} jsonArray - The JSON array
+		 * @param {string[] | I18nSchema[]} schemaArray - The schema array
+		 * @param {string[]} path - The current path
 		 * @param {string} filename - The name of the file
 		 * @param {boolean} addReferences - whenever to add references
 		 */
 		function handleArrays(
-			jsonArray,
-			schemaArray,
-			path,
-			filename,
-			addReferences,
+			jsonArray: unknown[],
+			schemaArray: string[] | I18nSchema[],
+			path: string[],
+			filename: string,
+			addReferences: boolean,
 		) {
 			// If the schema has at least one element, use it as a template
 			if (schemaArray.length > 0) {
@@ -243,7 +241,7 @@ export class JsonSchemaExtractor {
 		 * @param {string} filename - The name of the file for references
 		 * @param {boolean} addReferences - Whether to add references
 		 */
-		function addTranslation(msgctxt, msgid, filename, addReferences) {
+		function addTranslation(msgctxt: string, msgid: string, filename: string, addReferences: boolean) {
 			if (!msgctxt) return; // Do not add empty strings
 
 			const translation = {

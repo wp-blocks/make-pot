@@ -16,7 +16,7 @@ import { JsonSchemaExtractor } from "./schema.js";
 export async function parseJsonFile(opts: {
 	fileContent: string;
 	filename: "block.json" | "theme.json";
-}): Promise<Block[]> {
+}): Promise<Block[] | undefined> {
 	const isTheme = opts.filename === "theme.json";
 	const schema: { url: string; fallback: I18nSchema } = {
 		url: isTheme

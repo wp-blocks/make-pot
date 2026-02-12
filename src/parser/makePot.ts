@@ -11,7 +11,7 @@ import { exec } from "./exec.js";
  * @return {string} - a promise that resolves when the pot file is generated
  */
 export async function makePot(args: Args): Promise<string> {
-	/** Collect metadata from the get package json */
+	/** Collect metadata from the get-go package JSON */
 	const pkgData = extractPackageJson(args);
 
 	/** Get metadata from the main file (theme and plugin) */

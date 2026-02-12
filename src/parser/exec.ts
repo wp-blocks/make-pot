@@ -67,12 +67,12 @@ export async function exec(args: Args): Promise<string> {
 		audit(args, translationsUnion);
 	}
 
-	/** generate the json file based on the --json flag passed */
+	/** generate the JSON file based on the --json flag passed */
 	if (args.options?.json) {
 		return outputJson(args, potHeader, translationsUnion);
 	}
 
-	/** Generate the pot file json */
+	/** Generate the pot file JSON */
 	const getTextTranslations: GetTextTranslations = {
 		charset: getEncodingCharset(args.options?.charset),
 		headers: potHeader as { [headerName: string]: string },

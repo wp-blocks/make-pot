@@ -169,7 +169,7 @@ export function parseJsonArgs(
 	const currentWorkingDirectory = process.cwd();
 	const slug = path.basename(path.resolve(currentWorkingDirectory));
 
-	let scriptName: string;
+	let scriptName: string | undefined;
 	if (args.scriptName) {
 		scriptName = args.scriptName.split(",").map((s) => s.trim());
 		if (scriptName.length === 1) {

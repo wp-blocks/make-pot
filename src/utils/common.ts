@@ -163,8 +163,7 @@ export function printTimeElapsed(
 	timeEnd: Date = new Date(),
 ) {
 	console.log(
-		`\n🚀 ${scriptName}: Task completed! ${scriptName.split("-")[1]} file created in ${
-			timeEnd.getTime() - timeStart.getTime()
+		`\n🚀 ${scriptName}: Task completed! ${scriptName.split("-")[1]} file created in ${timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);
 }

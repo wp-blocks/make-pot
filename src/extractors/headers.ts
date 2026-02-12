@@ -257,8 +257,32 @@ export async function generateHeader(
 	const { name, version } = getPkgJsonData(modulePath, "name", "version");
 
 	// Validate required fields - exit early if validation fails
-	if (!validateRequiredFields(headerData, args.debug)) {
-		process.exit(1); // Exit with error code
+	if (!validateRequiredFields(headerData, args.debug, args.options?.silent)) {
+		if (args.options?.silent) {
+			// In silent mode, we use defaults without asking
+		} else {
+			// Ask the user if default values should be used
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout,
+			});
+
+			const answer = await new Promise((resolve) => {
+				rl.question(
+					"\nMissing required fields. Use default values? (y/N) ",
+					resolve,
+				);
+			});
+			rl.close();
+
+			if (
+				typeof answer === "string" &&
+				answer.toLowerCase() !== "y" &&
+				answer.toLowerCase() !== "yes"
+			) {
+				process.exit(1); // Exit with error code
+			}
+		}
 	}
 
 	return {

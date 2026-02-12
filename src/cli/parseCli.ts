@@ -102,10 +102,16 @@ export function parseCliArgs(
 	}
 
 	// Collect the headers passed via cli
-	const headers = {};
-	for (const header of args.headers) {
-		const [key, value] = header.split(":") as Record<PotHeaders, string>;
-		headers[key.trim()] = value.trim();
+	const headers: Record<string, string> = {};
+	if (args.headers && Array.isArray(args.headers)) {
+		for (const header of args.headers) {
+			if (typeof header === "string") {
+				const [key, value] = header.split(":") as [PotHeaders, string];
+				if (key && value) {
+					headers[key.trim()] = value.trim();
+				}
+			}
+		}
 	}
 
 	const parsedArgs: Args = {
@@ -169,11 +175,11 @@ export function parseJsonArgs(
 	const currentWorkingDirectory = process.cwd();
 	const slug = path.basename(path.resolve(currentWorkingDirectory));
 
-	let scriptName: string;
+	let scriptName: string | undefined;
 	if (args.scriptName) {
-		scriptName = args.scriptName.split(",").map((s) => s.trim());
-		if (scriptName.length === 1) {
-			scriptName = scriptName[0];
+		const scripts = args.scriptName.toString().split(",").map((s) => s.trim());
+		if (scripts.length === 1) {
+			scriptName = scripts[0];
 		}
 	}
 

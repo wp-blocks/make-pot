@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import * as fs from "node:fs";
 import path from "node:path";
-import { transformSync } from "@babel/core";
+import { type NodePath, transformSync, type types as BabelTypes } from "@babel/core";
 import type { SetOfBlocks } from "gettext-merger";
 import {
 	type GetTextTranslation,
@@ -432,29 +432,34 @@ export class MakeJsonCommand {
 			plugins: [
 				({ types: t }) => ({
 					visitor: {
-						CallExpression(path) {
+						CallExpression(path: NodePath<BabelTypes.CallExpression>) {
 							const callee = path.node.callee;
 
 							// Check for pattern like: (fn)("...")
-							if (
-								t.isSequenceExpression(callee) &&
-								t.isMemberExpression(callee.expressions[1])
-							) {
-								const property = callee.expressions[1].property;
+							if (t.isSequenceExpression(callee)) {
+								const seqExpr = callee as BabelTypes.SequenceExpression;
+								const secondExpression = seqExpr.expressions[1];
 
-								if (
-									t.isIdentifier(property) &&
-									allowedFunctions.has(property.name)
-								) {
-									// Replace with direct function call: __("..."), _n(...), etc.
-									path.node.callee = t.identifier(property.name);
+								if (t.isMemberExpression(secondExpression)) {
+									const memberExpr = secondExpression as BabelTypes.MemberExpression;
+									const property = memberExpr.property;
+
+									if (t.isIdentifier(property)) {
+										// Cast to Identifier
+										const identifier = property as BabelTypes.Identifier;
+
+										if (allowedFunctions.has(identifier.name)) {
+											// Replace with direct function call: __("..."), _n(...), etc.
+											path.node.callee = t.identifier(identifier.name);
+										}
+									}
 								}
 							}
 						},
 					},
 				}),
 			],
-		}).code as string;
+		})?.code ?? '';
 
 		return doTree(transformedScript, script, this.debug);
 	}

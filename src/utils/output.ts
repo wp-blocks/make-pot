@@ -1,6 +1,7 @@
 import type { SetOfBlocks } from "gettext-merger";
 import Tannin from "tannin";
 import type { Args } from "../types.js";
+import type { GetTextTranslation } from 'gettext-parser'
 
 /**
  * Outputs the pot file in json format based on the command line arguments --json option
@@ -14,13 +15,15 @@ export function outputJson(
 	args: Args,
 	potHeader: Record<string, string> | null,
 	translationsUnion: SetOfBlocks,
-) {
-	const jedData: {
-		[p: string]: { [p: string]: [string, string] };
-	} = {
+): string {
+	const jedData = {
 		[args.slug]: {
 			"": potHeader ?? {},
-			...(translationsUnion.toJson() as { [p: string]: [string, string] }),
+			...(translationsUnion.toJson() as{
+				[key: string]: {
+					[key: string]: GetTextTranslation;
+				};
+			}),
 		},
 	};
 	const i18n = new Tannin(jedData);

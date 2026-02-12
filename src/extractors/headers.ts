@@ -1,14 +1,12 @@
-import path from "node:path";
-import { SetOfBlocks } from "gettext-merger";
-import { boolean } from "yargs";
-import type PackageI18n from "../assets/package-i18n.js";
-import { modulePath } from "../const.js";
-import { getEncodingCharset } from "../fs/fs.js";
-import type { Args, I18nHeaders, PotHeaders } from "../types.js";
-import { getPkgJsonData } from "../utils/common.js";
-import { buildBlock } from "../utils/extractors.js";
-import { extractCssThemeData } from "./css.js";
-import { extractPhpPluginData } from "./php.js";
+import path from 'node:path'
+import { SetOfBlocks } from 'gettext-merger'
+import { modulePath } from '../const.js'
+import { getEncodingCharset } from '../fs/fs.js'
+import type { Args, AuthorData, I18nHeaders, PotHeaders } from '../types.js'
+import { getPkgJsonData } from '../utils/common.js'
+import { buildBlock } from '../utils/extractors.js'
+import { extractCssThemeData } from './css.js'
+import { extractPhpPluginData } from './php.js'
 
 /**
  * Checks if required fields are missing and logs a clear error message
@@ -20,14 +18,20 @@ function validateRequiredFields(
 	headerData: I18nHeaders,
 	debug: boolean,
 ): boolean {
-	const requiredFields = [
-		{ key: "slug", name: "Plugin/Theme slug", placeholder: "PLUGIN NAME" },
-		{ key: "author", name: "Author name", placeholder: "AUTHOR" },
-		{ key: "version", name: "Version", placeholder: "" },
-		{ key: "email", name: "Author email", placeholder: "AUTHOR EMAIL" },
-		{ key: "xDomain", name: "Text domain", placeholder: "PLUGIN TEXTDOMAIN" },
-	];
+	// Define the required fields with strict key types
+	const requiredFields: {
+		key: keyof I18nHeaders;
+		name: string;
+		placeholder: string;
+	}[] = [
+			{ key: "slug", name: "Plugin/Theme slug", placeholder: "PLUGIN NAME" },
+			{ key: "author", name: "Author name", placeholder: "AUTHOR" },
+			{ key: "version", name: "Version", placeholder: "" },
+			{ key: "email", name: "Author email", placeholder: "AUTHOR EMAIL" },
+			{ key: "xDomain", name: "Text domain", placeholder: "PLUGIN TEXTDOMAIN" },
+		];
 
+	// Filter out the missing or default fields
 	const missingFields = requiredFields.filter(
 		(field) =>
 			!headerData[field.key] ||
@@ -83,11 +87,9 @@ function validateRequiredFields(
  * @returns an object with name, email, and website
  * @param authorData
  */
-function extractAuthorData(authorData: string | object): {
-	name: string;
-	email?: string;
-	website?: string;
-} {
+function extractAuthorData(
+	authorData: string | AuthorData,
+): AuthorData | undefined {
 	// Default result with placeholder values
 	const defaultResult = { name: "AUTHOR", email: "AUTHOR EMAIL" };
 
@@ -129,41 +131,46 @@ function extractAuthorData(authorData: string | object): {
  * @param pkgJsonData The package.json data object
  * @returns Author data with name, email and website
  */
-export function getAuthorFromPackage(pkgJsonData: PackageI18n): {
-	name: string;
-	email?: string;
-	website?: string;
-} {
+export function getAuthorFromPackage(
+	pkgJsonData: Record<string, unknown>,
+): AuthorData {
 	// Check multiple possible locations for author information
-	const locations = [
+	const fields = [
 		"author", // Standard author field
 		"authors", // Some packages use authors (plural)
 		"contributors", // Try contributors if no author
-		"maintainers", // Try maintainers as last resort
-	];
+		"maintainers", // Try maintainers as a last resort
+	] as string[];
 
 	// Try each location in order
-	for (const location of locations) {
-		if (pkgJsonData[location]) {
-			let authorData: {
-				name: string;
-				email?: string;
-				website?: string;
-			};
-			if (typeof pkgJsonData[location] === "string") {
-				authorData = extractAuthorData(pkgJsonData[location]);
-			} else if (typeof pkgJsonData[location] === "object") {
-				for (const author of pkgJsonData[location]) {
+	for (const field of fields) {
+		const value = pkgJsonData[field];
+		if (value) {
+			let authorData: AuthorData | undefined;
+
+			if (typeof value === "string") {
+				authorData = extractAuthorData(value);
+			} else if (Array.isArray(value)) {
+				for (const author of value) {
 					if (!author) continue;
-					authorData = extractAuthorData(author);
-					if (authorData) break;
+					if (
+						typeof author === "string" ||
+						(typeof author === "object")
+					) {
+						authorData = extractAuthorData(author as string | AuthorData);
+						if (authorData) break;
+					}
 				}
+			} else if (typeof value === "object") {
+				// Handle single object author field
+				authorData = extractAuthorData(value as AuthorData);
 			}
+
 			if (
 				authorData?.name !== "AUTHOR" ||
 				authorData?.email !== "AUTHOR EMAIL"
 			) {
-				return authorData;
+				return authorData as AuthorData; // Returns the valid author data found
 			}
 		}
 	}
@@ -187,9 +194,9 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 		"authors",
 		"contributors",
 		"maintainers",
-	) as Record<[keyof PackageI18n], string>;
+	);
 	// get author data from package.json
-	const pkgAuthor = getAuthorFromPackage(pkgJsonData);
+	const pkgAuthor = getAuthorFromPackage(pkgJsonData as unknown as Record<string, unknown>);
 
 	// get the current directory name as slug
 	const currentDir = path
@@ -212,16 +219,16 @@ function consolidateUserHeaderData(args: Args): I18nHeaders {
 
 	return {
 		...args.headers,
-		name: args.headers?.name || slug,
+		name: args.headers?.name?.toString() || slug,
 		author: authorName,
-		authorString: authorString, // this is the author with email address in this format: author <email>
+		authorString: authorString, // this is the author + email address in this format: author <email>
 		slug,
 		email,
 		bugs,
 		license: args.headers?.license || "gpl-2.0 or later",
-		version: args.headers?.version || pkgJsonData.version || "0.0.1",
+		version: args.headers?.version || (pkgJsonData.version as string) || "0.0.1",
 		language: "en",
-		xDomain: args.headers?.textDomain || slug,
+		xDomain: args.headers?.textDomain?.toString() || slug,
 	};
 }
 
@@ -252,7 +259,6 @@ export async function generateHeader(
 	// Validate required fields - exit early if validation fails
 	if (!validateRequiredFields(headerData, args.debug)) {
 		process.exit(1); // Exit with error code
-		return null; // This is never reached but helps with TypeScript
 	}
 
 	return {

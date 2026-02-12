@@ -1,24 +1,23 @@
 import type { Block } from "gettext-merger";
-import type BlockI18n from "../assets/block-i18n.js";
 import * as blocki18n from "../assets/block-i18n.js";
-import type ThemeI18n from "../assets/theme-i18n.js";
 import * as themei18n from "../assets/theme-i18n.js";
 import type { I18nSchema } from "../types.js";
 
 /**
  * Extracts strings from JSON files using the I18n schema.
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: <ATM it's fine in that way>
 export class JsonSchemaExtractor {
 	private static schemaCache: { [url: string]: I18nSchema } = {};
 
 	/** Theme */
 	static themeJsonSource =
 		"http://develop.svn.wordpress.org/trunk/src/wp-includes/theme-i18n.json";
-	static themeJsonFallback = themei18n as ThemeI18n;
+	static themeJsonFallback = themei18n;
 	/** Block */
 	static blockJsonSource =
 		"http://develop.svn.wordpress.org/trunk/src/wp-includes/block-i18n.json";
-	static blockJsonFallback = blocki18n as BlockI18n;
+	static blockJsonFallback = blocki18n;
 
 	/**
 	 * Load the schema from the specified URL, with a fallback URL if needed.
@@ -36,10 +35,7 @@ export class JsonSchemaExtractor {
 		}
 
 		try {
-			console.log(`\n[i] Loading schema from ${url}`);
 			const response = await fetch(url, {
-				responseType: "json",
-				accept: "application/json",
 				headers: {
 					"Access-Control-Allow-Origin": "*",
 				},
@@ -56,12 +52,11 @@ export class JsonSchemaExtractor {
 				return fallback;
 			}
 
-			console.log("Schema loaded successfully");
 			JsonSchemaExtractor.schemaCache[url] = response;
 			return response;
 		} catch (error) {
 			console.error(
-				`\nFailed to load schema from ${url}. Using fallback. Error: ${error.message}`,
+				`\nFailed to load schema from ${url}. Using fallback. Error: ${(error as Error).message}`,
 			);
 			JsonSchemaExtractor.schemaCache[url] = fallback;
 			return fallback;
@@ -110,7 +105,7 @@ export class JsonSchemaExtractor {
 				options,
 			);
 		} catch (error) {
-			console.error(`Error parsing JSON: ${error.message}`);
+			console.error(`Error parsing JSON: ${(error as Error).message}`);
 			return;
 		}
 	}
@@ -134,7 +129,7 @@ export class JsonSchemaExtractor {
 		},
 	): Block[] | undefined {
 		const { filename = "block.json", addReferences = false } = options;
-		const translations = [];
+		const translations: Block[] = [];
 
 		/**
 		 * Recursive function to extract translatable strings
@@ -142,7 +137,11 @@ export class JsonSchemaExtractor {
 		 * @param {*} currentSchema - The current node in the schema
 		 * @param {Array} path - The current path in the JSON
 		 */
-		function extract(currentJson, currentSchema, path = []) {
+		function extract(
+			currentJson: Record<string, unknown>,
+			currentSchema: I18nSchema,
+			path: string[] = [],
+		) {
 			// If either is null or undefined, there's nothing to do
 			if (!currentJson || !currentSchema) return;
 
@@ -161,7 +160,7 @@ export class JsonSchemaExtractor {
 							// It's a string - add it to translations
 							addTranslation(
 								currentJson[key],
-								currentSchema[key],
+								currentSchema[key] as string,
 								filename,
 								addReferences,
 							);
@@ -179,10 +178,15 @@ export class JsonSchemaExtractor {
 							);
 						} else if (
 							typeof currentJson[key] === "object" &&
+							currentJson[key] !== null &&
 							typeof currentSchema[key] === "object"
 						) {
 							// It's an object - recurse
-							extract(currentJson[key], currentSchema[key], [...path, key]);
+							extract(
+								currentJson[key] as Record<string, unknown>,
+								currentSchema[key] as I18nSchema,
+								[...path, key],
+							);
 						}
 					}
 				}
@@ -191,18 +195,18 @@ export class JsonSchemaExtractor {
 
 		/**
 		 * Handles arrays in JSON and schema
-		 * @param {Array} jsonArray - The JSON array
-		 * @param {Array} schemaArray - The schema array
-		 * @param {Array} path - The current path
+		 * @param {unknown[]} jsonArray - The JSON array
+		 * @param {string[] | I18nSchema[]} schemaArray - The schema array
+		 * @param {string[]} path - The current path
 		 * @param {string} filename - The name of the file
 		 * @param {boolean} addReferences - whenever to add references
 		 */
 		function handleArrays(
-			jsonArray,
-			schemaArray,
-			path,
-			filename,
-			addReferences,
+			jsonArray: unknown[],
+			schemaArray: string[] | I18nSchema[],
+			path: string[],
+			filename: string,
+			addReferences: boolean,
 		) {
 			// If the schema has at least one element, use it as a template
 			if (schemaArray.length > 0) {
@@ -212,19 +216,30 @@ export class JsonSchemaExtractor {
 				for (const jsonItem of jsonArray) {
 					if (typeof jsonItem === "string") {
 						// If the JSON element is a string, add it directly
-						addTranslation(jsonItem, schemaTemplate, filename, addReferences);
-					} else if (typeof jsonItem === "object") {
+						addTranslation(
+							jsonItem,
+							schemaTemplate as string,
+							filename,
+							addReferences,
+						);
+					} else if (typeof jsonItem === "object" && jsonItem !== null) {
 						// If it's an object, recurse
 						if (typeof schemaTemplate === "object") {
-							extract(jsonItem, schemaTemplate, path);
+							extract(
+								jsonItem as Record<string, unknown>,
+								schemaTemplate as I18nSchema,
+								path,
+							);
 						} else {
 							// Edge case: handles cases like keywords: ["string1", "string2"]
 							// when the schema has keywords: ["keyword context"]
 							for (const key of Object.keys(jsonItem)) {
-								if (typeof jsonItem[key] === "string") {
+								// Type guard to ensure we are accessing a string
+								const value = (jsonItem as Record<string, unknown>)[key];
+								if (typeof value === "string") {
 									addTranslation(
-										jsonItem[key],
-										schemaTemplate,
+										value,
+										schemaTemplate as string,
 										filename,
 										addReferences,
 									);
@@ -243,7 +258,7 @@ export class JsonSchemaExtractor {
 		 * @param {string} filename - The name of the file for references
 		 * @param {boolean} addReferences - Whether to add references
 		 */
-		function addTranslation(msgctxt, msgid, filename, addReferences) {
+		function addTranslation(msgctxt: string, msgid: string, filename: string, addReferences: boolean) {
 			if (!msgctxt) return; // Do not add empty strings
 
 			const translation = {

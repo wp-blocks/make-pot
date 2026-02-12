@@ -129,41 +129,46 @@ function extractAuthorData(authorData: string | object): {
  * @param pkgJsonData The package.json data object
  * @returns Author data with name, email and website
  */
-export function getAuthorFromPackage(pkgJsonData: PackageI18n): {
-	name: string;
-	email?: string;
-	website?: string;
-} {
+export function getAuthorFromPackage(
+	pkgJsonData: Record<string, unknown>,
+): AuthorData {
 	// Check multiple possible locations for author information
-	const locations = [
+	const fields = [
 		"author", // Standard author field
 		"authors", // Some packages use authors (plural)
 		"contributors", // Try contributors if no author
-		"maintainers", // Try maintainers as last resort
-	];
+		"maintainers", // Try maintainers as a last resort
+	] as string[];
 
 	// Try each location in order
-	for (const location of locations) {
-		if (pkgJsonData[location]) {
-			let authorData: {
-				name: string;
-				email?: string;
-				website?: string;
-			};
-			if (typeof pkgJsonData[location] === "string") {
-				authorData = extractAuthorData(pkgJsonData[location]);
-			} else if (typeof pkgJsonData[location] === "object") {
-				for (const author of pkgJsonData[location]) {
+	for (const field of fields) {
+		const value = pkgJsonData[field];
+		if (value) {
+			let authorData: AuthorData | undefined;
+
+			if (typeof value === "string") {
+				authorData = extractAuthorData(value);
+			} else if (Array.isArray(value)) {
+				for (const author of value) {
 					if (!author) continue;
-					authorData = extractAuthorData(author);
-					if (authorData) break;
+					if (
+						typeof author === "string" ||
+						(typeof author === "object")
+					) {
+						authorData = extractAuthorData(author as string | AuthorData);
+						if (authorData) break;
+					}
 				}
+			} else if (typeof value === "object") {
+				// Handle single object author field
+				authorData = extractAuthorData(value as AuthorData);
 			}
+
 			if (
 				authorData?.name !== "AUTHOR" ||
 				authorData?.email !== "AUTHOR EMAIL"
 			) {
-				return authorData;
+				return authorData as AuthorData; // Returns the valid author data found
 			}
 		}
 	}

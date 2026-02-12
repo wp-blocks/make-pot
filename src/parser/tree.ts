@@ -1,6 +1,5 @@
 import Parser, { type SyntaxNode } from "tree-sitter";
 import { i18nFunctions } from "../const.js";
-
 import { Block, SetOfBlocks } from "gettext-merger";
 import { getParser } from "../fs/glob.js";
 import { reverseSlashes, stripTranslationMarkup } from "../utils/common.js";
@@ -10,25 +9,79 @@ import type { Args } from "../types.js";
  * Collect comments from the AST node and its preceding siblings.
  *
  * @param {SyntaxNode} node - The AST node.
- * @return {string[]} An array of collected comments.
+ * @return {string | undefined} The collected comment or undefined.
  */
 function collectComments(node: SyntaxNode): string | undefined {
-	let currentNode = node;
+	let currentNode: SyntaxNode | null = node;
 	let depth = 0;
 
 	// Check the node's preceding siblings for comments
 	while (currentNode && depth < 6) {
 		if (
-			currentNode?.previousSibling?.type === "comment" &&
-			currentNode?.previousSibling?.text.toLowerCase().includes("translators")
+			currentNode.previousSibling?.type === "comment" &&
+			currentNode.previousSibling.text.toLowerCase().includes("translators")
 		) {
-			return currentNode?.previousSibling?.text
-				? stripTranslationMarkup(currentNode.previousSibling.text)
-				: undefined;
+			return stripTranslationMarkup(currentNode.previousSibling.text);
 		}
 		depth++;
-		currentNode = currentNode.parent as SyntaxNode;
+		currentNode = currentNode.parent;
 	}
+	return undefined;
+}
+
+/**
+ * Resolves the actual string value from a tree-sitter node,
+ * handling escape sequences in double-quoted strings.
+ *
+ * @param {SyntaxNode} node - The AST node.
+ * @return {string} The collected comment or undefined.
+ */
+function resolveStringValue(node: SyntaxNode): string {
+	// Handle double-quoted strings (PHP encapsed_string)
+	if (node.type === 'encapsed_string') {
+		return node.children
+			.map((child) => {
+				if (child.type === 'escape_sequence') {
+					// Unescape common sequences
+					switch (child.text) {
+						case '\\n': return '\n';
+						case '\\r': return '\r';
+						case '\\t': return '\t';
+						case '\\\\': return '\\';
+						case '\\"': return '"';
+						case '\\$': return '$';
+						case '\\e': return '\x1b';
+						case '\\f': return '\f';
+						case '\\v': return '\v';
+						default: return child.text;
+					}
+				}
+				// Return literal content
+				if (child.type === 'string_content') {
+					return child.text;
+				}
+				// Handle variables if they appear (preserve them as text)
+				if (child.type === 'variable_name') {
+					return child.text;
+				}
+				return '';
+			})
+			.join('');
+	}
+
+	// Handle single-quoted strings (PHP string) or JS strings
+	if (node.type === 'string') {
+		const text = node.text;
+		// Strip surrounding quotes if present
+		if ((text.startsWith("'") && text.endsWith("'")) ||
+			(text.startsWith('"') && text.endsWith('"'))) {
+			// Remove quotes and unescape escaped quotes
+			return text.slice(1, -1).replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+		}
+	}
+
+	// Fallback for other node types (identifiers, etc.)
+	return node.text;
 }
 
 /**
@@ -49,8 +102,10 @@ export function doTree(
 	// set up the parser
 	const parser = new Parser();
 	const parserExt = getParser(filepath);
+
 	// if no parser is found return empty
 	if (!parserExt) return new SetOfBlocks([], filepath);
+
 	// set the parser language
 	parser.setLanguage(parserExt);
 
@@ -82,10 +137,11 @@ export function doTree(
 	 */
 	function traverse(node: SyntaxNode): void {
 		// Walk the tree
-		if (node?.children.length)
+		if (node?.children.length) {
 			for (const child of node.children) {
 				traverse(child);
 			}
+		}
 
 		// Check if the node matches
 		if (node?.type === typeToMatch) {
@@ -111,6 +167,10 @@ export function doTree(
 			// Get the whole gettext translation string
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const [_fn, raw] = node.children;
+
+			// Safety check: verify we actually have an arguments node
+			if (!raw) return;
+
 			const translation: Partial<{
 				msgctxt: string;
 				msgid: string;
@@ -126,13 +186,13 @@ export function doTree(
 			const translationKeys =
 				i18nFunctions[functionName as keyof typeof i18nFunctions];
 
+			// Slice the children to skip the opening and closing parentheses/brackets
 			const children = raw.children.slice(1, -1);
 			let translationKeyIndex = 0;
 
-			// Get the translation from the arguments (the quoted strings)
+			// Get the translation from the arguments
 			for (const child of children) {
 				let node = child;
-				let nodeValue: string | string[] = node.text;
 
 				// unwrap the argument node, which is used in PHP.
 				if (child.type === "argument") {
@@ -145,23 +205,30 @@ export function doTree(
 					continue;
 				}
 
+				// Stop if we have more arguments than keys defined
+				if (translationKeyIndex >= translationKeys.length) {
+					break;
+				}
+
 				// the translation key (eg. msgid)
 				const currentKey = translationKeys[
 					translationKeyIndex
-				] as keyof typeof translation;
+					] as keyof typeof translation;
 
-				if (node?.type && stringType.includes(node.type)) {
-					// unquote the strings
-					nodeValue = nodeValue.slice(1, -1);
-				} else if (currentKey === 'number'){
+				// Resolve the value using our new function (handles quotes and escapes)
+				let nodeValue: string = resolveStringValue(node);
+
+				if (currentKey === 'number') {
 					// `number` accepts any value, this will not be provided in the POT file
 					nodeValue = node.text;
-				} else {
+				} else if (!node?.type || !stringType.includes(node.type)) {
 					// Whenever we get an unexpected node type this string is not translatable and should be skipped
-					console.error(
-						`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
-					);
-					return;  // Parse error, skip this translation.
+					if (debugEnabled) {
+						console.error(
+							`Unexpected node type ${node?.type} identified as ${translationKeys[translationKeyIndex]} with value ${nodeValue} in ${filepath} at ${node.startPosition.row + 1} pos ${node.startPosition.column + 1}`,
+						);
+					}
+					return; // Parse error, skip this translation.
 				}
 
 				// the value of that key
@@ -171,11 +238,16 @@ export function doTree(
 				translationKeyIndex += 1;
 			}
 
-			if (Array.isArray(args?.options?.translationDomains) && !args.options.translationDomains.includes(translation.text_domain as string)) {
+			// Check if domain matches the requested domain filter
+			if (
+				Array.isArray(args?.options?.translationDomains) &&
+				translation.text_domain &&
+				!args.options.translationDomains.includes(translation.text_domain)
+			) {
 				return;
 			}
 
-			const comments = collectComments(argsNode);
+			const comments = collectComments(node); // Pass the CallExpression node, collectComments walks up
 
 			// Get the translation data
 			const block = new Block({

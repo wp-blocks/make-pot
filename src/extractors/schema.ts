@@ -6,6 +6,7 @@ import type { I18nSchema } from "../types.js";
 /**
  * Extracts strings from JSON files using the I18n schema.
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: <ATM it's fine in that way>
 export class JsonSchemaExtractor {
 	private static schemaCache: { [url: string]: I18nSchema } = {};
 
@@ -34,10 +35,7 @@ export class JsonSchemaExtractor {
 		}
 
 		try {
-			console.log(`\n[i] Loading schema from ${url}`);
 			const response = await fetch(url, {
-				responseType: "json",
-				accept: "application/json",
 				headers: {
 					"Access-Control-Allow-Origin": "*",
 				},
@@ -107,7 +105,7 @@ export class JsonSchemaExtractor {
 				options,
 			);
 		} catch (error) {
-			console.error(`Error parsing JSON: ${error.message}`);
+			console.error(`Error parsing JSON: ${(error as Error).message}`);
 			return;
 		}
 	}
@@ -139,7 +137,11 @@ export class JsonSchemaExtractor {
 		 * @param {*} currentSchema - The current node in the schema
 		 * @param {Array} path - The current path in the JSON
 		 */
-		function extract(currentJson, currentSchema, path = []) {
+		function extract(
+			currentJson: Record<string, unknown>,
+			currentSchema: I18nSchema,
+			path: string[] = [],
+		) {
 			// If either is null or undefined, there's nothing to do
 			if (!currentJson || !currentSchema) return;
 
@@ -180,7 +182,11 @@ export class JsonSchemaExtractor {
 							typeof currentSchema[key] === "object"
 						) {
 							// It's an object - recurse
-							extract(currentJson[key], currentSchema[key], [...path, key]);
+							extract(
+								currentJson[key] as Record<string, unknown>,
+								currentSchema[key] as I18nSchema,
+								[...path, key],
+							);
 						}
 					}
 				}
@@ -210,19 +216,30 @@ export class JsonSchemaExtractor {
 				for (const jsonItem of jsonArray) {
 					if (typeof jsonItem === "string") {
 						// If the JSON element is a string, add it directly
-						addTranslation(jsonItem, schemaTemplate, filename, addReferences);
-					} else if (typeof jsonItem === "object") {
+						addTranslation(
+							jsonItem,
+							schemaTemplate as string,
+							filename,
+							addReferences,
+						);
+					} else if (typeof jsonItem === "object" && jsonItem !== null) {
 						// If it's an object, recurse
 						if (typeof schemaTemplate === "object") {
-							extract(jsonItem, schemaTemplate, path);
+							extract(
+								jsonItem as Record<string, unknown>,
+								schemaTemplate as I18nSchema,
+								path,
+							);
 						} else {
 							// Edge case: handles cases like keywords: ["string1", "string2"]
 							// when the schema has keywords: ["keyword context"]
 							for (const key of Object.keys(jsonItem)) {
-								if (typeof jsonItem[key] === "string") {
+								// Type guard to ensure we are accessing a string
+								const value = (jsonItem as Record<string, unknown>)[key];
+								if (typeof value === "string") {
 									addTranslation(
-										jsonItem[key],
-										schemaTemplate,
+										value,
+										schemaTemplate as string,
 										filename,
 										addReferences,
 									);

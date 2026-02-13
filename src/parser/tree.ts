@@ -182,26 +182,58 @@ export function doTree(
 			const translationKeys =
 				i18nFunctions[functionName as keyof typeof i18nFunctions];
 
-			// Filter children to find only arguments, ignoring comments etc.
-			const argumentNodes = argsNode.children.filter(
-				(child) => child.type === "argument",
-			);
-
+			// Slice the children to skip the opening and closing parentheses/brackets or process them directly
+			// We iterate over all children and handle them based on type
+			const children = argsNode.children;
 			let translationKeyIndex = 0;
 
 			// Get the translation from the arguments
-			for (const child of argumentNodes) {
+			for (const child of children) {
 				let node = child;
+
+				// Skip parentheses and commas
+				if (
+					node.type === "(" ||
+					node.type === ")" ||
+					node.type === "," ||
+					node.type === "[" ||
+					node.type === "]"
+				) {
+					continue;
+				}
+
+				// Skip comments
+				if (node.type === "comment") {
+					continue;
+				}
 
 				// unwrap the argument node, which is used in PHP.
 				if (child.type === "argument") {
 					if (child.children.length === 0) continue;
-					node = child.children[0];
-				}
 
-				if (node?.type === ",") {
-					// skip the comma between arguments
-					continue;
+					// Check if this is a named argument
+					const nameNode = child.childForFieldName("name");
+
+					// Iterate over children to find the value
+					// The value is the child that is NOT the name node, not a comment, and not punctuation.
+					let foundValue = false;
+					for (const argChild of child.children) {
+						if (argChild.id === nameNode?.id) {
+							continue; // Skip the name label
+						}
+						if (argChild.type === "comment" || argChild.type === ":") {
+							continue; // Skip comments and colon
+						}
+						// Found the value!
+						node = argChild;
+						foundValue = true;
+						break;
+					}
+
+					// If we didn't find a value (e.g. only comments?), skip this argument
+					if (!foundValue) {
+						continue;
+					}
 				}
 
 				// Stop if we have more arguments than keys defined

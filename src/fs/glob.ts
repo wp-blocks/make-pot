@@ -65,9 +65,9 @@ export const ignoreFunc = (
  * @param {Patterns} pattern - The pattern object containing the included and excluded file patterns.
  * @return A promise that resolves to an array of file paths.
  */
-export function getFiles(args: Args, pattern: Patterns) {
-	// Execute the glob search with the built patterns
-	return new Glob(pattern.include, {
+export async function getFiles(args: Args, pattern: Patterns): Promise<string[]> {
+	// 1. Create the Glob instance
+	const g = new Glob(pattern.include, {
 		ignore: {
 			ignored: (p: Path) => ignoreFunc(p, pattern.exclude),
 		},
@@ -75,4 +75,7 @@ export function getFiles(args: Args, pattern: Patterns) {
 		cwd: args.paths.cwd,
 		root: args.paths.root ? path.resolve(args.paths.root) : undefined,
 	});
+
+	// 2. Return the walk() promise, which resolves to an array of all file paths
+	return g.walk();
 }

@@ -19,7 +19,13 @@ export async function taskRunner(
 	progressBar: SingleBar,
 ) {
 	const messages: string[] = [];
-	await Promise.allSettled(tasks)
+	// Create a new array of promises that update the bar when they finish.
+	const tasksWithProgress = tasks.map((task) =>
+		task.finally(() => {
+			progressBar.increment();
+		})
+	);
+	await Promise.allSettled(tasksWithProgress)
 		.then((strings) => {
 			/**
 			 * Return the strings that are not rejected (they are fulfilled)

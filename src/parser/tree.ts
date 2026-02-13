@@ -155,7 +155,7 @@ export function doTree(
 			}
 
 			// The arguments are the last child
-			const argsNode = node.lastChild;
+			const argsNode = node.childForFieldName("arguments");
 			if (
 				argsNode === null ||
 				argsNode.childCount === 0 ||
@@ -164,12 +164,8 @@ export function doTree(
 				return;
 			}
 
-			// Get the whole gettext translation string
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const [_fn, raw] = node.children;
-
 			// Safety check: verify we actually have an arguments node
-			if (!raw) return;
+			if (!argsNode) return;
 
 			const translation: Partial<{
 				msgctxt: string;
@@ -186,12 +182,15 @@ export function doTree(
 			const translationKeys =
 				i18nFunctions[functionName as keyof typeof i18nFunctions];
 
-			// Slice the children to skip the opening and closing parentheses/brackets
-			const children = raw.children.slice(1, -1);
+			// Filter children to find only arguments, ignoring comments etc.
+			const argumentNodes = argsNode.children.filter(
+				(child) => child.type === "argument",
+			);
+
 			let translationKeyIndex = 0;
 
 			// Get the translation from the arguments
-			for (const child of children) {
+			for (const child of argumentNodes) {
 				let node = child;
 
 				// unwrap the argument node, which is used in PHP.
@@ -213,7 +212,7 @@ export function doTree(
 				// the translation key (eg. msgid)
 				const currentKey = translationKeys[
 					translationKeyIndex
-					] as keyof typeof translation;
+				] as keyof typeof translation;
 
 				// Resolve the value using our new function (handles quotes and escapes)
 				let nodeValue: string = resolveStringValue(node);

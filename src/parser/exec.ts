@@ -45,9 +45,9 @@ export async function exec(args: Args): Promise<string> {
 	 * Extract the strings from the files
 	 */
 	const patterns = getPatterns(args);
-	const files = await processFiles(patterns, args);
+	const files = await processFiles(patterns, args, progressBar);
 
-	progressBar.update(2, {
+	progressBar.start(files.length, 0, {
 		filename: `Found ${files.length} files... `,
 	});
 

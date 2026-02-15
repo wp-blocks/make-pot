@@ -45,14 +45,14 @@ export async function exec(args: Args): Promise<string> {
 	 * Extract the strings from the files
 	 */
 	const patterns = getPatterns(args);
-	const files = await processFiles(patterns, args, progressBar);
+	const { tasks, processedCount, skippedCount } = await processFiles(patterns, args, progressBar);
 
-	progressBar.start(files.length, 0, {
-		filename: `Found ${files.length} files... `,
+	progressBar.start(tasks.length, 0, {
+		filename: `Processing ${processedCount} files (${skippedCount} skipped)... `,
 	});
 
 	translationsUnion = await taskRunner(
-		files,
+		tasks,
 		translationsUnion,
 		args,
 		progressBar,

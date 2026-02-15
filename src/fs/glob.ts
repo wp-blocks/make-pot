@@ -38,25 +38,23 @@ export function getParser(
 	}
 }
 
-// Build the ignore function for Glob
-export const ignoreFunc = (
-	filePath: Path,
-	excludedPatterns: string[],
-): boolean => {
-	return excludedPatterns.some((exclude) => {
+/**
+ * Classify exclude patterns into directory names (for tree pruning)
+ * and file/glob patterns (for per-file filtering).
+ */
+export function classifyExcludes(excludedPatterns: string[]) {
+	const dirs: string[] = [];
+	const filePatterns: string[] = [];
+	for (const exclude of excludedPatterns) {
 		const type = detectPatternType(exclude);
-		// return true to ignore
-		switch (type) {
-			case "file":
-				return filePath.isNamed(exclude);
-			case "directory":
-				return filePath.relative().includes(exclude);
-			default:
-				// Handle glob patterns using minimatch
-				return minimatch(filePath.relative(), exclude);
+		if (type === "directory") {
+			dirs.push(exclude);
+		} else {
+			filePatterns.push(exclude);
 		}
-	}) as boolean;
-};
+	}
+	return { dirs, filePatterns };
+}
 
 /**
  * Retrieves a list of files based on the provided arguments and patterns.
@@ -66,16 +64,26 @@ export const ignoreFunc = (
  * @return A promise that resolves to an array of file paths.
  */
 export async function getFiles(args: Args, pattern: Patterns): Promise<string[]> {
-	// 1. Create the Glob instance
+	const { dirs, filePatterns } = classifyExcludes(pattern.exclude);
+
 	const g = new Glob(pattern.include, {
 		ignore: {
-			ignored: (p: Path) => ignoreFunc(p, pattern.exclude),
+			// Prune entire directory subtrees — glob won't enter these dirs at all
+			childrenIgnored: (p: Path) => dirs.some((d) => p.isNamed(d)),
+			// Filter individual files by name or glob pattern
+			ignored: (p: Path) =>
+				filePatterns.some((fp) => {
+					const type = detectPatternType(fp);
+					if (type === "file") {
+						return p.isNamed(fp);
+					}
+					return minimatch(p.relative(), fp);
+				}),
 		},
 		nodir: true,
 		cwd: args.paths.cwd,
 		root: args.paths.root ? path.resolve(args.paths.root) : undefined,
 	});
 
-	// 2. Return the walk() promise, which resolves to an array of all file paths
 	return g.walk();
 }

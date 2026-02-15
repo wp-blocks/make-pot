@@ -63,7 +63,7 @@ export function detectPatternType(
 	pattern: string,
 ): "file" | "directory" | "glob" {
 	const containsFileExtension = pattern.includes(".");
-	const containsDirectorySeparator = pattern.includes(path.sep);
+	const containsDirectorySeparator = pattern.includes("/");
 
 	if (pattern.includes("*")) {
 		return "glob";

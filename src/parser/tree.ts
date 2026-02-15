@@ -30,6 +30,24 @@ function collectComments(node: SyntaxNode): string | undefined {
 }
 
 /**
+ * Map of escape characters to their resolved values.
+ * Used by both PHP (encapsed_string) and JS (string) handlers.
+ */
+const escapeMap: Record<string, string> = {
+	'n': '\n',
+	'r': '\r',
+	't': '\t',
+	'f': '\f',
+	'v': '\v',
+	'0': '\0',
+	'\\': '\\',
+	'"': '"',
+	"'": "'",
+	'$': '$',
+	'e': '\x1b',
+};
+
+/**
  * Resolves the actual string value from a tree-sitter node,
  * handling escape sequences in double-quoted strings.
  *
@@ -42,19 +60,9 @@ function resolveStringValue(node: SyntaxNode): string {
 		return node.children
 			.map((child) => {
 				if (child.type === 'escape_sequence') {
-					// Unescape common sequences
-					switch (child.text) {
-						case '\\n': return '\n';
-						case '\\r': return '\r';
-						case '\\t': return '\t';
-						case '\\\\': return '\\';
-						case '\\"': return '"';
-						case '\\$': return '$';
-						case '\\e': return '\x1b';
-						case '\\f': return '\f';
-						case '\\v': return '\v';
-						default: return child.text;
-					}
+					// child.text is e.g. "\\n" — the char after the backslash is the key
+					const ch = child.text.slice(1);
+					return ch in escapeMap ? escapeMap[ch] : child.text;
 				}
 				// Return literal content
 				if (child.type === 'string_content') {
@@ -75,8 +83,18 @@ function resolveStringValue(node: SyntaxNode): string {
 		// Strip surrounding quotes if present
 		if ((text.startsWith("'") && text.endsWith("'")) ||
 			(text.startsWith('"') && text.endsWith('"'))) {
-			// Remove quotes and unescape escaped quotes
-			return text.slice(1, -1).replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+			const isDouble = text.startsWith('"');
+			let inner = text.slice(1, -1);
+			if (isDouble) {
+				// Unescape common escape sequences for double-quoted strings
+				inner = inner.replace(/\\(.)/g, (_match, ch) =>
+					ch in escapeMap ? escapeMap[ch] : _match
+				);
+			} else {
+				// Single-quoted: only unescape \\ and \'
+				inner = inner.replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+			}
+			return inner;
 		}
 	}
 

@@ -64,16 +64,26 @@ export function classifyExcludes(excludedPatterns: string[]) {
  * @return A promise that resolves to an array of file paths.
  */
 export async function getFiles(args: Args, pattern: Patterns): Promise<string[]> {
-	// 1. Create the Glob instance
+	const { dirs, filePatterns } = classifyExcludes(pattern.exclude);
+
 	const g = new Glob(pattern.include, {
 		ignore: {
-			ignored: (p: Path) => ignoreFunc(p, pattern.exclude),
+			// Prune entire directory subtrees — glob won't enter these dirs at all
+			childrenIgnored: (p: Path) => dirs.some((d) => p.isNamed(d)),
+			// Filter individual files by name or glob pattern
+			ignored: (p: Path) =>
+				filePatterns.some((fp) => {
+					const type = detectPatternType(fp);
+					if (type === "file") {
+						return p.isNamed(fp);
+					}
+					return minimatch(p.relative(), fp);
+				}),
 		},
 		nodir: true,
 		cwd: args.paths.cwd,
 		root: args.paths.root ? path.resolve(args.paths.root) : undefined,
 	});
 
-	// 2. Return the walk() promise, which resolves to an array of all file paths
 	return g.walk();
 }

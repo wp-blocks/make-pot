@@ -34,7 +34,7 @@ export const DEFAULT_EXCLUDED_PATH = [
 	"webpack.config.js",
 	"**/*.min.js",
 	"tsconfig.js",
-	"**.test.**",
+	"**/*.test.*",
 	"tests",
 ];
 

@@ -38,25 +38,23 @@ export function getParser(
 	}
 }
 
-// Build the ignore function for Glob
-export const ignoreFunc = (
-	filePath: Path,
-	excludedPatterns: string[],
-): boolean => {
-	return excludedPatterns.some((exclude) => {
+/**
+ * Classify exclude patterns into directory names (for tree pruning)
+ * and file/glob patterns (for per-file filtering).
+ */
+export function classifyExcludes(excludedPatterns: string[]) {
+	const dirs: string[] = [];
+	const filePatterns: string[] = [];
+	for (const exclude of excludedPatterns) {
 		const type = detectPatternType(exclude);
-		// return true to ignore
-		switch (type) {
-			case "file":
-				return filePath.isNamed(exclude);
-			case "directory":
-				return filePath.relative().includes(exclude);
-			default:
-				// Handle glob patterns using minimatch
-				return minimatch(filePath.relative(), exclude);
+		if (type === "directory") {
+			dirs.push(exclude);
+		} else {
+			filePatterns.push(exclude);
 		}
-	}) as boolean;
-};
+	}
+	return { dirs, filePatterns };
+}
 
 /**
  * Retrieves a list of files based on the provided arguments and patterns.

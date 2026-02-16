@@ -21,8 +21,14 @@ export async function taskRunner(
 	const messages: string[] = [];
 	// Create a new array of promises that update the bar when they finish.
 	const tasksWithProgress = tasks.map((task) =>
-		task.finally(() => {
-			progressBar.increment();
+		task.then((result) => {
+			progressBar.increment({
+				filename: result.path ? path.basename(result.path) : "",
+			});
+			return result;
+		}).catch((err) => {
+			progressBar.increment({ filename: "error" });
+			throw err;
 		})
 	);
 	await Promise.allSettled(tasksWithProgress)

@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "1.6.4",
+	"version": "1.6.5",
 	"license": "GPL-3.0-or-later",
 	"homepage": "https://wp-blocks.github.io/make-pot/",
 	"description": "A Node.js script for generating a POT file from source code",
@@ -22,7 +22,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/wp-blocks/makePot.git"
+		"url": "git+https://github.com/wp-blocks/makePot.git"
 	},
 	"bugs": {
 		"url": "https://github.com/wp-blocks/makePot/issues"
@@ -52,6 +52,7 @@
 		"lint": "npx @biomejs/biome check --write src",
 		"type-check": "npx tsc --noEmit",
 		"update-pkg": "npm upgrade -S",
+		"publish-check": "npm run build && npx publint",
 		"rm": "rmdir /s /q lib",
 		"test:build": "npx esbuild ./src/**/* ./src/*.ts --format=cjs --sourcemap --outdir=lib --platform=node",
 		"test": "npm run test:build && node --test",

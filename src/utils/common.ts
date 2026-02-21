@@ -148,7 +148,7 @@ export function getPkgJsonData(
 export function printModuleInfo() {
 	const { version, name } = getPkgJsonData(modulePath, "name", "version");
 	/* print the version */
-	console.log(`${name} version: ${version}`);
+	console.log(`\n${name} version: ${version}`);
 }
 
 /**
@@ -159,11 +159,14 @@ export function printModuleInfo() {
  */
 export function printTimeElapsed(
 	scriptName: "Make-Pot" | "Make-Json",
-	timeStart: Date,
+	timeStart?: Date,
 	timeEnd: Date = new Date(),
 ) {
+	if (!timeStart) {
+		return;
+	}
 	console.log(
-		`\n🚀 ${scriptName}: Task completed! ${scriptName.split("-")[1]} file created in ${timeEnd.getTime() - timeStart.getTime()
+		`\n🚀  ${scriptName}: Task completed! ${scriptName.split("-")[1]} file created in ${timeEnd.getTime() - timeStart.getTime()
 		}ms`,
 	);
 }

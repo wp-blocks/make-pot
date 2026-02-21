@@ -12,8 +12,8 @@ import { parseCliArgs } from "./parseCli.js";
 export function getArgs(userArgs = {}): Args | MakeJsonArgs {
 	const args = yargs
 		.default(hideBin(process.argv))
-		.help("h")
-		.alias("help", "help")
+		.help("help")
+		.alias("h", "help")
 		.usage("Usage: $0 <source> [destination] [options]")
 		.positional("sourceDirectory", {
 			describe: "Source directory",

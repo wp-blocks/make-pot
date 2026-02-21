@@ -33,7 +33,7 @@ export function extractPhpPluginData(args: Args): Record<string, string> {
  * @return {Record<string, string>} - A record containing the plugin information.
  */
 export function parsePHPFile(phpContent: string): Record<string, string> {
-	const match = phpContent.match(/\/\*\*([\s\S]*?)\*\//);
+	const match = phpContent.match(/\/\*\*?([\s\S]*?)\*\//);
 
 	if (match?.[1] && match) {
 		const commentBlock = match[1];
@@ -42,7 +42,7 @@ export function parsePHPFile(phpContent: string): Record<string, string> {
 		const pluginInfo: Record<string, string> = {};
 
 		for (const line of lines) {
-			const keyValueMatch = line.match(/^\s*\*\s*([^:]+):\s*(.*)/);
+			const keyValueMatch = line.match(/^\s*(?:\*\s*)?([^:]+):\s*(.*)/);
 
 			if (!keyValueMatch) {
 				continue;

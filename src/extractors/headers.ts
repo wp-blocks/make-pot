@@ -45,7 +45,7 @@ function validateRequiredFields(
 
 	if (missingFields.length > 0) {
 		if (!silent) {
-			console.error("\n!  Missing required information for POT file header:\n");
+			console.error("\n⚠️  Missing required information for POT file header:\n");
 
 			for (const field of missingFields) {
 				console.error(
@@ -343,11 +343,13 @@ export function translationsHeaders(args: Args): SetOfBlocks {
 	// the main file is the plugin main php file or the css file
 	const fakePath = domain === "plugin" ? `${args.slug}.php` : "style.css";
 
-	return new SetOfBlocks([
-		buildBlock(`Name of the ${domain}`, name, [fakePath]),
-		buildBlock(`Url of the ${domain}`, url, [fakePath]),
-		buildBlock(`Description of the ${domain}`, description, [fakePath]),
-		buildBlock(`Author of the ${domain}`, author, [fakePath]),
-		buildBlock(`Author URI of the ${domain}`, authorUri, [fakePath]),
-	]);
+	const blocks = [];
+
+	if (name) blocks.push(buildBlock(`Name of the ${domain}`, name, [fakePath]));
+	if (url) blocks.push(buildBlock(`Url of the ${domain}`, url, [fakePath]));
+	if (description) blocks.push(buildBlock(`Description of the ${domain}`, description, [fakePath]));
+	if (author) blocks.push(buildBlock(`Author of the ${domain}`, author, [fakePath]));
+	if (authorUri) blocks.push(buildBlock(`Author URI of the ${domain}`, authorUri, [fakePath]));
+
+	return new SetOfBlocks(blocks);
 }

@@ -18,7 +18,6 @@ export async function taskRunner(
 	args: Args,
 	progressBar: SingleBar,
 ) {
-	const messages: string[] = [];
 	// Create a new array of promises that update the bar when they finish.
 	const tasksWithProgress = tasks.map((task) =>
 		task.then((result) => {
@@ -48,16 +47,6 @@ export async function taskRunner(
 					 * Add the strings to the destination set
 					 */
 					destination.addArray(result.blocks);
-					const strings = result.blocks.map((b) => b.msgid);
-
-					/* Log the results */
-					if (args.options?.silent !== true) {
-						messages.push(
-							`✅ ${result.path} - ${strings.length} strings found [${strings.join(", ")}]`,
-						);
-					}
-				} else if (args.options?.silent !== true) {
-					messages.push(`❌ ${result.path} - has no strings`);
 				}
 			}
 		})
@@ -66,13 +55,6 @@ export async function taskRunner(
 		});
 
 	progressBar.stop();
-
-	console.log("\n🎉 Done!");
-	console.log(
-		`📝 Found ${Object.values(destination.blocks).length} translation strings in ${path.resolve(args.paths.cwd)}.`,
-	);
-
-	console.log(messages.join(os.EOL));
 
 	return destination;
 }

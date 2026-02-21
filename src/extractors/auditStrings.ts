@@ -9,7 +9,7 @@ export function audit(args: Args, translationsUnion: SetOfBlocks) {
 	auditor.auditStrings(translationsUnion.blocks);
 
 	/** Get and print the results of the audit process */
-	console.log("\nAudit Complete!");
+	console.log("Audit Complete!");
 	if (auditor.getResults().length === 0) {
 		console.log("No issues found! 🎉");
 		// if there are no errors, we can remove the audit.log file

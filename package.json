@@ -1,6 +1,6 @@
 {
 	"name": "@wp-blocks/make-pot",
-	"version": "1.6.5",
+	"version": "1.6.6",
 	"license": "GPL-3.0-or-later",
 	"homepage": "https://wp-blocks.github.io/make-pot/",
 	"description": "A Node.js script for generating a POT file from source code",
@@ -68,7 +68,6 @@
 		"gettext-merger": "^1.2.1",
 		"gettext-parser": "^4.2.0",
 		"glob": "^11.1.0",
-		"tannin": "^1.2.0",
 		"tree-sitter": "^0.21.1",
 		"tree-sitter-javascript": "^0.23.1",
 		"tree-sitter-php": "^0.23.12",

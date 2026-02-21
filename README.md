@@ -70,15 +70,15 @@ npx @wp-blocks/make-pot src languages --charset='utf-8' --include="src/**/*.{ts,
 - `--package-name <name>`: Specifies the package name.
 - `--location`: Includes location information in the `.pot` file.
 - `--ignore-domain`: Ignores text domain in the processing.
+- `--translation-domains`: Restrict to specific translation domains.
 - `--mergePaths <paths>`: Merges with existing POT file(s).
 - `--subtractPaths <paths>`: Subtracts strings from existing POT file(s).
 - `--subtractAndMerge`: Subtracts and merges strings from existing POT file(s).
 - `--include <files>`: Includes specific files for processing.
 - `--exclude <files>`: Excludes specific files from processing.
-- `--silent`: Suppresses output to stdout.
+- `--silent`: Suppresses verbose output to stdout.
 - `--json`: Outputs the JSON gettext data.
 - `--charset`: Defines the encoding charset of the pot file, you can choose "iso-8859-1" and "uft-8" (defaults to iso-8859-1)
-- `--translation-domains`: Restrict to specific translation domains.
 - `--output`: Outputs the gettext data.
 
 ### Example usage

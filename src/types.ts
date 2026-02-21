@@ -118,6 +118,7 @@ export interface Args {
 	};
 	headers?: { [key in PotHeaders]: string };
 	patterns: Patterns;
+	timeStart?: Date;
 }
 
 /**

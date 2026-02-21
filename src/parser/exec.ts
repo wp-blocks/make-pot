@@ -27,6 +27,9 @@ export async function exec(args: Args): Promise<string> {
 	/** The pot file header contains the data about the plugin or theme */
 	const potHeader = await generateHeader(args);
 
+	/** Capture the start time */
+	args.timeStart = new Date();
+
 	/** We need to find the main file data so that the definitions are extracted from the plugin or theme files */
 	let translationsUnion = translationsHeaders(args);
 
